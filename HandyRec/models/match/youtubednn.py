@@ -88,8 +88,14 @@ def YouTubeDNN(
     )
 
     # * setup user/item input and embedding
-    user_inputs = list(input_layers.values())
-    user_embedding = user_dnn_output
+    user_inputs = (
+        list(u_dense.keys())
+        + list(u_sparse.keys())
+        + list(u_sparse_seq.keys())
+        + [f + "_len" for f in u_sparse_seq.keys()]
+    )
+    user_inputs = [input_layers[f] for f in user_inputs]
+    # user_inputs = list(input_layers.values())
 
     item_embedding = Lambda(lambda x: tf.squeeze(tf.gather(full_item_embd, x), axis=1))(
         item_id_input
@@ -98,7 +104,7 @@ def YouTubeDNN(
     # * Construct model
     model = Model(inputs=list(input_layers.values()), outputs=output)
     model.__setattr__("user_input", user_inputs)
-    model.__setattr__("user_embedding", user_embedding)
+    model.__setattr__("user_embedding", user_dnn_output)
     model.__setattr__("item_input", item_id_input)
     model.__setattr__("item_embedding", item_embedding)
 

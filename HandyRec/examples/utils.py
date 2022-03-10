@@ -69,14 +69,17 @@ class DataProcessor:
 
         return data
 
-    def preprocess_data(self) -> dict:
+    def preprocess_data(self, lbd_feats: List[str]) -> dict:
         """Preprocess raw data
+
+        Args:
+            lbd_feats (List[str]): categorical features to be label encoded
 
         Returns:
             dict: preprocessed data
         """
         data = self._load_raw_data()
-        data = self._transform_feats(data)
+        data = self._transform_feats(data, lbd_feats)
 
         return data
 
@@ -84,18 +87,20 @@ class DataProcessor:
         self,
         features: List[str],
         data: dict,
-        min_rating: int = 4,
         seq_max_len: int = 20,
         negnum: int = 0,
+        min_rating: float = 0.35,
+        n: int = 10,
     ):
         """Generate train set and test set
 
         Args:
             features (List[str]): feature list
             data (dict): data dictionary, keys: 'user', 'item', 'rating'
-            min_rating (int, optional): minimum rating for positive smaples. Defaults to 4.
             seq_max_len (int, optional): maximum history sequence length. Defaults to 20.
             negnum (int, optional): number of negative samples. Defaults to 0.
+            min_rating (float, optional): minimum rating for positive smaples. Defaults to 0.35.
+            n (int, optional): use the last n samples for each user to be the test set. Defaults to 10.
 
         """
 
@@ -108,16 +113,16 @@ class DataProcessor:
         # Calculate number of rows of daraset to fasten the dataset generating process
         df = df[df["rating"] >= min_rating]
         counter = df[["user_id", "movie_id"]].groupby("user_id", as_index=False).count()
-        counter = counter[counter["movie_id"] > 1]
+        counter = counter[counter["movie_id"] > n]
         df = df[df["user_id"].isin(counter["user_id"].values)]
-        train_rows = ((counter["movie_id"] - 1) * (negnum + 1)).sum()
+        train_rows = ((counter["movie_id"] - n) * (negnum + 1)).sum()
         test_rows = counter.shape[0]
 
         # Generate rows
         # train_set format: [uid, moiveID, label, history_seq_len, history_seq]
-        # test_set format: [uid, moiveID, label, history_seq_len, history_seq]
+        # test_set format: [uid, moiveIDs, history_seq_len, history_seq]
         train_set = np.zeros((train_rows, 5), dtype=object)
-        test_set = np.zeros((test_rows, 5), dtype=object)
+        test_set = np.zeros((test_rows, 4), dtype=object)
 
         p, q = 0, 0
         for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
@@ -127,7 +132,7 @@ class DataProcessor:
                 negs = np.random.choice(
                     candidate_set, size=len(pos_list) * negnum, replace=True
                 )
-            for i in range(len(pos_list) - 1):
+            for i in range(len(pos_list) - n):
                 hist = pos_list[: i + 1]
                 # Positive sample
                 train_set[p] = [uid, pos_list[i], 1, len(hist), hist[::-1]]
@@ -136,7 +141,8 @@ class DataProcessor:
                 for j in range(negnum):
                     train_set[p] = [uid, negs[i * negnum + j], 0, len(hist), hist[::-1]]
                     p += 1
-            test_set[q] = [uid, pos_list[-1], 1, len(pos_list), pos_list[::-1]]
+            i = len(pos_list) - n
+            test_set[q] = [uid, pos_list[i:], i, pos_list[:i][::-1]]
             q += 1
         # test_set = test_set[np.isin(test_set[:,0], test_users)]
 
@@ -149,28 +155,30 @@ class DataProcessor:
         user = user.set_index("user_id")
         item = item.set_index("movie_id")
 
-        train_uid = train_set[:, 0]
-        train_iid = train_set[:, 1]
+        train_uid = train_set[:, 0].astype(np.int)
+        train_iid = train_set[:, 1].astype(np.int)
+        train_label = train_set[:, 2].astype(np.int)
+        hist_seq_len = train_set[:, 3].astype(np.int)
         hist_seq = train_set[:, 4].tolist()
         hist_seq_pad = pad_sequences(
             hist_seq, maxlen=seq_max_len, padding="post", truncating="post", value=0
         )
         np.save(open(self.base + "train_user_id.npy", "wb"), train_uid)
         np.save(open(self.base + "train_movie_id.npy", "wb"), train_iid)
-        np.save(open(self.base + "train_label.npy", "wb"), train_set[:, 2])
-        np.save(open(self.base + "train_hist_len.npy", "wb"), train_set[:, 3])
+        np.save(open(self.base + "train_label.npy", "wb"), train_label)
+        np.save(open(self.base + "train_hist_movie_id_len.npy", "wb"), hist_seq_len)
         np.save(open(self.base + "train_hist_movie_id.npy", "wb"), hist_seq_pad)
 
-        test_uid = test_set[:, 0]
-        test_iid = train_set[:, 1]
-        hist_seq = test_set[:, 4].tolist()
+        test_uid = test_set[:, 0].astype(np.int)
+        test_label = np.array(test_set[:, 1].tolist()).astype(np.int)
+        hist_seq_len = test_set[:, 2].astype(np.int)
+        hist_seq = test_set[:, 3].tolist()
         hist_seq_pad = pad_sequences(
             hist_seq, maxlen=seq_max_len, padding="post", truncating="post", value=0
         )
         np.save(open(self.base + "test_user_id.npy", "wb"), test_uid)
-        np.save(open(self.base + "test_movie_id.npy", "wb"), test_iid)
-        np.save(open(self.base + "test_label.npy", "wb"), test_set[:, 2])
-        np.save(open(self.base + "test_hist_len.npy", "wb"), test_set[:, 3])
+        np.save(open(self.base + "test_label.npy", "wb"), test_label)
+        np.save(open(self.base + "test_hist_movie_id_len.npy", "wb"), hist_seq_len)
         np.save(open(self.base + "test_hist_movie_id.npy", "wb"), hist_seq_pad)
 
         del train_set, test_set, hist_seq, hist_seq_pad
@@ -195,8 +203,6 @@ class DataProcessor:
 
     def load_dataset(
         self,
-        data_name: str,
-        dataset_name: str,
         user_feats: List[str],
         movie_feats: List[str],
     ) -> Tuple:
@@ -211,12 +217,11 @@ class DataProcessor:
         Returns:
             Tuple: [train set, test set]
         """
-
         train_set = {}
         test_set = {}
 
         for feat in tqdm(
-            user_feats + ["hist_movie_id", "hist_len"], "Load user Features"
+            user_feats + ["hist_movie_id", "hist_movie_id_len"], "Load user Features"
         ):
             train_set[feat] = np.load(
                 open(self.base + "train_" + feat + ".npy", "rb"), allow_pickle=True
@@ -233,7 +238,9 @@ class DataProcessor:
         train_label = np.load(
             open(self.base + "train_label.npy", "rb"), allow_pickle=True
         )
-        test_label = pd.read_csv(self.base + "test_label.csv")
+        test_label = np.load(
+            open(self.base + "test_label.npy", "rb"), allow_pickle=True
+        )
 
         return train_set, train_label, test_set, test_label
 

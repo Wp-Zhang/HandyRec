@@ -1,1 +1,1 @@
-from .youtubednn import YouTubeDNN
+from .YouTubeDNN import YouTubeDNN
