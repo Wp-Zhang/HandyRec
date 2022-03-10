@@ -5,6 +5,16 @@ class Feature:
         pass
 
 
+class DenseFeature(Feature):
+    """Dense Feature class"""
+
+    def __init__(self, name: str, dtype: str = "int32"):
+        super().__init__()
+
+        self.name = name
+        self.dtype = dtype
+
+
 class SparseFeature(Feature):
     """Sparse feature class"""
 
@@ -42,13 +52,3 @@ class SparseSeqFeature(Feature):
         self.name = name
         self.seq_len = seq_len
         self.dtype = "int32"
-
-
-class DenseFeature(Feature):
-    """Dense Feature class"""
-
-    def __init__(self, name: str, dtype: str = "int32"):
-        super().__init__()
-
-        self.name = name
-        self.dtype = dtype

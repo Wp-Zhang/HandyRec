@@ -30,7 +30,7 @@ class SequencePoolingLayer(Layer):
         # batch_seq: (batch, seq_max_len, emb_dim)
         # batch_seq_lens: (batch, 1)
 
-        emb_dim = seq.shape[-1]
+        emb_dim = batch_seq.shape[-1]
         mask = tf.sequence_mask(
             batch_seq_lens, self.seq_max_len, dtype=tf.float32
         )  # (batch, 1, seq_max_len)
@@ -47,7 +47,8 @@ class SequencePoolingLayer(Layer):
 
         elif self.method == "mean":
             seq = tf.reduce_sum(batch_seq * mask, 1, keepdims=False)
-            seq = tf.divide(seq, batch_seq_lens + self.eps)
+            seq = tf.divide(seq, tf.cast(batch_seq_lens, tf.float32) + self.eps)
+            seq = tf.expand_dims(seq, axis=1)
             return seq  # (batch, 1, emb_dim)
 
     def compute_output_shape(self, input_shape):
@@ -165,6 +166,7 @@ class DNN(Layer):
                 BatchNormalization(),
                 Dropout(self.dropout_rate, seed=self.seed + i),
             ]
+        self.layers = Sequential(self.layers)
 
     def call(self, inputs, training=None, **kwargs):
         return self.layers(inputs, training)

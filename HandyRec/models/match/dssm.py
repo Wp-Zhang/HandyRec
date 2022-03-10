@@ -4,7 +4,7 @@ from tensorflow.keras import Sequential
 from ...features import SparseFeature, DenseFeature, SparseSeqFeature
 from ...features.utils import split_features
 from ...layers import SparseSeqInput, SequencePoolingLayer
-from ...layers.utils import get_input_layers
+from ...layers.utils import construct_input_layers
 
 
 class DSSM(Model):
@@ -41,8 +41,8 @@ class DSSM(Model):
         assert len(self.user_feat_list) > 0, "Should have at least one user feature"
         assert len(self.item_feat_list) > 0, "Should have at least one item feature"
 
-        user_input_layers = get_input_layers(user_features)
-        item_input_layers = get_input_layers(item_features)
+        user_input_layers = construct_input_layers(user_features)
+        item_input_layers = construct_input_layers(item_features)
 
         for feat in user_input_layers.keys():
             if isinstance(user_input_layers[feat], SparseSeqInput):
