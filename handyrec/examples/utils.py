@@ -1,14 +1,11 @@
 import pandas as pd
-import pickle
-import os
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
-from typing import Tuple
+from typing import Tuple, List
 import numpy as np
-from typing import List
 import gc
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.metrics import Mean
+import tensorflow as tf
 
 
 class DataProcessor:
@@ -261,7 +258,7 @@ class DataProcessor:
 
 
 def sampledsoftmaxloss(y_true, y_pred):
-    return Mean(y_pred)
+    return tf.reduce_mean(y_pred)
 
 
 def apk(actual, predicted, k=10):
