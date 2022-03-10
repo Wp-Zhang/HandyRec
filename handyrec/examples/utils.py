@@ -21,14 +21,28 @@ class DataProcessor:
             dict: raw data dictionary
         """
         unames = ["user_id", "gender", "age", "occupation", "zip"]
-        user = pd.read_csv(self.base + "users.dat", sep="::", header=None, names=unames)
+        user = pd.read_csv(
+            self.base + "users.dat",
+            sep="::",
+            header=None,
+            names=unames,
+            encoding="latin-1",
+        )
         rnames = ["user_id", "movie_id", "rating", "timestamp"]
         ratings = pd.read_csv(
-            self.base + "ratings.dat", sep="::", header=None, names=rnames
+            self.base + "ratings.dat",
+            sep="::",
+            header=None,
+            names=rnames,
+            encoding="latin-1",
         )
         mnames = ["movie_id", "title", "genres"]
         movies = pd.read_csv(
-            self.base + "movies.dat", sep="::", header=None, names=mnames
+            self.base + "movies.dat",
+            sep="::",
+            header=None,
+            names=mnames,
+            encoding="latin-1",
         )
 
         return {"item": movies, "user": user, "rating": ratings}
