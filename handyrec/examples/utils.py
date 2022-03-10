@@ -8,6 +8,7 @@ import numpy as np
 from typing import List
 import gc
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.metrics import Mean
 
 
 class DataProcessor:
@@ -257,6 +258,10 @@ class DataProcessor:
         )
 
         return train_set, train_label, test_set, test_label
+
+
+def sampledsoftmaxloss(y_true, y_pred):
+    return Mean(y_pred)
 
 
 def apk(actual, predicted, k=10):
