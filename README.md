@@ -14,9 +14,9 @@ I recently started to learn deep-learning recommendation algorithms💦 and will
 
 ### Match / Candidate Generation
 
-| Model      | Paper |
-| :----------- | :----------- |
-| YouTubeDNN      | \[RecSys 2016\] [Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190) |
+| Model      | Paper | Example |
+| :----------- | :----------- | :---------- |
+| YouTubeDNN      | \[RecSys 2016\] [Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190) | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/handyrec/examples/match/YouTubeDNN.ipynb) |
 
 
 ## Usage
