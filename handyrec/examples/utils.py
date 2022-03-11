@@ -131,10 +131,10 @@ class DataProcessor:
         test_rows = counter.shape[0]
 
         # Generate rows
-        # train_set format: [uid, moiveID, label, history_seq_len, history_seq]
-        # test_set format: [uid, moiveIDs, history_seq_len, history_seq]
-        train_set = np.zeros((train_rows, 5), dtype=object)
-        test_set = np.zeros((test_rows, 4), dtype=object)
+        # train_set format: [uid, moiveID, sample_age, label, history_seq_len, history_seq]
+        # test_set format: [uid, moiveIDs, sample_age(0), history_seq_len, history_seq]
+        train_set = np.zeros((train_rows, 6), dtype=object)
+        test_set = np.zeros((test_rows, 5), dtype=object)
 
         p, q = 0, 0
         for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
@@ -145,16 +145,30 @@ class DataProcessor:
                     candidate_set, size=len(pos_list) * negnum, replace=True
                 )
             for i in range(len(pos_list) - n):
-                hist = pos_list[: i + 1]
+                hist = pos_list[:i]
                 # Positive sample
-                train_set[p] = [uid, pos_list[i], 1, len(hist), hist[::-1]]
+                train_set[p] = [
+                    uid,
+                    pos_list[i],
+                    len(pos_list) - n - 1 - i,
+                    1,
+                    len(hist),
+                    hist[::-1],
+                ]
                 p += 1
                 # Negative smaples
                 for j in range(negnum):
-                    train_set[p] = [uid, negs[i * negnum + j], 0, len(hist), hist[::-1]]
+                    train_set[p] = [
+                        uid,
+                        negs[i * negnum + j],
+                        0,
+                        0,
+                        len(hist),
+                        hist[::-1],
+                    ]
                     p += 1
             i = len(pos_list) - n
-            test_set[q] = [uid, pos_list[i:], i, pos_list[:i][::-1]]
+            test_set[q] = [uid, pos_list[i:], 0, i, pos_list[:i][::-1]]
             q += 1
         # test_set = test_set[np.isin(test_set[:,0], test_users)]
 
@@ -169,26 +183,30 @@ class DataProcessor:
 
         train_uid = train_set[:, 0].astype(np.int)
         train_iid = train_set[:, 1].astype(np.int)
-        train_label = train_set[:, 2].astype(np.int)
-        hist_seq_len = train_set[:, 3].astype(np.int)
-        hist_seq = train_set[:, 4].tolist()
+        train_age = train_set[:, 2].astype(np.int)
+        train_label = train_set[:, 3].astype(np.int)
+        hist_seq_len = train_set[:, 4].astype(np.int)
+        hist_seq = train_set[:, 5].tolist()
         hist_seq_pad = pad_sequences(
             hist_seq, maxlen=seq_max_len, padding="post", truncating="post", value=0
         )
         np.save(open(self.base + "train_user_id.npy", "wb"), train_uid)
         np.save(open(self.base + "train_movie_id.npy", "wb"), train_iid)
+        np.save(open(self.base + "train_example_age.npy", "wb"), train_age)
         np.save(open(self.base + "train_label.npy", "wb"), train_label)
         np.save(open(self.base + "train_hist_movie_id_len.npy", "wb"), hist_seq_len)
         np.save(open(self.base + "train_hist_movie_id.npy", "wb"), hist_seq_pad)
 
         test_uid = test_set[:, 0].astype(np.int)
         test_label = np.array(test_set[:, 1].tolist()).astype(np.int)
-        hist_seq_len = test_set[:, 2].astype(np.int)
-        hist_seq = test_set[:, 3].tolist()
+        test_age = test_set[:, 2].astype(np.int)
+        hist_seq_len = test_set[:, 3].astype(np.int)
+        hist_seq = test_set[:, 4].tolist()
         hist_seq_pad = pad_sequences(
             hist_seq, maxlen=seq_max_len, padding="post", truncating="post", value=0
         )
         np.save(open(self.base + "test_user_id.npy", "wb"), test_uid)
+        np.save(open(self.base + "test_example_age.npy", "wb"), test_age)
         np.save(open(self.base + "test_label.npy", "wb"), test_label)
         np.save(open(self.base + "test_hist_movie_id_len.npy", "wb"), hist_seq_len)
         np.save(open(self.base + "test_hist_movie_id.npy", "wb"), hist_seq_pad)
@@ -233,7 +251,8 @@ class DataProcessor:
         test_set = {}
 
         for feat in tqdm(
-            user_feats + ["hist_movie_id", "hist_movie_id_len"], "Load user Features"
+            user_feats + ["hist_movie_id", "hist_movie_id_len", "example_age"],
+            "Load user Features",
         ):
             train_set[feat] = np.load(
                 open(self.base + "train_" + feat + ".npy", "rb"), allow_pickle=True
