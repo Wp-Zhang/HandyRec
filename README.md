@@ -6,7 +6,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## Description
-**HandyRec** is a package of deep-learning recommendation models implemented with **TF2.0**✨. It is mean to be a **easy-to-use** and **easy-to-read** package for people who want to use or learn deep-learning recommendation models.
+**HandyRec** is a package of deep-learning recommendation models implemented with **TF2.0**✨. It is meant to be an **easy-to-use** and **easy-to-read** package for people who want to use or learn deep-learning recommendation models.
 
 I recently started to learn deep-learning recommendation algorithms💦 and will try to implement some classical algorithms along with example notebooks here.
 
@@ -21,7 +21,7 @@ I recently started to learn deep-learning recommendation algorithms💦 and will
 
 ## Usage
 
-This project is under development and has not beed packaged yet😣. Please download the source code and import it as a local module.
+This project is under development and has not been packaged yet😣. Please download the source code and import it as a local module.
 
 - [ ] 🚧 I'll package this project when >10 models are implemented.
 
