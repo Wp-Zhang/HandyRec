@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Concatenate, Flatten, Lambda
+from tensorflow.keras.layers import Lambda
 from ...features import SparseFeature
 from ...features.utils import split_features
 from ...layers import SequencePoolingLayer, DNN, EmbeddingIndex, SampledSoftmaxLayer
@@ -12,7 +12,7 @@ from ...layers.utils import (
 from typing import OrderedDict, Tuple, List, Any
 
 
-def YouTubeDNN(
+def YouTubeMatchDNN(
     user_features: List[Any],
     item_id: SparseFeature,
     num_sampled: int = 1,
@@ -95,7 +95,6 @@ def YouTubeDNN(
         + [f + "_len" for f in u_sparse_seq.keys()]
     )
     user_inputs = [input_layers[f] for f in user_inputs]
-    # user_inputs = list(input_layers.values())
 
     item_embedding = Lambda(lambda x: tf.squeeze(tf.gather(full_item_embd, x), axis=1))(
         item_id_input
