@@ -13,7 +13,6 @@ from typing import OrderedDict, Tuple, List, Any
 def YouTubeRankDNN(
     user_features: List[Any],
     item_features: List[Any],
-    num_sampled: int = 1,
     dnn_hidden_units: Tuple[int] = (64, 32),
     dnn_activation: str = "relu",
     l2_dnn: float = 0,
@@ -26,7 +25,6 @@ def YouTubeRankDNN(
     Args:
         user_features (List[Any]): user feature list
         item_features (List[Any]): item feature list
-        num_sampled (int, optional): number of negative smaples in SampledSoftmax. Defaults to 1.
         dnn_hidden_units (Tuple[int], optional): DNN structure. Defaults to (64, 32).
         dnn_activation (str, optional): DNN activation function. Defaults to "relu".
         l2_dnn (float, optional): DNN l2 regularization param. Defaults to 0.
