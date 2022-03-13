@@ -317,10 +317,10 @@ class RankDataHelper(DataHelper):
         test_rows = len(test_id.keys()) * len(list(test_id.values())[0])
 
         # Generate rows
-        # train_set format: [uid, moiveID, time_since_last_movie, label, history_seq_len, history_seq]
-        # test_set format: [uid, moiveID, time_since_last_movie, history_seq_len, history_seq]
-        train_set = np.zeros((train_rows, 5 + seq_max_len), dtype=int)
-        test_set = np.zeros((test_rows, 4 + seq_max_len), dtype=int)
+        # train_set format: [uid, moiveID, sample_age, time_since_last_movie, label, history_seq_len, history_seq]
+        # test_set format: [uid, moiveID, sample_age(0), time_since_last_movie, history_seq_len, history_seq]
+        train_set = np.zeros((train_rows, 6 + seq_max_len), dtype=int)
+        test_set = np.zeros((test_rows, 5 + seq_max_len), dtype=int)
 
         p, q = 0, 0
         for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
@@ -337,7 +337,14 @@ class RankDataHelper(DataHelper):
                 # Positive sample
                 tmp_seq = seq[-seq_max_len:][::-1]
                 train_set[p] = (
-                    [uid, pos_list[i], time_diff_list[i], 1, len(seq)]
+                    [
+                        uid,
+                        pos_list[i],
+                        len(pos_list) - n - 1 - i,
+                        time_diff_list[i],
+                        1,
+                        len(seq),
+                    ]
                     + tmp_seq
                     + [0] * (seq_max_len - len(tmp_seq))
                 )
@@ -345,7 +352,14 @@ class RankDataHelper(DataHelper):
                 # Negative smaples
                 for j in range(negnum):
                     train_set[p] = (
-                        [uid, negs[j], time_diff_list[i], 0, len(seq)]
+                        [
+                            uid,
+                            negs[j],
+                            len(pos_list) - n - 1 - i,
+                            time_diff_list[i],
+                            0,
+                            len(seq),
+                        ]
                         + tmp_seq
                         + [0] * (seq_max_len - len(tmp_seq))
                     )
@@ -354,7 +368,7 @@ class RankDataHelper(DataHelper):
                 for mid in test_id[uid]:
                     tmp_pos_list = pos_list[-seq_max_len:][::-1]
                     test_set[q] = (
-                        [uid, mid, time_diff_list[-1], len(pos_list)]
+                        [uid, mid, 0, time_diff_list[-1], len(pos_list)]
                         + tmp_pos_list
                         + [0] * (seq_max_len - len(tmp_pos_list))
                     )
@@ -371,25 +385,29 @@ class RankDataHelper(DataHelper):
 
         train_uid = train_set[:, 0].astype(np.int)
         train_iid = train_set[:, 1].astype(np.int)
-        train_time_gap = train_set[:, 2].astype(np.int)
-        train_label = train_set[:, 3].astype(np.int)
-        hist_seq_len = train_set[:, 4].astype(np.int)
+        train_age = train_set[:, 2].astype(np.int)
+        train_time_gap = train_set[:, 3].astype(np.int)
+        train_label = train_set[:, 4].astype(np.int)
+        hist_seq_len = train_set[:, 5].astype(np.int)
         np.save(open(self.sub_dir + "train_user_id.npy", "wb"), train_uid)
         np.save(open(self.sub_dir + "train_movie_id.npy", "wb"), train_iid)
+        np.save(open(self.sub_dir + "train_example_age.npy", "wb"), train_age)
         np.save(open(self.sub_dir + "train_time_gap.npy", "wb"), train_time_gap)
         np.save(open(self.sub_dir + "train_label.npy", "wb"), train_label)
         np.save(open(self.sub_dir + "train_hist_movie_id_len.npy", "wb"), hist_seq_len)
-        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_set[:, 5:])
+        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_set[:, 6:])
 
         test_uid = test_set[:, 0].astype(np.int)
         test_iid = test_set[:, 1].astype(np.int)
-        test_time_gap = test_set[:, 2].astype(np.int)
-        hist_seq_len = test_set[:, 3].astype(np.int)
+        test_age = test_set[:, 2].astype(np.int)
+        test_time_gap = test_set[:, 3].astype(np.int)
+        hist_seq_len = test_set[:, 4].astype(np.int)
         np.save(open(self.sub_dir + "test_user_id.npy", "wb"), test_uid)
         np.save(open(self.sub_dir + "test_movie_id.npy", "wb"), test_iid)
+        np.save(open(self.sub_dir + "test_example_age.npy", "wb"), test_age)
         np.save(open(self.sub_dir + "test_time_gap.npy", "wb"), test_time_gap)
         np.save(open(self.sub_dir + "test_hist_movie_id_len.npy", "wb"), hist_seq_len)
-        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_set[:, 4:])
+        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_set[:, 5:])
 
         del train_set, test_set  # , hist_seq, hist_seq_pad
         gc.collect()
@@ -433,7 +451,8 @@ class RankDataHelper(DataHelper):
         test_set = {}
 
         for feat in tqdm(
-            user_feats + ["hist_movie_id", "hist_movie_id_len", "time_gap"],
+            user_feats
+            + ["hist_movie_id", "hist_movie_id_len", "time_gap", "example_age"],
             "Load user Features",
         ):
             train_set[feat] = np.load(
