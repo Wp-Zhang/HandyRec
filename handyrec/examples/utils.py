@@ -134,9 +134,6 @@ class MatchDataHelper(DataHelper):
         data["rating"].sort_values("timestamp", inplace=True)
         df = data["rating"]
 
-        # Split train set and test set
-        item_ids = set(data["item"]["movie_id"].values)
-
         # Calculate number of rows of daraset to fasten the dataset generating process
         df = df[df["rating"] >= min_rating]
         counter = df[["user_id", "movie_id"]].groupby("user_id", as_index=False).count()
@@ -155,21 +152,20 @@ class MatchDataHelper(DataHelper):
         for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
             pos_list = hist["movie_id"].tolist()
             for i in range(len(pos_list) - n):
-                hist = pos_list[:i]
+                seq = pos_list[:i]
                 # Positive sample
                 train_set[p] = [
                     uid,
                     pos_list[i],
                     len(pos_list) - n - 1 - i,
                     1,
-                    len(hist),
-                    hist[::-1],
+                    len(seq),
+                    seq[::-1],
                 ]
                 p += 1
             i = len(pos_list) - n
             test_set[q] = [uid, pos_list[i:], 0, i, pos_list[:i][::-1]]
             q += 1
-        # test_set = test_set[np.isin(test_set[:,0], test_users)]
 
         np.random.seed(2022)
         np.random.shuffle(train_set)
@@ -323,8 +319,8 @@ class RankDataHelper(DataHelper):
         # Generate rows
         # train_set format: [uid, moiveID, time_since_last_movie, label, history_seq_len, history_seq]
         # test_set format: [uid, moiveID, time_since_last_movie, history_seq_len, history_seq]
-        train_set = np.zeros((train_rows, 6), dtype=object)
-        test_set = np.zeros((test_rows, 5), dtype=object)
+        train_set = np.zeros((train_rows, 5 + seq_max_len), dtype=int)
+        test_set = np.zeros((test_rows, 4 + seq_max_len), dtype=int)
 
         p, q = 0, 0
         for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
@@ -339,35 +335,29 @@ class RankDataHelper(DataHelper):
             for i in range(len(pos_list)):
                 seq = pos_list[:i]
                 # Positive sample
-                train_set[p] = [
-                    uid,
-                    pos_list[i],
-                    time_diff_list[i],
-                    1,
-                    len(seq),
-                    seq[::-1],
-                ]
+                tmp_seq = seq[-seq_max_len:][::-1]
+                train_set[p] = (
+                    [uid, pos_list[i], time_diff_list[i], 1, len(seq)]
+                    + tmp_seq
+                    + [0] * (seq_max_len - len(tmp_seq))
+                )
                 p += 1
                 # Negative smaples
                 for j in range(negnum):
-                    train_set[p] = [
-                        uid,
-                        negs[j],
-                        time_diff_list[i],
-                        0,
-                        len(seq),
-                        seq[::-1],
-                    ]
+                    train_set[p] = (
+                        [uid, negs[j], time_diff_list[i], 0, len(seq)]
+                        + tmp_seq
+                        + [0] * (seq_max_len - len(tmp_seq))
+                    )
                     p += 1
             if uid in test_id.keys():
                 for mid in test_id[uid]:
-                    test_set[q] = [
-                        uid,
-                        mid,
-                        time_diff_list[-1],
-                        len(pos_list),
-                        pos_list[::-1],
-                    ]
+                    tmp_pos_list = pos_list[-seq_max_len:][::-1]
+                    test_set[q] = (
+                        [uid, mid, time_diff_list[-1], len(pos_list)]
+                        + tmp_pos_list
+                        + [0] * (seq_max_len - len(tmp_pos_list))
+                    )
                     q += 1
 
         np.random.seed(2022)
@@ -384,32 +374,24 @@ class RankDataHelper(DataHelper):
         train_time_gap = train_set[:, 2].astype(np.int)
         train_label = train_set[:, 3].astype(np.int)
         hist_seq_len = train_set[:, 4].astype(np.int)
-        hist_seq = train_set[:, 5].tolist()
-        hist_seq_pad = pad_sequences(
-            hist_seq, maxlen=seq_max_len, padding="post", truncating="post", value=0
-        )
         np.save(open(self.sub_dir + "train_user_id.npy", "wb"), train_uid)
         np.save(open(self.sub_dir + "train_movie_id.npy", "wb"), train_iid)
         np.save(open(self.sub_dir + "train_time_gap.npy", "wb"), train_time_gap)
         np.save(open(self.sub_dir + "train_label.npy", "wb"), train_label)
         np.save(open(self.sub_dir + "train_hist_movie_id_len.npy", "wb"), hist_seq_len)
-        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), hist_seq_pad)
+        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_set[:, 5:])
 
         test_uid = test_set[:, 0].astype(np.int)
         test_iid = test_set[:, 1].astype(np.int)
         test_time_gap = test_set[:, 2].astype(np.int)
         hist_seq_len = test_set[:, 3].astype(np.int)
-        hist_seq = test_set[:, 4].tolist()
-        hist_seq_pad = pad_sequences(
-            hist_seq, maxlen=seq_max_len, padding="post", truncating="post", value=0
-        )
         np.save(open(self.sub_dir + "test_user_id.npy", "wb"), test_uid)
         np.save(open(self.sub_dir + "test_movie_id.npy", "wb"), test_iid)
         np.save(open(self.sub_dir + "test_time_gap.npy", "wb"), test_time_gap)
         np.save(open(self.sub_dir + "test_hist_movie_id_len.npy", "wb"), hist_seq_len)
-        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), hist_seq_pad)
+        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_set[:, 4:])
 
-        del train_set, test_set, hist_seq, hist_seq_pad
+        del train_set, test_set  # , hist_seq, hist_seq_pad
         gc.collect()
 
         for key in tqdm([x for x in user.columns if x in features and x != "user_id"]):
