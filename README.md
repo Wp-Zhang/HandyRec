@@ -7,7 +7,7 @@
 ## 📝 Description
 **HandyRec** is a package of deep-learning recommendation models implemented with **TF2.1** ✨. It is meant to be an **easy-to-use** and **easy-to-read** package for people who want to use or learn deep-learning recommendation models.
 
-I recently started to learn deep-learning recommendation algorithms💦 and will try to implement some classical algorithms along with example notebooks here.
+It is currently a personal project for learning purposes. I recently started to learn deep-learning recommendation algorithms and design patterns💦. I'll try to implement some classical algorithms along with example notebooks here.
 
 ## 💡Models
 
