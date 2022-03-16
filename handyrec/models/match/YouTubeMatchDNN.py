@@ -1,7 +1,6 @@
 from ...features import SparseFeature
 from ...features.utils import split_features
 from ...layers import (
-    GetEmbedding,
     SequencePoolingLayer,
     DNN,
     EmbeddingIndex,
@@ -99,7 +98,14 @@ def YouTubeMatchDNN(
     )
     user_inputs = [input_layers[f] for f in user_inputs]
 
-    item_embedding = GetEmbedding(full_item_embd)(item_id_input)
+    # ! I know the code is ugly, but otherwise there will raise some strange error in eager mode
+    def gather_embedding(input):
+        full_item_embd, index = input
+        return tf.squeeze(tf.gather(full_item_embd, index), axis=1)
+
+    item_embedding = Lambda(lambda x: gather_embedding(x))(
+        [full_item_embd, item_id_input]
+    )
 
     # * Construct model
     model = Model(inputs=list(input_layers.values()), outputs=output)
