@@ -1,7 +1,6 @@
 from xmlrpc.client import boolean
 import faiss
 import numpy as np
-from typing import Iterable
 
 
 def search_embedding(

@@ -1,6 +1,3 @@
-import tensorflow as tf
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Lambda
 from ...features import SparseFeature
 from ...features.utils import split_features
 from ...layers import SequencePoolingLayer, DNN, EmbeddingIndex, SampledSoftmaxLayer
@@ -9,6 +6,9 @@ from ...layers.utils import (
     construct_embedding_layers,
     concat_inputs,
 )
+import tensorflow as tf
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Lambda
 from typing import OrderedDict, Tuple, List, Any
 
 

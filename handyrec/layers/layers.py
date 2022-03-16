@@ -1,10 +1,9 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Layer, Embedding, Dense, BatchNormalization, Dropout
+from tensorflow.keras.layers import Layer, Dense, BatchNormalization, Dropout
 from tensorflow.keras import Input, Sequential
 from tensorflow.keras.initializers import Zeros
 from tensorflow.keras.regularizers import l2
-from ..features import DenseFeature, SparseFeature, SparseSeqFeature
-from typing import Union, Tuple, List
+from typing import Tuple, List
 
 
 class SequencePoolingLayer(Layer):
