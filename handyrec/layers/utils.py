@@ -121,3 +121,7 @@ def concat_inputs(dense_inputs: List, embd_inputs: List):
         return Flatten()(concatenate(dense_inputs))
     elif len(embd_inputs) > 0:
         return Flatten()(concatenate(embd_inputs))
+
+
+def sampledsoftmaxloss(y_true, y_pred):
+    return tf.reduce_mean(y_pred)
