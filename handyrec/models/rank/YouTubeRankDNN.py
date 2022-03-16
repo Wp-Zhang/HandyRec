@@ -55,7 +55,7 @@ def YouTubeRankDNN(
         sparse_emb = embd_layers[feat.sparse_feat.name]
         seq_input = input_layers[feat.name]
         user_embd_outputs[feat.name] = SequencePoolingLayer("mean")(
-            [sparse_emb(seq_input), input_layers[feat.name + "_len"]]
+            sparse_emb(seq_input)
         )
     item_embd_outputs = OrderedDict()
     for feat in i_sparse.keys():
@@ -64,7 +64,7 @@ def YouTubeRankDNN(
         sparse_emb = embd_layers[feat.sparse_feat.name]
         seq_input = input_layers[feat.name]
         item_embd_outputs[feat.name] = SequencePoolingLayer("mean")(
-            [sparse_emb(seq_input), input_layers[feat.name + "_len"]]
+            sparse_emb(seq_input)
         )
 
     # * concat input layers -> DNN

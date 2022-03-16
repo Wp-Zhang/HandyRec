@@ -61,7 +61,7 @@ def YouTubeMatchDNN(
         sparse_emb = embd_layers[feat.sparse_feat.name]
         seq_input = input_layers[feat.name]
         user_embd_outputs[feat.name] = SequencePoolingLayer("mean")(
-            [sparse_emb(seq_input), input_layers[feat.name + "_len"]]
+            sparse_emb(seq_input)
         )
 
     # * Get full item embedding
@@ -89,10 +89,7 @@ def YouTubeMatchDNN(
 
     # * setup user/item input and embedding
     user_inputs = (
-        list(u_dense.keys())
-        + list(u_sparse.keys())
-        + list(u_sparse_seq.keys())
-        + [f + "_len" for f in u_sparse_seq.keys()]
+        list(u_dense.keys()) + list(u_sparse.keys()) + list(u_sparse_seq.keys())
     )
     user_inputs = [input_layers[f] for f in user_inputs]
 

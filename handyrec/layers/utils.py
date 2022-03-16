@@ -43,9 +43,6 @@ def construct_input_layers(
         input_layers[feat.name] = Input(
             shape=(feat.seq_len,), name=feat.name, dtype=feat.dtype
         )
-        input_layers[feat.name + "_len"] = Input(
-            shape=(1,), name=feat.name + "_len", dtype=feat.dtype
-        )
 
     return input_layers
 
@@ -86,7 +83,7 @@ def construct_embedding_layers(
 
 
 def concatenate(inputs, axis: int = -1):
-    """Concatenate list of input, handle the case of len(inputs)=1
+    """Concatenate list of input, handle the case when len(inputs)=1
 
     Args:
         inputs : list of input
