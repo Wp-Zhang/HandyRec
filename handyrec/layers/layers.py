@@ -70,6 +70,26 @@ class EmbeddingIndex(Layer):
         return dict(list(base_config.items()) + list(config.items()))
 
 
+class GetEmbedding(Layer):
+    """Gather embedding through index
+    why not use a Lambda layer? will raise error in eager mode.
+
+    """
+
+    def __init__(self, full_embd, **kwargs):
+        self.full_embd = full_embd
+        super(GetEmbedding, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        return super(GetEmbedding, self).build(input_shape)
+
+    def call(self, inputs, **kwargs):
+        return tf.squeeze(tf.gather(self.full_embd, inputs), axis=1)
+
+    def get_config(self):
+        return super(GetEmbedding, self).get_config()
+
+
 class SampledSoftmaxLayer(Layer):
     def __init__(self, num_sampled=5, **kwargs):
         self.num_sampled = num_sampled

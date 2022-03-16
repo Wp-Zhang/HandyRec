@@ -1,6 +1,12 @@
 from ...features import SparseFeature
 from ...features.utils import split_features
-from ...layers import SequencePoolingLayer, DNN, EmbeddingIndex, SampledSoftmaxLayer
+from ...layers import (
+    GetEmbedding,
+    SequencePoolingLayer,
+    DNN,
+    EmbeddingIndex,
+    SampledSoftmaxLayer,
+)
 from ...layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
@@ -93,9 +99,7 @@ def YouTubeMatchDNN(
     )
     user_inputs = [input_layers[f] for f in user_inputs]
 
-    item_embedding = Lambda(lambda x: tf.squeeze(tf.gather(full_item_embd, x), axis=1))(
-        item_id_input
-    )
+    item_embedding = GetEmbedding(full_item_embd)(item_id_input)
 
     # * Construct model
     model = Model(inputs=list(input_layers.values()), outputs=output)
