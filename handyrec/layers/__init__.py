@@ -3,5 +3,4 @@ from .layers import (
     DNN,
     EmbeddingIndex,
     SampledSoftmaxLayer,
-    GetEmbedding,
 )
