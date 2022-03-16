@@ -50,6 +50,11 @@ class SequencePoolingLayer(Layer):
     def compute_output_shape(self, input_shape):
         return (None, 1, input_shape[-1])
 
+    def get_config(self):
+        config = {"method": self.method}
+        base_config = super(SequencePoolingLayer, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
 
 class EmbeddingIndex(Layer):
     """Output full index of embedding nomatter input"""
