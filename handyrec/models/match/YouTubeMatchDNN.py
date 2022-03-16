@@ -1,6 +1,3 @@
-import tensorflow as tf
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Lambda
 from ...features import SparseFeature
 from ...features.utils import split_features
 from ...layers import SequencePoolingLayer, DNN, EmbeddingIndex, SampledSoftmaxLayer
@@ -9,6 +6,9 @@ from ...layers.utils import (
     construct_embedding_layers,
     concat_inputs,
 )
+import tensorflow as tf
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Lambda
 from typing import OrderedDict, Tuple, List, Any
 
 
@@ -61,7 +61,7 @@ def YouTubeMatchDNN(
         sparse_emb = embd_layers[feat.sparse_feat.name]
         seq_input = input_layers[feat.name]
         user_embd_outputs[feat.name] = SequencePoolingLayer("mean")(
-            [sparse_emb(seq_input), input_layers[feat.name + "_len"]]
+            sparse_emb(seq_input)
         )
 
     # * Get full item embedding
@@ -89,10 +89,7 @@ def YouTubeMatchDNN(
 
     # * setup user/item input and embedding
     user_inputs = (
-        list(u_dense.keys())
-        + list(u_sparse.keys())
-        + list(u_sparse_seq.keys())
-        + [f + "_len" for f in u_sparse_seq.keys()]
+        list(u_dense.keys()) + list(u_sparse.keys()) + list(u_sparse_seq.keys())
     )
     user_inputs = [input_layers[f] for f in user_inputs]
 

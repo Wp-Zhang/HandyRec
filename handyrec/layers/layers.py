@@ -1,10 +1,9 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Layer, Embedding, Dense, BatchNormalization, Dropout
+from tensorflow.keras.layers import Layer, Dense, BatchNormalization, Dropout
 from tensorflow.keras import Input, Sequential
 from tensorflow.keras.initializers import Zeros
 from tensorflow.keras.regularizers import l2
-from ..features import DenseFeature, SparseFeature, SparseSeqFeature
-from typing import Union, Tuple, List
+from typing import Tuple, List
 
 
 class SequencePoolingLayer(Layer):
@@ -19,40 +18,37 @@ class SequencePoolingLayer(Layer):
             "sum",
         ], "Pooling method should be `mean`, `max`, or `sum`"
         self.method = method
-        self.eps = tf.constant(1e-8, dtype=tf.float32)
+        # self.eps = tf.constant(1e-8, tf.float32)
 
     def build(self, input_shape):
-        self.seq_max_len = int(input_shape[0][1])
         super(SequencePoolingLayer, self).build(input_shape)
 
-    def call(self, inputs):
-        batch_seq, batch_seq_lens = inputs
-        # batch_seq: (batch, seq_max_len, emb_dim)
-        # batch_seq_lens: (batch, 1)
+    def call(self, inputs, mask):
+        if mask is None:
+            raise ValueError("Embedding layer should set `mask_zero` as True")
+        # * inputs: (batch, seq_max_len, emb_dim)
+        # * mask: (batch, seq_max_len)
+        # * output: (batch, 1, emb_dim)
 
-        emb_dim = batch_seq.shape[-1]
-        mask = tf.sequence_mask(
-            batch_seq_lens, self.seq_max_len, dtype=tf.float32
-        )  # (batch, 1, seq_max_len)
-        mask = tf.transpose(mask, perm=[0, 2, 1])  # (batch, seq_max_len, 1)
-        mask = tf.tile(mask, [1, 1, emb_dim])  # (batch, seq_max_len, emb_dim)
+        mask = tf.dtypes.cast(mask, tf.float32)
+        mask = tf.expand_dims(mask, axis=-1)  # (batch, seq_max_len, 1)
 
         if self.method == "max":
-            seq = batch_seq - (1 - mask) * 1e9
-            return tf.reduce_max(seq, axis=1, keepdims=True)  # (batch, 1, emb_dim)
+            output = inputs - (1 - mask) * 1e9
+            return tf.reduce_max(output, axis=1, keepdims=True)
 
         elif self.method == "sum":
-            seq = tf.reduce_sum(batch_seq * mask, 1, keepdims=True)
-            return seq  # (batch, 1, emb_dim)
+            output = inputs * mask
+            return tf.reduce_sum(output, axis=1, keepdims=True)
 
         elif self.method == "mean":
-            seq = tf.reduce_sum(batch_seq * mask, 1, keepdims=False)
-            seq = tf.divide(seq, tf.cast(batch_seq_lens, tf.float32) + self.eps)
-            seq = tf.expand_dims(seq, axis=1)
-            return seq  # (batch, 1, emb_dim)
+            mask_sum = tf.reduce_sum(mask, axis=1, keepdims=True)
+            mask_weight = tf.math.divide_no_nan(mask, mask_sum)
+            output = inputs * mask_weight
+            return tf.reduce_sum(output, axis=1, keepdims=True)
 
     def compute_output_shape(self, input_shape):
-        return (None, 1, input_shape[0][-1])
+        return (None, 1, input_shape[-1])
 
 
 class EmbeddingIndex(Layer):

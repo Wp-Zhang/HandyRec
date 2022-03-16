@@ -1,5 +1,3 @@
-import tensorflow as tf
-from tensorflow.keras import Model
 from ...features.utils import split_features
 from ...layers import SequencePoolingLayer, DNN
 from ...layers.utils import (
@@ -7,6 +5,7 @@ from ...layers.utils import (
     construct_embedding_layers,
     concat_inputs,
 )
+from tensorflow.keras import Model
 from typing import OrderedDict, Tuple, List, Any
 
 
@@ -56,7 +55,7 @@ def YouTubeRankDNN(
         sparse_emb = embd_layers[feat.sparse_feat.name]
         seq_input = input_layers[feat.name]
         user_embd_outputs[feat.name] = SequencePoolingLayer("mean")(
-            [sparse_emb(seq_input), input_layers[feat.name + "_len"]]
+            sparse_emb(seq_input)
         )
     item_embd_outputs = OrderedDict()
     for feat in i_sparse.keys():
@@ -65,7 +64,7 @@ def YouTubeRankDNN(
         sparse_emb = embd_layers[feat.sparse_feat.name]
         seq_input = input_layers[feat.name]
         item_embd_outputs[feat.name] = SequencePoolingLayer("mean")(
-            [sparse_emb(seq_input), input_layers[feat.name + "_len"]]
+            sparse_emb(seq_input)
         )
 
     # * concat input layers -> DNN
