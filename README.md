@@ -15,19 +15,19 @@ It is currently a personal project for learning purposes. I recently started to 
 
 | Model      | Paper | Example |
 | :----------- | :----------- | :---------- |
-| YouTubeDNN   | \[RecSys 2016\] [Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190) | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/handyrec/examples/YouTubeDNN.ipynb) |
+| YouTubeDNN   | \[RecSys 2016\] [Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190) | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/YouTubeDNN.ipynb) |
 
 
 ### Ranking
 
 | Model      | Paper | Example |
 | :----------- | :----------- | :---------- |
-| YouTubeDNN   | \[RecSys 2016\] [Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190) | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/handyrec/examples/YouTubeDNN.ipynb) |
+| YouTubeDNN   | \[RecSys 2016\] [Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190) | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/YouTubeDNN.ipynb) |
 
 
 ## ℹ️ Usage
 
-Examples can be found [here](https://github.com/Wp-Zhang/HandyRec/tree/master/handyrec/examples) and the table above.
+Examples can be found [here](https://github.com/Wp-Zhang/HandyRec/tree/master/examples) and the table above.
 
 This project is under development and has not been packaged yet😣. Please download the source code and import it as a local module.
 
