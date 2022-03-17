@@ -24,7 +24,8 @@ class DSSM(Model):
     ):
         super(DSSM, self)._init__()
 
-        pass
-
     def call(self, x):
         pass
+
+    def get_config(self):
+        return super(DSSM, self).get_config()
