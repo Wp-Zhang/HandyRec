@@ -1,3 +1,8 @@
+import tensorflow as tf
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Lambda
+from typing import OrderedDict, Tuple, List, Any
+
 from ...features import SparseFeature
 from ...features.utils import split_features
 from ...layers import (
@@ -11,10 +16,6 @@ from ...layers.utils import (
     construct_embedding_layers,
     concat_inputs,
 )
-import tensorflow as tf
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Lambda
-from typing import OrderedDict, Tuple, List, Any
 
 
 def YouTubeMatchDNN(

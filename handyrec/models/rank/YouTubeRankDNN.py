@@ -1,3 +1,6 @@
+from tensorflow.keras import Model
+from typing import OrderedDict, Tuple, List, Any
+
 from ...features.utils import split_features
 from ...layers import SequencePoolingLayer, DNN
 from ...layers.utils import (
@@ -5,8 +8,6 @@ from ...layers.utils import (
     construct_embedding_layers,
     concat_inputs,
 )
-from tensorflow.keras import Model
-from typing import OrderedDict, Tuple, List, Any
 
 
 def YouTubeRankDNN(

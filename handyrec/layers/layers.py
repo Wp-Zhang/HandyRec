@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Dense, BatchNormalization, Dropout
-from tensorflow.keras import Input, Sequential
+from tensorflow.keras import Sequential
 from tensorflow.keras.initializers import Zeros
 from tensorflow.keras.regularizers import l2
 from typing import Tuple, List

@@ -121,4 +121,13 @@ def concat_inputs(dense_inputs: List, embd_inputs: List):
 
 
 def sampledsoftmaxloss(y_true, y_pred):
+    """Helper function for calculating sampled softmax loss
+
+    Args:
+        y_true : label
+        y_pred : prediction
+
+    Returns:
+        _type_: loss
+    """
     return tf.reduce_mean(y_pred)

@@ -28,10 +28,10 @@ def search_embedding(
     index = faiss.IndexFlatIP(embd_dim)
     index.add(item_embd)
 
-    D, I = index.search(np.ascontiguousarray(user_embd), n)
+    _, result = index.search(np.ascontiguousarray(user_embd), n)
     candidates = []
     for i in range(user_embd.shape[0]):
-        pred = item_list[I[i]].tolist()
+        pred = item_list[result[i]].tolist()
         candidates.append(pred)
     candidates = np.array(candidates)
 
