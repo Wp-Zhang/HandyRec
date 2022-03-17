@@ -1,57 +1,48 @@
 from typing import Dict, List
+from abc import ABC, abstractmethod
 
 
-class DataHelper:
+class DataHelper(ABC):
+    """Abstract class for data loading, preprocesing, and dataset generating"""
+
     def __init__(self, data_dir: str):
         self.base = data_dir  # diectory to load raw data and save generated dataset
 
-    def load_data(self, *args, **kwargs) -> Dict:
+    @abstractmethod
+    def load_data(self) -> Dict:
         """Load raw dataset
 
         Returns:
-            Dict: a dictionary with three keys: [`user`, `item`, `interact`]
+            Dict: a data dict with three keys: [`user`, `item`, `interact`]
         """
-        pass
 
-    def preprocess_data(self, data: Dict, *args, **kwargs) -> Dict:
+    @abstractmethod
+    def preprocess_data(self) -> Dict:
         """Preprocess raw data
 
-        Args:
-            data (Dict): raw dataset dictionary
-
         Returns:
-            dict: a dictionary of preprocessed data with three keys: [`user`, `item`, `interact`]
+            dict: a data dict with three keys: [`user`, `item`, `interact`]
         """
-        pass
 
-        return data
-
-    def get_clean_data(self, *args, **kwargs) -> Dict:
+    @abstractmethod
+    def get_clean_data(self) -> Dict:
         """Load raw data and preprocess
 
         Returns:
-            Dict: a dictionary of preprocessed data with three keys: [`user`, `item`, `interact`]
+            dict: a data dict with three keys: [`user`, `item`, `interact`]
         """
-        data = self.load_data()
-        data = self.preprocess_data(data, *args, **kwargs)
 
-        return data
+    @abstractmethod
+    def gen_data_set(self):
+        """Generate and save dataset"""
 
-    def gen_data_set(self, data: Dict, *args, **kwargs):
-        """Generate and save dataset
-
-        Args:
-            data (Dict): a dictionary of preprocessed data with three keys: [`user`, `item`, `interact`]
-        """
-        pass
-
-    def load_dataset(self, *args, **kwargs) -> Dict:
+    @abstractmethod
+    def load_dataset(self) -> Dict:
         """Load dataset into a dictionary
 
         Returns:
-            Dict: a dictionary with feature names as keys
+            Dict: a data dict with feature names as keys
         """
-        pass
 
     def get_feature_dim(
         self,

@@ -3,3 +3,4 @@
 test.ipynb
 **/ml-1m
 *.h5
+.vscode/
