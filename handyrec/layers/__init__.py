@@ -4,3 +4,5 @@ from .layers import (
     EmbeddingIndex,
     SampledSoftmaxLayer,
 )
+
+__all__ = ["SequencePoolingLayer", "DNN", "EmbeddingIndex", "SampledSoftmaxLayer"]
