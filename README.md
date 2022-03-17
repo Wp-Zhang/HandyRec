@@ -2,6 +2,7 @@
 
 ![TF Depend](https://img.shields.io/badge/TensorFlow-2.1-orange)
 ![License Badge](https://img.shields.io/badge/license-Apache%202-green)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9e1122d78ad345acb7fa5d9c72b64d91)](https://www.codacy.com/gh/Wp-Zhang/HandyRec/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Wp-Zhang/HandyRec&amp;utm_campaign=Badge_Grade)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## 📝 Description
