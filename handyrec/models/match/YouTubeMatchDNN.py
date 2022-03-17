@@ -104,9 +104,10 @@ def YouTubeMatchDNN(
         full_item_embd, index = inputs
         return tf.squeeze(tf.gather(full_item_embd, index), axis=1)
 
-    item_embedding = Lambda(lambda x: gather_embedding(x))(
-        [full_item_embd, item_id_input]
-    )
+    # item_embedding = Lambda(lambda x: gather_embedding(x))(
+    #     [full_item_embd, item_id_input]
+    # )
+    item_embedding = Lambda(gather_embedding)([full_item_embd, item_id_input])
 
     # * Construct model
     model = Model(inputs=list(input_layers.values()), outputs=output)

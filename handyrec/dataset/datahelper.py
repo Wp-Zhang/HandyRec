@@ -1,5 +1,6 @@
 from typing import Dict, List
 from abc import ABC, abstractmethod
+import numpy as np
 
 
 class DataHelper(ABC):
@@ -33,7 +34,7 @@ class DataHelper(ABC):
         """
 
     @abstractmethod
-    def gen_data_set(self):
+    def gen_dataset(self):
         """Generate and save dataset"""
 
     @abstractmethod
@@ -62,12 +63,15 @@ class DataHelper(ABC):
         Returns:
             Dict: feature dimension dict. {feature: dimension}
         """
+        if len(set(["user", "item", "interact"]) & set(data.keys())) != 3:
+            raise KeyError("`user`,`item`, and `interact` should be keys of data")
+
         feature_dim = {}
         for feat in user_features:
-            feature_dim[feat] = data["user"][feat].max() + 1
+            feature_dim[feat] = np.max(data["user"][feat]) + 1
         for feat in item_features:
-            feature_dim[feat] = data["item"][feat].max() + 1
+            feature_dim[feat] = np.max(data["item"][feat]) + 1
         for feat in interact_features:
-            feature_dim[feat] = data["interact"][feat].max() + 1
+            feature_dim[feat] = np.max(data["interact"][feat]) + 1
 
         return feature_dim

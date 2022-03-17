@@ -111,7 +111,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
     def __init__(self, data_dir: str):
         super(MovieMatchDataHelper, self).__init__(data_dir, "match")
 
-    def gen_data_set(
+    def gen_dataset(
         self,
         features: List[str],
         data: dict,
@@ -272,7 +272,7 @@ class MovieRankDataHelper(MovielensDataHelper):
     def __init__(self, data_dir: str):
         super(MovieRankDataHelper, self).__init__(data_dir, "rank")
 
-    def gen_data_set(
+    def gen_dataset(
         self,
         features: List[str],
         data: dict,
