@@ -18,10 +18,7 @@ class SequencePoolingLayer(Layer):
         self.method = method
         # self.eps = tf.constant(1e-8, tf.float32)
 
-    def build(self, input_shape):
-        super().build(input_shape)
-
-    def call(self, inputs, mask):
+    def call(self, inputs, mask=None):
         if mask is None:
             raise ValueError("Embedding layer should set `mask_zero` as True")
         # * inputs: (batch, seq_max_len, emb_dim)
@@ -64,7 +61,7 @@ class EmbeddingIndex(Layer):
     def build(self, input_shape):
         super().build(input_shape)
 
-    def call(self, x, **kwargs):
+    def call(self, inputs, **kwargs):
         return tf.constant(self.index)
 
     def get_config(self):
@@ -117,3 +114,18 @@ class SampledSoftmaxLayer(Layer):
         config = {"num_sampled": self.num_sampled}
         base_config = super().get_config()
         return dict(list(base_config.items()) + list(config.items()))
+
+
+class RemoveMask(Layer):
+    """Remove mask of input to avoid some potential problems,
+    e.g. concatenate masked tensors with normal ones on axis 1
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def call(self, inputs, mask=None, **kwargs):
+        return inputs
+
+    def compute_mask(self, inputs, mask):
+        return None
