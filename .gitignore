@@ -4,3 +4,5 @@ test.ipynb
 **/ml-1m
 *.h5
 .vscode/
+coverage.xml
+codacy_coverage.sh
