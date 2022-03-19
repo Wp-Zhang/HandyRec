@@ -4,6 +4,7 @@ from tensorflow.keras import Input
 from tensorflow.keras.regularizers import l2
 from ..features import SparseFeature, DenseFeature, SparseSeqFeature
 from ..features.utils import split_features
+from ..layers.tools import RemoveMask, CustomEmbedding
 from typing import List, Union, OrderedDict
 import collections
 
@@ -63,7 +64,7 @@ def construct_embedding_layers(
     _, sparse_feats, sparse_seq_feats = split_features(sparse_features)
 
     for f in sparse_feats.values():
-        embedding_layers[f.name] = Embedding(
+        embedding_layers[f.name] = CustomEmbedding(
             input_dim=f.vocab_size,
             output_dim=f.embdding_dim,
             embeddings_regularizer=l2(l2_reg),
@@ -71,7 +72,7 @@ def construct_embedding_layers(
         )
 
     for f in sparse_seq_feats.values():
-        embedding_layers[f.sparse_feat.name] = Embedding(
+        embedding_layers[f.sparse_feat.name] = CustomEmbedding(
             input_dim=f.sparse_feat.vocab_size,
             output_dim=f.sparse_feat.embdding_dim,
             embeddings_regularizer=l2(l2_reg),
@@ -88,6 +89,7 @@ def concatenate(inputs, axis: int = -1):
     Args:
         inputs : list of input
         axis (int, optional): concatenate axis. Defaults to -1.
+        # mask (bool, optional): whether to keep masks of input tensors. Defaults to Ture.
 
     Returns:
         _type_: concatenated input
@@ -98,26 +100,40 @@ def concatenate(inputs, axis: int = -1):
         return Concatenate(axis=axis)(inputs)
 
 
-def concat_inputs(dense_inputs: List, embd_inputs: List):
+def concat_inputs(
+    dense_inputs: List, embd_inputs: List, axis: int = -1, keepdims: bool = False
+):
     """Concatenate dense features and embedding of sparse features together
 
     Args:
         dense_inputs (List): dense features
         embd_inputs (List): embedding of sparse features
+        axis (int, optional): concatenate axis. Deafults to `-1`
+        keepdims (bool, optional): whether to flatten all inputs before concatenating. Defaults to `False`
+        # mask (bool, optional): whether to keep masks of input tensors. Defaults to Ture.
     """
     if len(dense_inputs) + len(embd_inputs) == 0:
         raise ValueError("Number of inputs should be larger than 0")
 
     if len(dense_inputs) > 0 and len(embd_inputs) > 0:
-        dense = Flatten()(concatenate(dense_inputs))
-        sparse = Flatten()(concatenate(embd_inputs))
+        dense = concatenate(dense_inputs, axis)
+        sparse = concatenate(embd_inputs, axis)
+        if not keepdims:
+            dense = Flatten()(dense)
+            sparse = Flatten()(sparse)
         dense = tf.cast(dense, tf.float32)
         sparse = tf.cast(sparse, tf.float32)
-        return concatenate([dense, sparse])
+        return concatenate([dense, sparse], axis)
     elif len(dense_inputs) > 0:
-        return Flatten()(concatenate(dense_inputs))
+        output = concatenate(dense_inputs, axis)
+        if not keepdims:
+            output = Flatten()(output)
+        return output
     elif len(embd_inputs) > 0:
-        return Flatten()(concatenate(embd_inputs))
+        output = concatenate(embd_inputs, axis)
+        if not keepdims:
+            output = Flatten()(output)
+        return output
 
 
 def sampledsoftmaxloss(y_true, y_pred):

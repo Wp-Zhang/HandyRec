@@ -1,5 +1,19 @@
-from .layers import DNN
-from .tools import SequencePoolingLayer, EmbeddingIndex, SampledSoftmaxLayer
+from .layers import DNN, FM
+from .tools import (
+    SequencePoolingLayer,
+    EmbeddingIndex,
+    SampledSoftmaxLayer,
+    RemoveMask,
+    CustomEmbedding,
+)
 
 
-__all__ = ["SequencePoolingLayer", "DNN", "EmbeddingIndex", "SampledSoftmaxLayer"]
+__all__ = [
+    "DNN",
+    "FM",
+    "SequencePoolingLayer",
+    "EmbeddingIndex",
+    "SampledSoftmaxLayer",
+    "RemoveMask",
+    "CustomEmbedding",
+]

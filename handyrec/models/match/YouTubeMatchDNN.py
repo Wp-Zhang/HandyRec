@@ -24,9 +24,9 @@ def YouTubeMatchDNN(
     num_sampled: int = 1,
     user_dnn_hidden_units: Tuple[int] = (64, 32),
     dnn_activation: str = "relu",
+    dnn_dropout: float = 0,
     l2_dnn: float = 0,
     l2_emb: float = 1e-6,
-    dnn_dropout: float = 0,
     seed: int = 2022,
 ) -> Model:
     """Implementation of YoutubeDNN match model
@@ -53,6 +53,7 @@ def YouTubeMatchDNN(
     if user_dnn_hidden_units[-1] != item_id.embdding_dim:
         raise ValueError("user DNN output dim should be equal with item embd dim")
 
+    # * Group user features by their types
     u_dense, u_sparse, u_sparse_seq = split_features(user_features)
 
     # * Get input and embedding layers
@@ -75,7 +76,7 @@ def YouTubeMatchDNN(
     item_index = EmbeddingIndex(list(range(item_id.vocab_size)))(item_id_input)
     full_item_embd = embd_layers[item_id.name](item_index)
 
-    # * concat input layers -> DNN
+    # * Concat input layers -> DNN
     user_dnn_input = concat_inputs(
         [input_layers[k] for k in u_dense.keys()], list(user_embd_outputs.values())
     )
@@ -88,12 +89,12 @@ def YouTubeMatchDNN(
         seed=seed,
     )(user_dnn_input)
 
-    # * sampled softmax output
+    # * Sampled softmax output
     output = SampledSoftmaxLayer(num_sampled=num_sampled)(
         [full_item_embd, user_dnn_output, item_id_input]
     )
 
-    # * setup user/item input and embedding
+    # * Setup user/item input and embedding
     user_inputs = (
         list(u_dense.keys()) + list(u_sparse.keys()) + list(u_sparse_seq.keys())
     )
