@@ -80,7 +80,6 @@ def DeepFM(
         + [embd_outputs[k] for k in list(fm_sparse_seq_f.keys())],
         axis=1,
         keepdims=True,
-        mask=False,
     )
 
     dnn_output = DNN(

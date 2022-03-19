@@ -79,6 +79,19 @@ class DNN(Layer):
 
         return tuple(shape)
 
+    def get_config(self):
+        config = {
+            "hidden_units": self.hidden_units,
+            "activation": self.activation,
+            "l2_reg": self.l2_reg,
+            "dropout_rate": self.dropout_rate,
+            "use_bn": self.use_bn,
+            "output_activation": self.output_activation,
+            "seed": self.seed,
+        }
+        base_config = super().get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
 
 class FM(Layer):
     """Factorization Machine"""
@@ -104,18 +117,15 @@ class FM(Layer):
         # * inputs: (batch_size, num_of_fields, embedding_dim)
         # * part2: (batch_size, 1)
         part2 = tf.reduce_sum(self.linear(inputs), axis=1, keepdims=False)
-        # print("part2", part2.shape)
+
         # * square_sum: (batch_size, embedding_dim)
         # * sum_square: (batch_size, embedding_dim)
         square_sum = tf.square(tf.reduce_sum(inputs, axis=1, keepdims=False))
         sum_square = tf.reduce_sum(inputs * inputs, axis=1, keepdims=False)
 
-        # print("square_sum", square_sum.shape)
-        # print("sum_square", sum_square.shape)
         # * part3: (batch_size, 1)
         part3 = square_sum - sum_square
         part3 = 0.5 * tf.reduce_sum(part3, axis=1, keepdims=True)
-        # print("part3", part3.shape)
         return tf.nn.bias_add(part2 + part3, self.w_0)
 
     def compute_output_shape(self, input_shape):

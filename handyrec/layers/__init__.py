@@ -4,6 +4,7 @@ from .tools import (
     EmbeddingIndex,
     SampledSoftmaxLayer,
     RemoveMask,
+    CustomEmbedding,
 )
 
 
@@ -14,4 +15,5 @@ __all__ = [
     "EmbeddingIndex",
     "SampledSoftmaxLayer",
     "RemoveMask",
+    "CustomEmbedding",
 ]

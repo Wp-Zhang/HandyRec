@@ -1,6 +1,7 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Layer
+from tensorflow.keras.layers import Layer, Embedding
 from tensorflow.keras.initializers import Zeros
+import tensorflow.keras.backend as backend
 from typing import List
 
 
@@ -22,11 +23,10 @@ class SequencePoolingLayer(Layer):
         if mask is None:
             raise ValueError("Embedding layer should set `mask_zero` as True")
         # * inputs: (batch, seq_max_len, emb_dim)
-        # * mask: (batch, seq_max_len)
+        # * mask: (batch, seq_max_len, emb_dim)
         # * output: (batch, 1, emb_dim)
-
         mask = tf.dtypes.cast(mask, tf.float32)
-        mask = tf.expand_dims(mask, axis=-1)  # (batch, seq_max_len, 1)
+        # mask = tf.expand_dims(mask, axis=-1)  # (batch, seq_max_len, 1)
 
         if self.method == "max":
             output = inputs - (1 - mask) * 1e9
@@ -129,3 +129,21 @@ class RemoveMask(Layer):
 
     def compute_mask(self, inputs, mask):
         return None
+
+
+class CustomEmbedding(Embedding):
+    """
+    Rewrite official embedding layer so that masked and
+        un-masked embeddings can be concatenated together.
+    """
+
+    def compute_mask(self, inputs, mask=None):
+        if not self.mask_zero:
+            return None
+        else:
+            # * Rewrite compute_mask
+            mask = tf.not_equal(inputs, 0)  # (?, n)
+            mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
+            tile_shape = [1] * (len(mask.shape) - 1) + [self.output_dim]
+            mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
+            return mask
