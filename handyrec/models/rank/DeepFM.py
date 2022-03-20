@@ -19,6 +19,7 @@ def DeepFM(
     dnn_hidden_units: Tuple[int] = (64, 32, 1),
     dnn_activation: str = "relu",
     dnn_dropout: float = 0,
+    dnn_bn: bool = False,
     l2_dnn: float = 0,
     l2_emb: float = 1e-6,
     task: str = "binary",
@@ -31,7 +32,8 @@ def DeepFM(
         dnn_features (List[Any]): input feature list for DNN
         dnn_hidden_units (Tuple[int], optional): DNN structure. Defaults to (64, 32).
         dnn_activation (str, optional): DNN activation function. Defaults to "relu".
-        dnn_dropout (float, optional): DNN dropout ratio. Defaults to 0..
+        dnn_dropout (float, optional): DNN dropout ratio. Defaults to 0.
+        dnn_bn (bool, optional): whether to use batch normalization. Defaults to False.
         l2_dnn (float, optional): DNN l2 regularization param. Defaults to 0.
         l2_emb (float, optional): embedding l2 regularization param. Defaults to 1e-6.
         task (str, optional): model task, should be `binary` or `regression`. Defaults to `binary`
@@ -85,9 +87,10 @@ def DeepFM(
     dnn_output = DNN(
         hidden_units=dnn_hidden_units,
         activation=dnn_activation,
-        output_activation="linear",
         l2_reg=l2_dnn,
         dropout_rate=dnn_dropout,
+        user_bn=dnn_bn,
+        output_activation="linear",
         seed=seed,
     )(dnn_input)
     fm_output = FM()(fm_input)
