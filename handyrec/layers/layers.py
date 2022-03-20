@@ -61,11 +61,17 @@ class DNN(Layer):
                     activation=self.output_activation,
                     kernel_regularizer=l2(self.l2_reg),
                 )
-            self.layers += [
-                dense_layer,
-                BatchNormalization(),
-                Dropout(self.dropout_rate, seed=self.seed + i),
-            ]
+            if self.use_bn:
+                self.layers += [
+                    dense_layer,
+                    BatchNormalization(),
+                    Dropout(self.dropout_rate, seed=self.seed + i),
+                ]
+            else:
+                self.layers += [
+                    dense_layer,
+                    Dropout(self.dropout_rate, seed=self.seed + i),
+                ]
         self.layers = Sequential(self.layers)
 
     def call(self, inputs, training=None, **kwargs):

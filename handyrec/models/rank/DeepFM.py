@@ -1,8 +1,7 @@
 from typing import OrderedDict, Tuple, List, Any
-
+import warnings
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Activation
-import warnings
 
 from ...features.utils import split_features
 from ...layers import SequencePoolingLayer, DNN, FM
