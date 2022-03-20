@@ -30,3 +30,13 @@ def _rk(actual, predicted, k=10):
 
 def recall_at_k(actual, predicted, k=12):
     return np.mean([_rk(a, p, k) for a, p in zip(actual, predicted)])
+
+
+def hr_at_k(label, pred, k=10):
+    count = 0
+    for i in range(len(label)):
+        for p in pred[i][:k]:
+            if p in label[i]:
+                count += 1
+                break
+    return count / len(label)
