@@ -1,8 +1,7 @@
 from typing import OrderedDict, Tuple, List, Any
-
+import warnings
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Activation
-import warnings
 
 from ...features.utils import split_features
 from ...layers import SequencePoolingLayer, DNN, FM
@@ -89,7 +88,7 @@ def DeepFM(
         activation=dnn_activation,
         l2_reg=l2_dnn,
         dropout_rate=dnn_dropout,
-        user_bn=dnn_bn,
+        use_bn=dnn_bn,
         output_activation="linear",
         seed=seed,
     )(dnn_input)
