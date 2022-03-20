@@ -1,19 +1,19 @@
 ![Logo](https://github.com/Wp-Zhang/HandyRec/blob/master/logo.png)
 
-![TF Depend](https://img.shields.io/badge/TensorFlow-2.1-orange)
+![TF Depend](https://img.shields.io/badge/TensorFlow-2.1+-orange)
 ![License Badge](https://img.shields.io/badge/license-Apache%202-green)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9e1122d78ad345acb7fa5d9c72b64d91)](https://www.codacy.com/gh/Wp-Zhang/HandyRec/dashboard?utm_source=github.com&utm_medium=referral&utm_content=Wp-Zhang/HandyRec&utm_campaign=Badge_Grade)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## 📝 Description
 
-**HandyRec** is a package of deep-learning recommendation models implemented with **TF2.1** ✨. It is meant to be an **easy-to-use** and **easy-to-read** package for people who want to use or learn deep-learning recommendation models.
+**HandyRec** is a package of deep-learning recommendation models implemented with **TF2.5** ✨. It is meant to be an **easy-to-use** and **easy-to-read** package for people who want to use or learn deep-learning recommendation models.
 
 It is currently a personal project for learning purposes. I recently started to learn deep-learning recommendation algorithms and design patterns💦. I'll try to implement some classical algorithms along with example notebooks here.
 
 ## 💡Models
 
-### Matching / Candidate Generation
+### Matching
 
 | Model      | Paper                                                                                                                 | Example                                                                                                                                                    |
 | :--------- | :-------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -34,7 +34,7 @@ This project is under development and has not been packaged yet😣. Please down
 
 ## 🗺️ TODO List
 
--   [ ] 🎨 design the structure of this project
+-   [ ] 🎨 redesign the structure of the whole project
 -   [ ] 🛠️ add unit testing
 -   [ ] 🚧 package this project (when >10 models are implemented)
 
