@@ -1,7 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Embedding
 from tensorflow.keras.initializers import Zeros
-import tensorflow.keras.backend as backend
 from typing import List
 
 
@@ -17,7 +16,6 @@ class SequencePoolingLayer(Layer):
             "sum",
         ], "Pooling method should be `mean`, `max`, or `sum`"
         self.method = method
-        # self.eps = tf.constant(1e-8, tf.float32)
 
     def call(self, inputs, mask=None):
         if mask is None:
@@ -114,21 +112,6 @@ class SampledSoftmaxLayer(Layer):
         config = {"num_sampled": self.num_sampled}
         base_config = super().get_config()
         return dict(list(base_config.items()) + list(config.items()))
-
-
-class RemoveMask(Layer):
-    """Remove mask of input to avoid some potential problems,
-    e.g. concatenate masked tensors with normal ones on axis 1
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    def call(self, inputs, mask=None, **kwargs):
-        return inputs
-
-    def compute_mask(self, inputs, mask):
-        return None
 
 
 class CustomEmbedding(Embedding):

@@ -1,4 +1,3 @@
-from xmlrpc.client import boolean
 import faiss
 import numpy as np
 
@@ -9,7 +8,7 @@ def search_embedding(
     user_embd: np.ndarray,
     item_list: np.ndarray,
     n: int,
-    gpu: boolean = False,
+    gpu: bool = False,
 ) -> np.ndarray:
     """Search top n similar item embeddings for each user embedding
 
@@ -20,7 +19,7 @@ def search_embedding(
         user_ids (Iterable): list of target users
         item_list (np.ndarray): full item numpy array, has same length with `item_embd`
         n (int): number of candidate items for each user
-        gpu (boolean, optional): use gpu to search. Defaults to False.
+        gpu (bool, optional): use gpu to search. Defaults to False.
 
     Returns:
         np.array: search result. (NUM_USERS x n)
