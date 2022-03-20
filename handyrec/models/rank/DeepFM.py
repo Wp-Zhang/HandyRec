@@ -89,7 +89,7 @@ def DeepFM(
         activation=dnn_activation,
         l2_reg=l2_dnn,
         dropout_rate=dnn_dropout,
-        user_bn=dnn_bn,
+        use_bn=dnn_bn,
         output_activation="linear",
         seed=seed,
     )(dnn_input)
