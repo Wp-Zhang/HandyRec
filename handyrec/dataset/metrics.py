@@ -15,7 +15,7 @@ def _apk(actual, predicted, k=10):
     return score / min(len(actual), k)
 
 
-def mapk(actual, predicted, k=12):
+def map_at_k(actual, predicted, k=12):
     return np.mean([_apk(a, p, k) for a, p in zip(actual, predicted)])
 
 
