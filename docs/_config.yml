@@ -4,46 +4,42 @@
 # which you are expected to set up once and rarely need to edit after that.
 # For technical reasons, this file is *NOT* reloaded automatically when you use
 # 'jekyll serve'. If you change this file, please restart the server process.
-
-## !USE TEXT THEME
-theme: jekyll-theme-architect
-# remote_theme: kitian616/jekyll-TeXt-theme # Jekyll Remote Theme, see https://github.com/benbalter/jekyll-remote-theme for more information.
 #
 # ,--------.      ,--.   ,--. ,--.
 # '--.  .--',---.  \  `.'  /,-'  '-.
 #    |  |  | .-. :  .'    \ '-.  .-'
 #    |  |  \   --. /  .'.  \  |  |
 #    `--'   `----''--'   '--' `--'
+
+
+
+
 ## => Site Settings
 ##############################
 text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
 highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
 url     : https://wp-zhang.github.io # the base hostname & protocol for your site e.g. https://www.someone.com
 baseurl : /HandyRec # does not include hostname
-title   : HandyRec Documentation
+title   : HandyRec
 description: > # this means to ignore newlines until "Language & timezone"
-  A package of common deep learning recommending algorithms implemented with TF2.0. Currently a personal project for learning purposes.
+  A package of common deep learning recommending algorithms implemented with TF2.5✨
 
 
 ## => Language and Timezone
 ##############################
 lang: en # the language of your site, default as "en"
-timezone: US/Eastern # see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for the available values
+timezone: # see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for the available values
 
 
 ## => Author and Social
 ##############################
-author: 
+author:
   type      : # "person" (default), "organization"
-  name      : HandyRec
+  name      : Weipeng Zhang
   url       :
   avatar    : # path or url of avatar image (square)
-  bio: >
-    HandyRec is a package of deep-learning recommendation models implemented with TF2.5 ✨. It is meant to be an easy-to-use and easy-to-read package for people who want to use or learn deep-learning recommendation models. 
-    
-    It is currently a personal project for learning purposes. I recently started to learn deep-learning recommendation algorithms and design patterns💦. I'll try to implement some classical algorithms along with example notebooks here.
-
-  email     : wp.zhang@hotmail.com
+  bio       : 
+  email     :
   facebook  : # "user_name" the last part of your profile url, e.g. https://www.facebook.com/user_name
   twitter   : # "user_name" the last part of your profile url, e.g. https://twitter.com/user_name
   weibo     : # "user_id"   the last part of your profile url, e.g. https://www.weibo.com/user_id/profile?...
@@ -59,8 +55,8 @@ author:
 
 ## => GitHub Repository (if the site is hosted by GitHub)
 ##############################
-repository: Wp-Zhang/Handy-Rec
-repository_tree: master
+repository: Wp-Zhang/HandyRec
+repository_tree: doc
 
 
 ## => Paths
@@ -78,7 +74,7 @@ paths:
 excerpt_separator: <!--more-->
 
 ## license
-license: CC-BY-NC-4.0 # "CC-BY-4.0", "CC-BY-SA-4.0", "CC-BY-NC-4.0", "CC-BY-ND-4.0"
+license: Apache-2.0 # "CC-BY-4.0", "CC-BY-SA-4.0", "CC-BY-NC-4.0", "CC-BY-ND-4.0"
 
 ## TOC
 toc:
@@ -201,9 +197,14 @@ exclude:
   - package.json
   # - /docs
   - /node_modules
-  # - /screenshots
-  # - /test
+  - /screenshots
+  - /test
   - /vendor
+
+# collections_dir: docs
+collections:
+  docs:
+    output: true
 
 defaults:
   - scope:
@@ -232,7 +233,7 @@ defaults:
         toc: true
       show_edit_on_github: true
       show_date: false
-      # lightbox: true
+      lightbox: true
   - scope:
       path: "_docs/zh"
     values:
@@ -246,8 +247,7 @@ defaults:
       lang: zh
       show_edit_on_github: true
       show_date: false
-      # lightbox: true
-
+      lightbox: true
 ## => Plugins
 ##############################
 plugins:
