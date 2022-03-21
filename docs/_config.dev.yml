@@ -6,7 +6,7 @@
 # 'jekyll serve'. If you change this file, please restart the server process.
 
 ## !USE TEXT THEME
-theme: jekyll-theme-architect
+theme: jekyll-text-theme # Gem-based Jekyll Themes
 # remote_theme: kitian616/jekyll-TeXt-theme # Jekyll Remote Theme, see https://github.com/benbalter/jekyll-remote-theme for more information.
 #
 # ,--------.      ,--.   ,--. ,--.
@@ -18,8 +18,8 @@ theme: jekyll-theme-architect
 ##############################
 text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
 highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
-url     : https://wp-zhang.github.io # the base hostname & protocol for your site e.g. https://www.someone.com
-baseurl : /HandyRec # does not include hostname
+url     : http://localhost:4000 # the base hostname & protocol for your site e.g. https://www.someone.com
+baseurl : / # does not include hostname
 title   : HandyRec Documentation
 description: > # this means to ignore newlines until "Language & timezone"
   A package of common deep learning recommending algorithms implemented with TF2.0. Currently a personal project for learning purposes.
