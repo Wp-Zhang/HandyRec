@@ -14,3 +14,6 @@ CC-BY-ND-4.0:
   name: Attribution-NoDerivatives 4.0 International
   url: https://creativecommons.org/licenses/by-nd/4.0/
   image: https://i.creativecommons.org/l/by-nd/4.0/88x31.png
+Apache-2.0:
+  name: Apache License 2.0
+  url: https://github.com/Wp-Zhang/HandyRec/blob/master/LICENSE
