@@ -1,5 +1,4 @@
 from .match import YouTubeMatchDNN
+from .rank import YouTubeRankDNN, DeepFM
 
-from .rank import YouTubeRankDNN
-
-__all__ = ["YouTubeMatchDNN", "YouTubeRankDNN"]
+__all__ = ["YouTubeMatchDNN", "YouTubeRankDNN", "DeepFM"]

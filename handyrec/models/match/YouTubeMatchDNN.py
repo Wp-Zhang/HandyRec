@@ -3,15 +3,15 @@ from tensorflow.keras import Model
 from tensorflow.keras.layers import Lambda
 from typing import OrderedDict, Tuple, List, Any
 
-from ...features import SparseFeature
-from ...features.utils import split_features
-from ...layers import (
+from handyrec.features import SparseFeature
+from handyrec.features.utils import split_features
+from handyrec.layers import (
     SequencePoolingLayer,
     DNN,
     EmbeddingIndex,
     SampledSoftmaxLayer,
 )
-from ...layers.utils import (
+from handyrec.layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
     concat_inputs,

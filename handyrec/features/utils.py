@@ -1,4 +1,4 @@
-from .features import DenseFeature, SparseFeature, SparseSeqFeature
+from handyrec.features import DenseFeature, SparseFeature, SparseSeqFeature
 from typing import Union, List, Tuple, OrderedDict
 import collections
 
