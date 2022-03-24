@@ -134,7 +134,7 @@ class Similarity(Layer):
         if self.type == "cos":
             embd_a = tf.nn.l2_normalize(embd_a, axis=-1)
             embd_b = tf.nn.l2_normalize(embd_b, axis=-1)
-        output = tf.reduce_sum(tf.multiply(embd_a, embd_b), axis=-1)
+        output = tf.reduce_sum(tf.multiply(embd_a, embd_b), axis=-1, keepdims=True)
         return output
 
     def get_config(self):
