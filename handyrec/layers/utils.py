@@ -6,7 +6,7 @@ from tensorflow.keras import Input
 from tensorflow.keras.regularizers import l2
 from handyrec.features import SparseFeature, DenseFeature, SparseSeqFeature
 from handyrec.features.utils import split_features
-from handyrec.layers.tools import CustomEmbedding
+from .tools import CustomEmbedding
 
 
 def construct_input_layers(
