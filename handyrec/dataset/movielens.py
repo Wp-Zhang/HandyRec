@@ -116,6 +116,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
         features: List[str],
         data: dict,
         seq_max_len: int = 20,
+        negnum: int = 0,
         min_rating: float = 0.35,
         n: int = 10,
     ):
@@ -125,6 +126,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
             features (List[str]): feature list
             data (dict): data dictionary, keys: 'user', 'item', 'interact'
             seq_max_len (int, optional): maximum history sequence length. Defaults to 20.
+            negnum (int, optional): number of negative samples. Defaults to 0.
             min_rating (float, optional): minimum interact for positive smaples. Defaults to 0.35.
             n (int, optional): use the last n samples for each user to be the test set. Defaults to 10.
 
@@ -132,13 +134,14 @@ class MovieMatchDataHelper(MovielensDataHelper):
 
         data["interact"].sort_values("timestamp", inplace=True)
         df = data["interact"]
+        item_ids = set(data["item"]["movie_id"].values)
 
         # * Calculate number of rows of dataset to fasten the dataset generating process
         df = df[df["interact"] >= min_rating]
         counter = df[["user_id", "movie_id"]].groupby("user_id", as_index=False).count()
         counter = counter[counter["movie_id"] > n]
         df = df[df["user_id"].isin(counter["user_id"].values)]
-        train_rows = (counter["movie_id"] - n).sum()
+        train_rows = ((counter["movie_id"] - n) * (negnum + 1)).sum()
         test_rows = counter.shape[0]
 
         # * Generate rows
@@ -150,6 +153,11 @@ class MovieMatchDataHelper(MovielensDataHelper):
         p, q = 0, 0
         for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
             pos_list = hist["movie_id"].tolist()
+            if negnum > 0:
+                candidate_set = list(item_ids - set(pos_list))  # Negative samples
+                negs = np.random.choice(
+                    candidate_set, size=len(pos_list) * negnum, replace=True
+                )
             for i in range(len(pos_list) - n):
                 seq = pos_list[:i]
                 # Positive sample
@@ -161,6 +169,16 @@ class MovieMatchDataHelper(MovielensDataHelper):
                     seq[::-1],
                 ]
                 p += 1
+                # Negative smaples
+                for j in range(negnum):
+                    train_set[p] = [
+                        uid,
+                        negs[j],
+                        len(pos_list) - n - 1 - i,
+                        0,
+                        seq[::-1],
+                    ]
+                    p += 1
             i = len(pos_list) - n
             test_set[q] = [uid, pos_list[i:], 0, pos_list[:i][::-1]]
             q += 1

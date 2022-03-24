@@ -56,16 +56,8 @@ class EmbeddingIndex(Layer):
         self.index = index
         super().__init__(**kwargs)
 
-    def build(self, input_shape):
-        super().build(input_shape)
-
     def call(self, inputs, **kwargs):
         return tf.constant(self.index)
-
-    def get_config(self):
-        config = {"index": self.index}
-        base_config = super().get_config()
-        return dict(list(base_config.items()) + list(config.items()))
 
 
 class SampledSoftmaxLayer(Layer):
@@ -130,3 +122,22 @@ class CustomEmbedding(Embedding):
             tile_shape = [1] * (len(mask.shape) - 1) + [self.output_dim]
             mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
             return mask
+
+
+class Similarity(Layer):
+    def __init__(self, type: str, **kwargs):
+        self.type = type
+        super().__init__(**kwargs)
+
+    def call(self, inputs, *args, **kwargs):
+        embd_a, embd_b = inputs
+        if self.type == "cos":
+            embd_a = tf.nn.l2_normalize(embd_a, axis=-1)
+            embd_b = tf.nn.l2_normalize(embd_b, axis=-1)
+        output = tf.reduce_sum(tf.multiply(embd_a, embd_b), axis=-1)
+        return output
+
+    def get_config(self):
+        config = {"type": self.type}
+        base_config = super().get_config()
+        return dict(list(base_config.items()) + list(config.items()))
