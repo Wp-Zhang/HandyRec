@@ -3,9 +3,9 @@ import warnings
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Activation
 
-from ...features.utils import split_features
-from ...layers import SequencePoolingLayer, DNN, FM
-from ...layers.utils import (
+from handyrec.features.utils import split_features
+from handyrec.layers import SequencePoolingLayer, DNN, FM
+from handyrec.layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
     concat_inputs,

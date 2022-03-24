@@ -4,9 +4,9 @@ import tensorflow as tf
 from tensorflow.keras.layers import Embedding, Concatenate, Flatten
 from tensorflow.keras import Input
 from tensorflow.keras.regularizers import l2
-from ..features import SparseFeature, DenseFeature, SparseSeqFeature
-from ..features.utils import split_features
-from ..layers.tools import CustomEmbedding
+from handyrec.features import SparseFeature, DenseFeature, SparseSeqFeature
+from handyrec.features.utils import split_features
+from handyrec.layers.tools import CustomEmbedding
 
 
 def construct_input_layers(
