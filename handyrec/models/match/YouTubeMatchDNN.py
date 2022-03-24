@@ -3,15 +3,15 @@ from tensorflow.keras import Model
 from tensorflow.keras.layers import Lambda
 from typing import OrderedDict, Tuple, List, Any
 
-from ...features import SparseFeature
-from ...features.utils import split_features
-from ...layers import (
+from handyrec.features import SparseFeature
+from handyrec.features.utils import split_features
+from handyrec.layers import (
     SequencePoolingLayer,
     DNN,
     EmbeddingIndex,
     SampledSoftmaxLayer,
 )
-from ...layers.utils import (
+from handyrec.layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
     concat_inputs,
@@ -100,14 +100,10 @@ def YouTubeMatchDNN(
     )
     user_inputs = [input_layers[f] for f in user_inputs]
 
-    # ! I know the code is ugly, but otherwise there will raise some strange error in eager mode
     def gather_embedding(inputs):
         full_item_embd, index = inputs
         return tf.squeeze(tf.gather(full_item_embd, index), axis=1)
 
-    # item_embedding = Lambda(lambda x: gather_embedding(x))(
-    #     [full_item_embd, item_id_input]
-    # )
     item_embedding = Lambda(gather_embedding)([full_item_embd, item_id_input])
 
     # * Construct model

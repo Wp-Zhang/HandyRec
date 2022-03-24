@@ -3,7 +3,6 @@ from .tools import (
     SequencePoolingLayer,
     EmbeddingIndex,
     SampledSoftmaxLayer,
-    RemoveMask,
     CustomEmbedding,
 )
 

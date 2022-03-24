@@ -5,6 +5,7 @@ test.ipynb
 *.h5
 coverage.xml
 codacy_coverage.sh
+HandyRec.egg-info
 
 # docs
 *~
