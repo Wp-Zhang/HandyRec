@@ -6,7 +6,7 @@ import numpy as np
 import gc
 import os
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from handyrec.dataset import DataHelper
+from .datahelper import DataHelper
 from typing import Dict
 
 
