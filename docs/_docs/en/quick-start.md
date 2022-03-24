@@ -18,7 +18,7 @@ git clone https://github.com/Wp-Zhang/HandyRec.git
 Then add this line in the front of your code:
 ```python
 import sys
-sys.append('/YOUR/PATH/HandeyRec')
+sys.append('/YOUR/PATH/HandeyRec/')
 ```
 
 Now you can import HandyRec as a local module!
