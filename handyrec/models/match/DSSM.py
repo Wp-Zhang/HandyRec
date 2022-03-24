@@ -5,7 +5,7 @@ from tensorflow.keras.layers import Activation
 from tensorflow.keras.losses import cosine_similarity
 
 from handyrec.features.utils import split_features
-from handyrec.layers import SequencePoolingLayer, DNN
+from handyrec.layers import SequencePoolingLayer, DNN, Similarity
 from handyrec.layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
@@ -97,8 +97,9 @@ def DSSM(
     )(i_dnn_input)
 
     # * Output
-    output = cosine_similarity(u_embedding, i_embedding, axis=-1) * gamma
-    output = tf.reshape(output, (-1, 1))
+    # output = cosine_similarity(u_embedding, i_embedding, axis=-1) * gamma
+    output = Similarity("cos")([u_embedding, i_embedding]) * gamma
+    # output = tf.reshape(output, (-1, 1))
     output = Activation("softmax")(output)
 
     # * Construct model
