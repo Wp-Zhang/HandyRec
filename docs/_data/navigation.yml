@@ -69,10 +69,40 @@ header:
 docs-en:
   - title:      Start
     children:
-      - title:  Quick Start
+      - title:  ✨ Quick Start
         url:    /docs/en/quick-start
-      - title:  Structure
-        url:    /docs/en/structure
+  - title:  dataset
+    children:
+      - title:  dataset.datahelper
+        url:    docs/en/dataset-datahelper
+      - title:  dataset.metrics
+        url:    docs/en/dataset-metrics
+      - title:  dataset.movielens
+        url:    docs/en/dataset-movielens
+  - title:  features
+    children:
+      - title:  features.features
+        url:    docs/en/features-features
+      - title:  features.utils
+        url:    docs/en/features-utils
+  - title:  layers
+    children:
+    - title:  layers.layers
+      url:    docs/en/layers-layers
+    - title:  layers.tools
+      url:    docs/en/layers-tools
+    - title:  layers.utils
+      url:    docs/en/layers-utils
+  - title:  models
+    children:
+      - title:  models.match.YouTubeMatchDNN
+        url:    docs/en/models-match-YouTubeMatchDNN
+      - title:  models.rank.YouTubeRankDNN
+        url:    docs/en/models-rank-YouTubeRankDNN
+      - title:  models.rank.DeepFM
+        url:    docs/en/models-rank-DeepFM
+      - title:  models.utils
+        url:    docs/en/models-utils
   # - title:      Languages
   #   children:
   #     - title:  中文
