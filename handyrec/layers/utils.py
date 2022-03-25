@@ -36,11 +36,6 @@ def construct_input_layers(
         input_layers[feat.name] = Input(shape=(1,), name=feat.name, dtype=feat.dtype)
 
     for feat in sparse_seq_feats.values():
-        input_layers[feat.sparse_feat.name] = Input(
-            shape=(1,),
-            name=feat.sparse_feat.name,
-            dtype=feat.sparse_feat.dtype,
-        )
         input_layers[feat.name] = Input(
             shape=(feat.seq_len,), name=feat.name, dtype=feat.dtype
         )

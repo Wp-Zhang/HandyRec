@@ -68,10 +68,19 @@ class DataHelper(ABC):
 
         feature_dim = {}
         for feat in user_features:
-            feature_dim[feat] = np.max(data["user"][feat]) + 1
+            try:
+                feature_dim[feat] = np.max(data["user"][feat]) + 1
+            except:
+                pass
         for feat in item_features:
-            feature_dim[feat] = np.max(data["item"][feat]) + 1
+            try:
+                feature_dim[feat] = np.max(data["item"][feat]) + 1
+            except:
+                pass
         for feat in interact_features:
-            feature_dim[feat] = np.max(data["interact"][feat]) + 1
+            try:
+                feature_dim[feat] = np.max(data["interact"][feat]) + 1
+            except:
+                pass
 
         return feature_dim

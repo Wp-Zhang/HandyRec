@@ -52,8 +52,18 @@ class MovielensDataHelper(DataHelper):
             encoding="latin-1",
             engine="python",
         )
-        genres = movies["genres"].str.get_dummies(sep="|")
-        movies = pd.concat([movies[["movie_id", "title"]], genres], axis=1)
+        movies["year"] = movies["title"].str.slice(-5, -1).astype(int)
+        genres = list(movies["genres"].str.get_dummies(sep="|").columns)
+        genre_map = {x: i + 1 for i, x in enumerate(genres)}  # index 0 is for padding
+        movies["genres"] = movies["genres"].apply(
+            lambda x: sorted([genre_map[k] for k in x.split("|")])
+        )
+        pad_genres = pad_sequences(movies["genres"], padding="post")
+        movies["genres"] = (
+            movies.reset_index()
+            .pop("index")
+            .apply(lambda x: pad_genres[x - 1].tolist())
+        )
 
         return {"item": movies, "user": user, "interact": ratings}
 
@@ -225,8 +235,8 @@ class MovieMatchDataHelper(MovielensDataHelper):
         gc.collect()
 
         for key in tqdm([x for x in user.columns if x in features and x != "user_id"]):
-            train_tmp_array = user[key].loc[train_uid].values
-            test_tmp_array = user[key].loc[test_uid].values
+            train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+            test_tmp_array = np.array(user[key].loc[test_uid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
             np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
@@ -236,7 +246,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
         gc.collect()
 
         for key in tqdm([x for x in item.columns if x in features and x != "movie_id"]):
-            train_tmp_array = item[key].loc[train_iid].values
+            train_tmp_array = np.array(item[key].loc[train_iid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
             del train_tmp_array
             gc.collect()
@@ -425,8 +435,8 @@ class MovieRankDataHelper(MovielensDataHelper):
         gc.collect()
 
         for key in tqdm([x for x in user.columns if x in features and x != "user_id"]):
-            train_tmp_array = user[key].loc[train_uid].values
-            test_tmp_array = user[key].loc[test_uid].values
+            train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+            test_tmp_array = np.array(user[key].loc[test_uid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
             np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
@@ -436,8 +446,8 @@ class MovieRankDataHelper(MovielensDataHelper):
         gc.collect()
 
         for key in tqdm([x for x in item.columns if x in features and x != "movie_id"]):
-            train_tmp_array = item[key].loc[train_iid].values
-            test_tmp_array = item[key].loc[test_iid].values
+            train_tmp_array = np.array(item[key].loc[train_iid].tolist())
+            test_tmp_array = np.array(item[key].loc[test_iid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
             np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
