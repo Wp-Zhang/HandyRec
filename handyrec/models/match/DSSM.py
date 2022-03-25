@@ -1,11 +1,18 @@
 from typing import OrderedDict, Tuple, List, Any
+import warnings
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import Lambda
 from tensorflow.keras.losses import cosine_similarity
 
 from handyrec.features.utils import split_features
-from handyrec.layers import SequencePoolingLayer, DNN, Similarity
+from handyrec.layers import (
+    SequencePoolingLayer,
+    DNN,
+    Similarity,
+    EmbeddingIndex,
+    SampledSoftmaxLayer,
+)
 from handyrec.layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
@@ -16,6 +23,7 @@ from handyrec.layers.utils import (
 def DSSM(
     user_features: List[Any],
     item_features: List[Any],
+    item_id_name: str,
     user_dnn_hidden_units: Tuple[int] = (64, 32),
     item_dnn_hidden_units: Tuple[int] = (64, 32),
     dnn_activation: str = "relu",
@@ -23,6 +31,7 @@ def DSSM(
     dnn_bn: bool = False,
     l2_dnn: float = 0,
     l2_emb: float = 1e-6,
+    num_sampled: int = 1,
     gamma: float = 0.2,
     seed: int = 2022,
 ):
@@ -31,6 +40,7 @@ def DSSM(
     Args:
         user_features (List[Any]): user feature list
         item_features (List[Any]): item feature list
+        item_id_name (str): name of item id
         user_dnn_hidden_units (Tuple[int], optional): user DNN structure. Defaults to (64, 32).
         item_dnn_hidden_units (Tuple[int], optional): item DNN structure. Defaults to (64, 32).
         dnn_activation (str, optional): DNN activation function. Defaults to "relu".
@@ -38,7 +48,8 @@ def DSSM(
         dnn_bn (bool, optional): whether to use batch normalization. Defaults to False.
         l2_dnn (float, optional): DNN l2 regularization param. Defaults to 0.
         l2_emb (float, optional): embedding l2 regularization param. Defaults to 1e-6.
-        gamma (float, optional): smoothing factor for softmax mention in DSSM paper chapter 3.3. Defaults to 0.2.
+        num_sampled (int, optional): number of negative smaples in SampledSoftmax. Defaults to 1.
+        gamma (float, optional): smoothing factor for softmax mentioned in DSSM paper chapter 3.3. Defaults to 0.2.
         seed (int, optional): random seed of dropout. Defaults to 2022.
     """
     if len(user_features) < 1:
@@ -49,32 +60,42 @@ def DSSM(
     # * Group features by their types
     u_dense_f, u_sparse_f, u_sparse_seq_f = split_features(user_features)
     i_dense_f, i_sparse_f, i_sparse_seq_f = split_features(item_features)
-    _, sparse_f, sparse_seq_f = split_features(user_features + item_features)
+    if len(i_dense_f) > 0:
+        warnings.WarningMessage(
+            "DSSM doesn't support item dense feature now, they will be ignored!"
+        )
 
     # * Get input and embedding layers
     input_layers = construct_input_layers(user_features + item_features)
     embd_layers = construct_embedding_layers(user_features + item_features, l2_emb)
 
+    # * Get full item index
+    item_id_input = input_layers[item_id_name]
+    item_index = EmbeddingIndex(list(range(i_sparse_f[item_id_name].vocab_size)))(
+        item_id_input
+    )
+
     # * Embedding output: input layer -> embedding layer (-> pooling layer)
-    embd_outputs = OrderedDict()
-    for feat in sparse_f.keys():
-        embd_outputs[feat] = embd_layers[feat](input_layers[feat])
-    for feat in sparse_seq_f.values():
+    u_embd_outputs = OrderedDict()
+    for feat in u_sparse_f.keys():
+        u_embd_outputs[feat] = embd_layers[feat](input_layers[feat])
+    for feat in u_sparse_seq_f.values():
         sparse_emb = embd_layers[feat.sparse_feat.name]
         seq_input = input_layers[feat.name]
-        embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(seq_input))
+        u_embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(seq_input))
+
+    i_embd_outputs = OrderedDict()
+    for feat in i_sparse_f.keys():
+        i_embd_outputs[feat] = embd_layers[feat](item_index)
+    for feat in i_sparse_seq_f.values():
+        sparse_emb = embd_layers[feat.sparse_feat.name]
+        i_embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(item_index))
 
     # * Concat input layers -> DNN
     u_dnn_input = concat_inputs(
-        [input_layers[k] for k in u_dense_f.keys()],
-        [embd_outputs[k] for k in u_sparse_f.keys()]
-        + [embd_outputs[k] for k in u_sparse_seq_f.keys()],
+        [input_layers[k] for k in u_dense_f.keys()], list(u_embd_outputs.values())
     )
-    i_dnn_input = concat_inputs(
-        [input_layers[k] for k in i_dense_f.keys()],
-        [embd_outputs[k] for k in i_sparse_f.keys()]
-        + [embd_outputs[k] for k in i_sparse_seq_f.keys()],
-    )
+    i_dnn_input = concat_inputs([], list(i_embd_outputs.values()))
 
     u_embedding = DNN(
         hidden_units=user_dnn_hidden_units,
@@ -96,19 +117,28 @@ def DSSM(
         seed=seed,
     )(i_dnn_input)
 
-    # * Output
-    # output = cosine_similarity(u_embedding, i_embedding, axis=-1) * gamma
-    output = Similarity("cos")([u_embedding, i_embedding]) * gamma
-    # output = tf.reshape(output, (-1, 1))
-    output = Activation("softmax")(output)
+    # * Sampled cosine similarity softmax output
+    output = SampledSoftmaxLayer(num_sampled=num_sampled)(
+        [
+            tf.nn.l2_normalize(i_embedding) * gamma,
+            tf.nn.l2_normalize(u_embedding),
+            input_layers[item_id_name],
+        ]
+    )
 
     # * Construct model
+    def gather_embedding(inputs):
+        full_item_embd, index = inputs
+        return tf.squeeze(tf.gather(full_item_embd, index), axis=1)
+
+    item_embedding = Lambda(gather_embedding)([i_embedding, input_layers[item_id_name]])
+
     user_inputs = [input_layers[f.name] for f in user_features]
     item_inputs = [input_layers[f.name] for f in item_features]
     model = Model(inputs=list(input_layers.values()), outputs=output)
     model.__setattr__("user_input", user_inputs)
     model.__setattr__("user_embedding", u_embedding)
     model.__setattr__("item_input", item_inputs)
-    model.__setattr__("item_embedding", i_embedding)
+    model.__setattr__("item_embedding", item_embedding)
 
     return model
