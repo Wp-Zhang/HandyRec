@@ -1,4 +1,4 @@
-from typing import OrderedDict, Tuple, List, Any
+from typing import OrderedDict, Tuple, List, Any, Dict
 import warnings
 import tensorflow as tf
 from tensorflow.keras import Model
@@ -10,7 +10,7 @@ from handyrec.layers import (
     SequencePoolingLayer,
     DNN,
     Similarity,
-    EmbeddingIndex,
+    ValueTable,
     SampledSoftmaxLayer,
 )
 from handyrec.layers.utils import (
@@ -24,6 +24,7 @@ def DSSM(
     user_features: List[Any],
     item_features: List[Any],
     item_id_name: str,
+    full_item_dict: Dict,
     user_dnn_hidden_units: Tuple[int] = (64, 32),
     item_dnn_hidden_units: Tuple[int] = (64, 32),
     dnn_activation: str = "relu",
@@ -40,7 +41,8 @@ def DSSM(
     Args:
         user_features (List[Any]): user feature list
         item_features (List[Any]): item feature list
-        item_id_name (str): name of item id
+        item_id_name (str): name of item id,
+        full_item_dict (Dict): full item feature map dict, {feature name:value array}
         user_dnn_hidden_units (Tuple[int], optional): user DNN structure. Defaults to (64, 32).
         item_dnn_hidden_units (Tuple[int], optional): item DNN structure. Defaults to (64, 32).
         dnn_activation (str, optional): DNN activation function. Defaults to "relu".
@@ -69,13 +71,7 @@ def DSSM(
     input_layers = construct_input_layers(user_features + item_features)
     embd_layers = construct_embedding_layers(user_features + item_features, l2_emb)
 
-    # * Get full item index
-    item_id_input = input_layers[item_id_name]
-    item_index = EmbeddingIndex(list(range(i_sparse_f[item_id_name].vocab_size)))(
-        item_id_input
-    )
-
-    # * Embedding output: input layer -> embedding layer (-> pooling layer)
+    # * Get embedding: input layer -> embedding layer (-> pooling layer)
     u_embd_outputs = OrderedDict()
     for feat in u_sparse_f.keys():
         u_embd_outputs[feat] = embd_layers[feat](input_layers[feat])
@@ -84,12 +80,17 @@ def DSSM(
         seq_input = input_layers[feat.name]
         u_embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(seq_input))
 
+    # * Get full item embedding: input layer -> full value list -> embedding layer (-> pooling layer)
     i_embd_outputs = OrderedDict()
     for feat in i_sparse_f.keys():
-        i_embd_outputs[feat] = embd_layers[feat](item_index)
+        embd_layer_input = ValueTable(full_item_dict[feat])(input_layers[feat])
+        i_embd_outputs[feat] = embd_layers[feat](embd_layer_input)
     for feat in i_sparse_seq_f.values():
         sparse_emb = embd_layers[feat.sparse_feat.name]
-        i_embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(item_index))
+        seq_input = ValueTable(full_item_dict[feat.name])(input_layers[feat.name])
+        i_embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(seq_input))
+        i_embd_outputs[feat.name] = tf.squeeze(i_embd_outputs[feat.name])
+        # * shape: (batch, 1, n) -> (batch, n)
 
     # * Concat input layers -> DNN
     u_dnn_input = concat_inputs(
