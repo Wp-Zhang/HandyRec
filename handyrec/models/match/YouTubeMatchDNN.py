@@ -8,7 +8,7 @@ from handyrec.features.utils import split_features
 from handyrec.layers import (
     SequencePoolingLayer,
     DNN,
-    EmbeddingIndex,
+    ValueTable,
     SampledSoftmaxLayer,
 )
 from handyrec.layers.utils import (
@@ -73,7 +73,7 @@ def YouTubeMatchDNN(
 
     # * Get full item embedding
     item_id_input = input_layers[item_id.name]
-    item_index = EmbeddingIndex(list(range(item_id.vocab_size)))(item_id_input)
+    item_index = ValueTable(list(range(item_id.vocab_size)))(item_id_input)
     full_item_embd = embd_layers[item_id.name](item_index)
 
     # * Concat input layers -> DNN

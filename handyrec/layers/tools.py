@@ -49,15 +49,18 @@ class SequencePoolingLayer(Layer):
         return dict(list(base_config.items()) + list(config.items()))
 
 
-class EmbeddingIndex(Layer):
-    """Output full index of embedding nomatter input"""
+class ValueTable(Layer):
+    """Output full list of values of a feature as input of embedding layer"""
 
-    def __init__(self, index: List[int], **kwargs):
-        self.index = index
+    def __init__(self, value_list: List[int], **kwargs):
+        self.value_list = value_list
         super().__init__(**kwargs)
 
-    def call(self, inputs, **kwargs):
-        return tf.constant(self.index)
+    def call(self, inputs, *args, **kwargs):
+        return tf.constant(self.value_list)
+
+    def get_config(self):
+        return super().get_config()
 
 
 class SampledSoftmaxLayer(Layer):
