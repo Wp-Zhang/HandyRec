@@ -33,8 +33,9 @@ def DSSM(
     l2_dnn: float = 0,
     l2_emb: float = 1e-6,
     num_sampled: int = 1,
-    gamma: float = 0.2,
     seed: int = 2022,
+    cos_sim: bool = False,
+    gamma: float = 1,
 ):
     """Implemetation of the classic two tower model originated from DSSM.
 
@@ -51,8 +52,9 @@ def DSSM(
         l2_dnn (float, optional): DNN l2 regularization param. Defaults to 0.
         l2_emb (float, optional): embedding l2 regularization param. Defaults to 1e-6.
         num_sampled (int, optional): number of negative smaples in SampledSoftmax. Defaults to 1.
-        gamma (float, optional): smoothing factor for softmax mentioned in DSSM paper chapter 3.3. Defaults to 0.2.
         seed (int, optional): random seed of dropout. Defaults to 2022.
+        cos_sim (bool, optional): whether use cosine similarity or not. Defaults to False
+        gamma (float, optional): smoothing factor for cosine similarity softmax. Defaults to 0.2.
     """
     if len(user_features) < 1:
         raise ValueError("Should have at least one user feature")
@@ -121,8 +123,8 @@ def DSSM(
     # * Sampled cosine similarity softmax output
     output = SampledSoftmaxLayer(num_sampled=num_sampled)(
         [
-            tf.nn.l2_normalize(i_embedding) * gamma,
-            tf.nn.l2_normalize(u_embedding),
+            tf.nn.l2_normalize(i_embedding) * gamma if cos_sim else i_embedding,
+            tf.nn.l2_normalize(u_embedding) if cos_sim else u_embedding,
             input_layers[item_id_name],
         ]
     )
