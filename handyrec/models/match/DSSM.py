@@ -3,7 +3,6 @@ import warnings
 import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Lambda
-from tensorflow.keras.losses import cosine_similarity
 
 from handyrec.features.utils import split_features
 from handyrec.layers import (
@@ -65,9 +64,7 @@ def DSSM(
     u_dense_f, u_sparse_f, u_sparse_seq_f = split_features(user_features)
     i_dense_f, i_sparse_f, i_sparse_seq_f = split_features(item_features)
     if len(i_dense_f) > 0:
-        warnings.WarningMessage(
-            "DSSM doesn't support item dense feature now, they will be ignored!"
-        )
+        warnings.warn("DSSM doesn't support item dense feature now, will be ignored!")
 
     # * Get input and embedding layers
     input_layers = construct_input_layers(user_features + item_features)
