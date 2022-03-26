@@ -22,9 +22,10 @@ def YouTubeMatchDNN(
     user_features: List[Any],
     item_id: SparseFeature,
     num_sampled: int = 1,
-    user_dnn_hidden_units: Tuple[int] = (64, 32),
+    dnn_hidden_units: Tuple[int] = (64, 32),
     dnn_activation: str = "relu",
     dnn_dropout: float = 0,
+    dnn_bn: bool = False,
     l2_dnn: float = 0,
     l2_emb: float = 1e-6,
     seed: int = 2022,
@@ -35,11 +36,12 @@ def YouTubeMatchDNN(
         user_features (List[Any]): user feature list
         item_id (SparseFeature): item id
         num_sampled (int, optional): number of negative smaples in SampledSoftmax. Defaults to 1.
-        user_dnn_hidden_units (Tuple[int], optional): DNN structure. Defaults to (64, 32).
+        dnn_hidden_units (Tuple[int], optional): DNN structure. Defaults to (64, 32).
         dnn_activation (str, optional): DNN activation function. Defaults to "relu".
+        dnn_dropout (float, optional): DNN dropout ratio. Defaults to 0.
+        dnn_bn (bool, optional): whether use batch normalization or not. Defaults to False.
         l2_dnn (float, optional): DNN l2 regularization param. Defaults to 0.
         l2_emb (float, optional): embedding l2 regularization param. Defaults to 1e-6.
-        dnn_dropout (float, optional): DNN dropout ratio. Defaults to 0.
         seed (int, optional): random seed of dropout. Defaults to 2022.
 
     Raises:
@@ -50,7 +52,7 @@ def YouTubeMatchDNN(
     """
     if len(user_features) < 1:
         raise ValueError("Should have at least one user feature")
-    if user_dnn_hidden_units[-1] != item_id.embdding_dim:
+    if dnn_hidden_units[-1] != item_id.embdding_dim:
         raise ValueError("user DNN output dim should be equal with item embd dim")
 
     # * Group user features by their types
@@ -81,10 +83,11 @@ def YouTubeMatchDNN(
         [input_layers[k] for k in u_dense.keys()], list(user_embd_outputs.values())
     )
     user_dnn_output = DNN(
-        hidden_units=user_dnn_hidden_units,
+        hidden_units=dnn_hidden_units,
         activation=dnn_activation,
         output_activation="linear",
         l2_reg=l2_dnn,
+        use_bn=dnn_bn,
         dropout_rate=dnn_dropout,
         seed=seed,
     )(user_dnn_input)
