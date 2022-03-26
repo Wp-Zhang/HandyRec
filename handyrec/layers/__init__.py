@@ -14,7 +14,6 @@ __all__ = [
     "SequencePoolingLayer",
     "ValueTable",
     "SampledSoftmaxLayer",
-    "RemoveMask",
     "CustomEmbedding",
     "Similarity",
 ]
