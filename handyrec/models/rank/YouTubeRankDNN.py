@@ -15,9 +15,10 @@ def YouTubeRankDNN(
     item_features: List[Any],
     dnn_hidden_units: Tuple[int] = (64, 32),
     dnn_activation: str = "relu",
+    dnn_dropout: float = 0,
+    dnn_bn: bool = False,
     l2_dnn: float = 0,
     l2_emb: float = 1e-6,
-    dnn_dropout: float = 0,
     seed: int = 2022,
 ) -> Model:
     """Implementation of YoutubeDNN rank model
@@ -27,9 +28,10 @@ def YouTubeRankDNN(
         item_features (List[Any]): item feature list
         dnn_hidden_units (Tuple[int], optional): DNN structure. Defaults to (64, 32).
         dnn_activation (str, optional): DNN activation function. Defaults to "relu".
+        dnn_dropout (float, optional): DNN dropout ratio. Defaults to 0.
+        dnn_bn (bool, optional): whether use batch normalization or not. Defaults to False.
         l2_dnn (float, optional): DNN l2 regularization param. Defaults to 0.
         l2_emb (float, optional): embedding l2 regularization param. Defaults to 1e-6.
-        dnn_dropout (float, optional): DNN dropout ratio. Defaults to 0.
         seed (int, optional): random seed of dropout. Defaults to 2022.
 
     Raises:
@@ -79,6 +81,7 @@ def YouTubeRankDNN(
         output_activation="sigmoid",
         l2_reg=l2_dnn,
         dropout_rate=dnn_dropout,
+        use_bn=dnn_bn,
         seed=seed,
     )(dnn_input)
 

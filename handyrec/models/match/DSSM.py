@@ -48,7 +48,7 @@ def DSSM(
         item_dnn_hidden_units (Tuple[int], optional): item DNN structure. Defaults to (64, 32).
         dnn_activation (str, optional): DNN activation function. Defaults to "relu".
         dnn_dropout (float, optional): DNN dropout ratio. Defaults to 0.
-        dnn_bn (bool, optional): whether to use batch normalization. Defaults to False.
+        dnn_bn (bool, optional): whether use batch normalization or not. Defaults to False.
         l2_dnn (float, optional): DNN l2 regularization param. Defaults to 0.
         l2_emb (float, optional): embedding l2 regularization param. Defaults to 1e-6.
         num_sampled (int, optional): number of negative smaples in SampledSoftmax. Defaults to 1.
