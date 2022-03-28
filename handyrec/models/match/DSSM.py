@@ -8,7 +8,6 @@ from handyrec.features.utils import split_features
 from handyrec.layers import (
     SequencePoolingLayer,
     DNN,
-    Similarity,
     ValueTable,
     SampledSoftmaxLayer,
 )
@@ -77,7 +76,7 @@ def DSSM(
     for feat in u_sparse_seq_f.values():
         sparse_emb = embd_layers[feat.sparse_feat.name]
         seq_input = input_layers[feat.name]
-        u_embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(seq_input))
+        u_embd_outputs[feat.name] = SequencePoolingLayer("sum")(sparse_emb(seq_input))
 
     # * Get full item embedding: input layer -> full value list -> embedding layer (-> pooling layer)
     i_embd_outputs = OrderedDict()
@@ -87,7 +86,7 @@ def DSSM(
     for feat in i_sparse_seq_f.values():
         sparse_emb = embd_layers[feat.sparse_feat.name]
         seq_input = ValueTable(full_item_dict[feat.name])(input_layers[feat.name])
-        i_embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(seq_input))
+        i_embd_outputs[feat.name] = SequencePoolingLayer("sum")(sparse_emb(seq_input))
         i_embd_outputs[feat.name] = tf.squeeze(i_embd_outputs[feat.name])
         # * shape: (batch, 1, n) -> (batch, n)
 

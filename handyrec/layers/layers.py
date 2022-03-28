@@ -96,7 +96,7 @@ class DNN(Layer):
             "seed": self.seed,
         }
         base_config = super().get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return {**config, **base_config}
 
 
 class FM(Layer):

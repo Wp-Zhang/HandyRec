@@ -24,7 +24,6 @@ class SequencePoolingLayer(Layer):
         # * mask: (batch, seq_max_len, emb_dim)
         # * output: (batch, 1, emb_dim)
         mask = tf.dtypes.cast(mask, tf.float32)
-        # mask = tf.expand_dims(mask, axis=-1)  # (batch, seq_max_len, 1)
 
         if self.method == "max":
             output = inputs - (1 - mask) * 1e9
@@ -34,7 +33,7 @@ class SequencePoolingLayer(Layer):
             output = inputs * mask
             return tf.reduce_sum(output, axis=1, keepdims=True)
 
-        elif self.method == "mean":
+        else:  # * self.method == "mean"
             mask_sum = tf.reduce_sum(mask, axis=1, keepdims=True)
             mask_weight = tf.math.divide_no_nan(mask, mask_sum)
             output = inputs * mask_weight
@@ -46,11 +45,11 @@ class SequencePoolingLayer(Layer):
     def get_config(self):
         config = {"method": self.method}
         base_config = super().get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return {**config, **base_config}
 
 
 class ValueTable(Layer):
-    """Output full list of values of a feature as input of embedding layer"""
+    """Output a full list of values of a feature to be the input of embedding layer"""
 
     def __init__(self, value_list: List[int], **kwargs):
         self.value_list = value_list
@@ -106,7 +105,7 @@ class SampledSoftmaxLayer(Layer):
     def get_config(self):
         config = {"num_sampled": self.num_sampled}
         base_config = super().get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return {**config, **base_config}
 
 
 class CustomEmbedding(Embedding):
@@ -118,29 +117,28 @@ class CustomEmbedding(Embedding):
     def compute_mask(self, inputs, mask=None):
         if not self.mask_zero:
             return None
-        else:
-            # * Rewrite compute_mask
-            mask = tf.not_equal(inputs, 0)  # (?, n)
-            mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
-            tile_shape = [1] * (len(mask.shape) - 1) + [self.output_dim]
-            mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
-            return mask
+        # * Rewrite compute_mask
+        mask = tf.not_equal(inputs, 0)  # (?, n)
+        mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
+        tile_shape = [1] * (len(mask.shape) - 1) + [self.output_dim]
+        mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
+        return mask
 
 
-class Similarity(Layer):
-    def __init__(self, type: str, **kwargs):
-        self.type = type
-        super().__init__(**kwargs)
+# class Similarity(Layer):
+#     def __init__(self, type: str, **kwargs):
+#         self.type = type
+#         super().__init__(**kwargs)
 
-    def call(self, inputs, *args, **kwargs):
-        embd_a, embd_b = inputs
-        if self.type == "cos":
-            embd_a = tf.nn.l2_normalize(embd_a, axis=-1)
-            embd_b = tf.nn.l2_normalize(embd_b, axis=-1)
-        output = tf.reduce_sum(tf.multiply(embd_a, embd_b), axis=-1, keepdims=True)
-        return output
+#     def call(self, inputs, *args, **kwargs):
+#         embd_a, embd_b = inputs
+#         if self.type == "cos":
+#             embd_a = tf.nn.l2_normalize(embd_a, axis=-1)
+#             embd_b = tf.nn.l2_normalize(embd_b, axis=-1)
+#         output = tf.reduce_sum(tf.multiply(embd_a, embd_b), axis=-1, keepdims=True)
+#         return output
 
-    def get_config(self):
-        config = {"type": self.type}
-        base_config = super().get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+#     def get_config(self):
+#         config = {"type": self.type}
+#         base_config = super().get_config()
+#         return {**config, **base_config}
