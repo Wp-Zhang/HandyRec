@@ -1,54 +1,76 @@
 class Feature:
-    """Base class for different types of features"""
+    """Base class for different types of features
 
-    def __init__(self):
-        pass
+    Args:
+        name (str): Name of feature, each feature should have a distinct name.
+        dtype (str, optional): Data type.
+        group (str, optional): Group name.
+    """
+
+    def __init__(self, name: str, dtype: str, group: str):
+        self.name = name
+        self.dtype = dtype
+        self.group = group
 
 
 class DenseFeature(Feature):
-    """Dense Feature class"""
+    """Dense Feature class
 
-    def __init__(self, name: str, dtype: str = "int32"):
-        super().__init__()
+    Args:
+        name (str): Name of feature, each feature should have a distinct name.
+        dtype (str, optional): Data type. Defaults to 'int32'.
+        group (str, optional): Group name. Defaults to 'default'.
+    """
 
-        self.name = name
-        self.dtype = dtype
+    def __init__(self, name: str, dtype: str = "int32", group: str = "default"):
+        super().__init__(name, dtype, group)
 
 
 class SparseFeature(Feature):
-    """Sparse feature class"""
+    """Sparse feature class
+
+    Args:
+        name (str): Name of feature, each feature should have a distinct name.
+        vocab_size (int): Vocabulary size.
+        embedding_dim (int): Embedding dimension.
+        trainable (bool, optional): Whether embedding is trainable or not. Defaults to True
+        dtype (str, optional): Data type. Defaults to 'int32'.
+        group (str, optional): Group name. Defaults to 'default'.
+    """
 
     def __init__(
-        self, name: str, vocab_size: int, embedding_dim: int, dtype: str = "int32"
+        self,
+        name: str,
+        vocab_size: int,
+        embedding_dim: int,
+        trainable: bool = True,
+        dtype: str = "int32",
+        group: str = "default",
     ):
-        """
-        Args:
-            name (str): Name of feature, each feature should have a distinct name.
-            vocab_size (int): Vocabulary size.
-            embedding_dim (int): Embedding dimension.
-            dtype (str, optional): Data type. Defaults to 'int32'.
-        """
-        super().__init__()
-
-        self.name = name
+        super().__init__(name, dtype, group)
         self.vocab_size = vocab_size
         self.embdding_dim = embedding_dim
-        self.dtype = dtype
+        self.trainable = trainable
 
 
 class SparseSeqFeature(Feature):
-    """Sparse sequence feature, e.g. item_id sequence"""
+    """Sparse sequence feature, e.g. item_id sequence
 
-    def __init__(self, sparse_feat: SparseFeature, name: str, seq_len: int):
-        """
-        Args:
-            sparse_feat (SparseFeature): sparse sequence feature
-            name (str): feature name
-            seq_len (int): sequence length
-        """
-        super().__init__()
-        # TODO Add other params like `trainable`
+    Args:
+        sparse_feat (SparseFeature): sequence unit
+        name (str): feature name
+        seq_len (int): sequence length
+        group (str, optional): Group name. Defaults to 'default'.
+    """
+
+    def __init__(
+        self,
+        sparse_feat: SparseFeature,
+        name: str,
+        seq_len: int,
+        group: str = "default",
+    ):
+        super().__init__(name, "int32", group)
         self.sparse_feat = sparse_feat
-        self.name = name
         self.seq_len = seq_len
-        self.dtype = "int32"
+        self.group = group

@@ -1,5 +1,6 @@
 import collections
-from typing import List, Union, OrderedDict
+from typing import List, Union, OrderedDict, Dict
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Embedding, Concatenate, Flatten
 from tensorflow.keras import Input
@@ -13,12 +14,6 @@ def construct_input_layers(
     features: Union[List[DenseFeature], List[SparseFeature], List[SparseSeqFeature]]
 ) -> OrderedDict[str, Input]:
     """Generate input layers repectively for each feature
-
-    DenseFeature(FEAT_NAME) -> Input(FEAT_NAME)
-    SparseFeature(FEAT_NAME) -> Input(FEAT_NAME)
-    SparseSeqFeature(FEAT_NAME) -> Input(sparse_feat.FEAT_NAME) base sparse feature
-                                   Input(FEAT_NAME)             sparse feature index seq
-                                   Input(FEAT_NAME_len)         sparse feature seq length
 
     Args:
         features (Union[List[DenseFeature], List[SparseFeature], List[SparseSeqFeature]]): feature list
@@ -38,19 +33,23 @@ def construct_input_layers(
     for feat in sparse_seq_feats.values():
         input_layers[feat.name] = Input(
             shape=(feat.seq_len,), name=feat.name, dtype=feat.dtype
-        )
+        )  # * sparse feature index seq
 
     return input_layers
 
 
 def construct_embedding_layers(
-    sparse_features: Union[List[SparseFeature], List[SparseSeqFeature]], l2_reg: float
+    sparse_features: Union[List[SparseFeature], List[SparseSeqFeature]],
+    l2_reg: float,
+    pretrained_embeddings: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
 ) -> OrderedDict[str, Embedding]:
     """Generate embedding layers for sparse features
 
     Args:
         sparse_features (Union[List[SparseFeature], List[SparseSeqFeature]]): sparse feature list
         l2_reg (float): l2 regularization parameter
+        pretrained_embeddings (Dict[str, Union[np.ndarray, tf.Tensor]], optional):
+            pretrained embedding dict {name: weights}. Defaults to None
 
     Returns:
         Dict[str, Embedding]: dictionary of embedding layers, {name: embedding layer}
@@ -58,27 +57,27 @@ def construct_embedding_layers(
     embedding_layers = collections.OrderedDict()
     _, sparse_feats, sparse_seq_feats = split_features(sparse_features)
 
-    for f in sparse_feats.values():
-        embedding_layers[f.name] = CustomEmbedding(
-            input_dim=f.vocab_size,
-            output_dim=f.embdding_dim,
+    sparse_feats = list(sparse_feats.values())
+    sparse_seq_feats = [seq_f.sparse_feat for seq_f in sparse_seq_feats.values()]
+
+    for feat in sparse_feats + sparse_seq_feats:
+        embedding_layers[feat.name] = CustomEmbedding(
+            input_dim=feat.vocab_size,
+            output_dim=feat.embdding_dim,
             embeddings_regularizer=l2(l2_reg),
-            name="embed_" + f.name,
+            trainable=feat.trainable,
+            name="embed_" + feat.name,
+            mask_zero=feat in sparse_seq_feats,
         )
 
-    for f in sparse_seq_feats.values():
-        embedding_layers[f.sparse_feat.name] = CustomEmbedding(
-            input_dim=f.sparse_feat.vocab_size,
-            output_dim=f.sparse_feat.embdding_dim,
-            embeddings_regularizer=l2(l2_reg),
-            name="embed_seq_" + f.sparse_feat.name,
-            mask_zero=True,
-        )
+        # * Load pretrained embedding
+        if pretrained_embeddings and (feat.name in pretrained_embeddings.keys()):
+            embedding_layers[feat.name].set_weights(pretrained_embeddings[feat.name])
 
     return embedding_layers
 
 
-def concatenate(inputs, axis: int = -1):
+def _concatenate(inputs, axis: int = -1):
     """Concatenate list of input, handle the case when len(inputs)=1
 
     Args:
@@ -111,21 +110,28 @@ def concat_inputs(
         raise ValueError("Number of inputs should be larger than 0")
 
     if len(dense_inputs) > 0 and len(embd_inputs) > 0:
-        dense = concatenate(dense_inputs, axis)
-        sparse = concatenate(embd_inputs, axis)
+        dense = _concatenate(dense_inputs, axis)
+        sparse = _concatenate(embd_inputs, axis)
         if not keepdims:
             dense = Flatten()(dense)
             sparse = Flatten()(sparse)
-        dense = tf.cast(dense, tf.float32)
-        sparse = tf.cast(sparse, tf.float32)
-        return concatenate([dense, sparse], axis)
+
+        if dense.dtype != sparse.dtype:
+            if dense.dtype.is_integer:
+                dense = tf.cast(dense, sparse.dtype)
+            else:
+                sparse = tf.cast(sparse, dense.dtype)
+
+        return _concatenate([dense, sparse], axis)
+
     elif len(dense_inputs) > 0:
-        output = concatenate(dense_inputs, axis)
+        output = _concatenate(dense_inputs, axis)
         if not keepdims:
             output = Flatten()(output)
         return output
+
     elif len(embd_inputs) > 0:
-        output = concatenate(embd_inputs, axis)
+        output = _concatenate(embd_inputs, axis)
         if not keepdims:
             output = Flatten()(output)
         return output

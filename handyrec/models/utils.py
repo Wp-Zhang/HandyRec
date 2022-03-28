@@ -1,6 +1,14 @@
 import faiss
 import numpy as np
 
+# from typing import List, Dict, Any
+
+# from handyrec.features.utils import split_features
+# from handyrec.layers import SequencePoolingLayer
+# from handyrec.layers.utils import construct_input_layers, construct_embedding_layers
+
+# from collections import OrderedDict
+
 
 def search_embedding(
     embd_dim: int,
@@ -35,3 +43,47 @@ def search_embedding(
     candidates = np.array(candidates)
 
     return candidates
+
+
+# class FeatureLookupTable:
+#     """Store full item/user feature values.
+#     Input: item/user id (batch_size,1)
+#     Output: item/user feature list [(batch_size,1,1),(batch_size,1,k),(batch_size,m,k)]
+#     """
+
+#     def __init__(
+#         self,
+#         name: str,
+#         features: List[Any],
+#         feature_dict: Dict,
+#         l2_emb: float = 1e-6,
+#         pool_method: str = "mean",
+#     ):
+#         self.name = name
+#         self.features = features
+#         self.feature_dict = feature_dict
+#         self.l2_emb = l2_emb
+#         self.pool_method = pool_method
+#         self._build()
+
+#     def _build(self):
+#         # * Group features by their types
+#         dense, sparse, sparse_seq = split_features(self.features)
+
+#         # * Get input and embedding layers
+#         input_layers = construct_input_layers(self.features)
+#         embd_layers = construct_embedding_layers(self.features, self.l2_emb)
+
+#         # * Embedding output: input layer -> embedding layer (-> pooling layer)
+#         embd_outputs = OrderedDict()
+#         for feat in sparse.keys():
+#             embd_outputs[feat] = embd_layers[feat](input_layers[feat])
+#         for feat in sparse_seq.values():
+#             sparse_emb = embd_layers[feat.sparse_feat.name]
+#             seq_input = input_layers[feat.name]
+#             embd_outputs[feat.name] = SequencePoolingLayer(self.pool_method)(
+#                 sparse_emb(seq_input)
+#             )
+
+#     def call(self, inputs):
+#         pass
