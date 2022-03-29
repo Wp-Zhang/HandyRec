@@ -14,7 +14,7 @@ from handyrec.layers import (
 from handyrec.layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
-    concat_inputs,
+    concat,
 )
 
 
@@ -79,7 +79,7 @@ def YouTubeMatchDNN(
     full_item_embd = embd_layers[item_id.name](item_index)
 
     # * Concat input layers -> DNN
-    user_dnn_input = concat_inputs(
+    user_dnn_input = concat(
         [input_layers[k] for k in u_dense.keys()], list(user_embd_outputs.values())
     )
     user_dnn_output = DNN(
@@ -102,12 +102,8 @@ def YouTubeMatchDNN(
         list(u_dense.keys()) + list(u_sparse.keys()) + list(u_sparse_seq.keys())
     )
     user_inputs = [input_layers[f] for f in user_inputs]
-
-    def gather_embedding(inputs):
-        full_item_embd, index = inputs
-        return tf.squeeze(tf.gather(full_item_embd, index), axis=1)
-
-    item_embedding = Lambda(gather_embedding)([full_item_embd, item_id_input])
+    item_embedding = tf.nn.embedding_lookup(full_item_embd, item_id_input)
+    item_embedding = tf.squeeze(item_embedding, axis=1)
 
     # * Construct model
     model = Model(inputs=list(input_layers.values()), outputs=output)

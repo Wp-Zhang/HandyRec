@@ -2,7 +2,7 @@ import collections
 from typing import List, Union, OrderedDict, Dict
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.layers import Embedding, Concatenate, Flatten
+from tensorflow.keras.layers import Concatenate, Flatten
 from tensorflow.keras import Input
 from tensorflow.keras.regularizers import l2
 from handyrec.features import SparseFeature, DenseFeature, SparseSeqFeature
@@ -13,7 +13,7 @@ from .tools import CustomEmbedding
 def construct_input_layers(
     features: Union[List[DenseFeature], List[SparseFeature], List[SparseSeqFeature]]
 ) -> OrderedDict[str, Input]:
-    """Generate input layers repectively for each feature
+    """Construct input layers repectively for each feature
 
     Args:
         features (Union[List[DenseFeature], List[SparseFeature], List[SparseSeqFeature]]): feature list
@@ -42,8 +42,8 @@ def construct_embedding_layers(
     sparse_features: Union[List[SparseFeature], List[SparseSeqFeature]],
     l2_reg: float,
     pretrained_embeddings: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
-) -> OrderedDict[str, Embedding]:
-    """Generate embedding layers for sparse features
+) -> OrderedDict[str, CustomEmbedding]:
+    """Construct embedding layers for sparse features
 
     Args:
         sparse_features (Union[List[SparseFeature], List[SparseSeqFeature]]): sparse feature list
@@ -52,7 +52,7 @@ def construct_embedding_layers(
             pretrained embedding dict {name: weights}. Defaults to None
 
     Returns:
-        Dict[str, Embedding]: dictionary of embedding layers, {name: embedding layer}
+        Dict[str, CustomEmbedding]: dictionary of embedding layers, {name: embedding layer}
     """
     embedding_layers = collections.OrderedDict()
     _, sparse_feats, sparse_seq_feats = split_features(sparse_features)
@@ -77,7 +77,7 @@ def construct_embedding_layers(
     return embedding_layers
 
 
-def _concatenate(inputs, axis: int = -1):
+def _concat(inputs, axis: int = -1):
     """Concatenate list of input, handle the case when len(inputs)=1
 
     Args:
@@ -94,7 +94,7 @@ def _concatenate(inputs, axis: int = -1):
         return Concatenate(axis=axis)(inputs)
 
 
-def concat_inputs(
+def concat(
     dense_inputs: List, embd_inputs: List, axis: int = -1, keepdims: bool = False
 ):
     """Concatenate dense features and embedding of sparse features together
@@ -110,28 +110,29 @@ def concat_inputs(
         raise ValueError("Number of inputs should be larger than 0")
 
     if len(dense_inputs) > 0 and len(embd_inputs) > 0:
-        dense = _concatenate(dense_inputs, axis)
-        sparse = _concatenate(embd_inputs, axis)
+        dense = _concat(dense_inputs, axis)
+        sparse = _concat(embd_inputs, axis)
         if not keepdims:
             dense = Flatten()(dense)
             sparse = Flatten()(sparse)
 
+        # * Change dtype
         if dense.dtype != sparse.dtype:
             if dense.dtype.is_integer:
                 dense = tf.cast(dense, sparse.dtype)
             else:
                 sparse = tf.cast(sparse, dense.dtype)
 
-        return _concatenate([dense, sparse], axis)
+        return _concat([dense, sparse], axis)
 
-    elif len(dense_inputs) > 0:
-        output = _concatenate(dense_inputs, axis)
+    if len(dense_inputs) > 0:
+        output = _concat(dense_inputs, axis)
         if not keepdims:
             output = Flatten()(output)
         return output
 
-    elif len(embd_inputs) > 0:
-        output = _concatenate(embd_inputs, axis)
+    if len(embd_inputs) > 0:
+        output = _concat(embd_inputs, axis)
         if not keepdims:
             output = Flatten()(output)
         return output

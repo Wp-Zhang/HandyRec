@@ -51,7 +51,7 @@ class SequencePoolingLayer(Layer):
 class ValueTable(Layer):
     """Output a full list of values of a feature to be the input of embedding layer"""
 
-    def __init__(self, value_list: List[int], **kwargs):
+    def __init__(self, value_list: List, **kwargs):
         self.value_list = value_list
         super().__init__(**kwargs)
 
