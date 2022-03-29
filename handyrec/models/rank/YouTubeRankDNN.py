@@ -6,7 +6,7 @@ from handyrec.layers import SequencePoolingLayer, DNN
 from handyrec.layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
-    concat_inputs,
+    concat,
 )
 
 
@@ -71,7 +71,7 @@ def YouTubeRankDNN(
         )
 
     # * concat input layers -> DNN
-    dnn_input = concat_inputs(
+    dnn_input = concat(
         [input_layers[k] for k in list(u_dense.keys()) + list(i_dense.keys())],
         list(user_embd_outputs.values()) + list(item_embd_outputs.values()),
     )

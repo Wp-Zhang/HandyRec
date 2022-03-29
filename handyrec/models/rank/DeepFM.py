@@ -8,7 +8,7 @@ from handyrec.layers import SequencePoolingLayer, DNN, FM
 from handyrec.layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
-    concat_inputs,
+    concat,
 )
 
 
@@ -64,7 +64,7 @@ def DeepFM(
         embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(seq_input))
 
     # * Concat input layers -> DNN, FM
-    dnn_input = concat_inputs(
+    dnn_input = concat(
         [input_layers[k] for k in dnn_dense_f.keys()],
         [embd_outputs[k] for k in list(dnn_sparse_f.keys())]
         + [embd_outputs[k] for k in list(dnn_sparse_seq_f.keys())],
@@ -75,7 +75,7 @@ def DeepFM(
             "FM part doesn't support dense featrue now, dense features will be ignored"
         )
 
-    fm_input = concat_inputs(
+    fm_input = concat(
         [],  # [input_layers[k] for k in fm_dense_f.keys()],
         [embd_outputs[k] for k in list(fm_sparse_f.keys())]
         + [embd_outputs[k] for k in list(fm_sparse_seq_f.keys())],
