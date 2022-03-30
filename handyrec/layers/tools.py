@@ -1,7 +1,8 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Embedding
-from tensorflow.keras.initializers import Zeros
+from tensorflow.keras.initializers import Zeros, Constant
 from typing import List
+import numpy as np
 
 
 class SequencePoolingLayer(Layer):
@@ -52,11 +53,11 @@ class ValueTable(Layer):
     """Output a full list of values of a feature to be the input of embedding layer"""
 
     def __init__(self, value_list: List, **kwargs):
-        self.value_list = value_list
+        self.value = tf.constant(value_list)
         super().__init__(**kwargs)
 
-    def call(self, inputs, *args, **kwargs):
-        return tf.constant(self.value_list)
+    def call(self, *args, **kwargs):
+        return self.value
 
     def get_config(self):
         return super().get_config()

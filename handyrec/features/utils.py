@@ -1,22 +1,25 @@
-from .features import DenseFeature, SparseFeature, SparseSeqFeature
 from typing import Union, List, Tuple, OrderedDict
-import collections
+from .features import DenseFeature, SparseFeature, SparseSeqFeature
 
 
 def split_features(
     features: Union[List[DenseFeature], List[SparseFeature], List[SparseSeqFeature]]
-) -> Tuple[OrderedDict]:
+) -> Tuple[
+    OrderedDict[str, DenseFeature],
+    OrderedDict[str, SparseFeature],
+    OrderedDict[str, SparseSeqFeature],
+]:
     """Group feature list into different types of feature lists
 
     Args:
         features (Union[List[DenseFeature], List[SparseFeature], List[SparseSeqFeature]]): feature list
 
     Returns:
-        Tuple[List[DenseFeature], List[SparseFeature], List[SparseSeqFeature]]: three types of feature list
+        Tuple[OrderedDict[str,DenseFeature], OrderedDict[str,SparseFeature], OrderedDict[str,SparseSeqFeature]]: three types of feature list
     """
-    dense_feats = collections.OrderedDict()
-    sparse_feats = collections.OrderedDict()
-    sparse_seq_feats = collections.OrderedDict()
+    dense_feats = OrderedDict()
+    sparse_feats = OrderedDict()
+    sparse_seq_feats = OrderedDict()
 
     for feat in features:
         if isinstance(feat, DenseFeature):

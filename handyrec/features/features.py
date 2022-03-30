@@ -4,13 +4,11 @@ class Feature:
     Args:
         name (str): Name of feature, each feature should have a distinct name.
         dtype (str, optional): Data type.
-        group (str, optional): Group name.
     """
 
-    def __init__(self, name: str, dtype: str, group: str):
+    def __init__(self, name: str, dtype: str):
         self.name = name
         self.dtype = dtype
-        self.group = group
 
 
 class DenseFeature(Feature):
@@ -19,11 +17,10 @@ class DenseFeature(Feature):
     Args:
         name (str): Name of feature, each feature should have a distinct name.
         dtype (str, optional): Data type. Defaults to 'int32'.
-        group (str, optional): Group name. Defaults to 'default'.
     """
 
-    def __init__(self, name: str, dtype: str = "int32", group: str = "default"):
-        super().__init__(name, dtype, group)
+    def __init__(self, name: str, dtype: str = "int32"):
+        super().__init__(name, dtype)
 
 
 class SparseFeature(Feature):
@@ -35,7 +32,6 @@ class SparseFeature(Feature):
         embedding_dim (int): Embedding dimension.
         trainable (bool, optional): Whether embedding is trainable or not. Defaults to True
         dtype (str, optional): Data type. Defaults to 'int32'.
-        group (str, optional): Group name. Defaults to 'default'.
     """
 
     def __init__(
@@ -45,9 +41,8 @@ class SparseFeature(Feature):
         embedding_dim: int,
         trainable: bool = True,
         dtype: str = "int32",
-        group: str = "default",
     ):
-        super().__init__(name, dtype, group)
+        super().__init__(name, dtype)
         self.vocab_size = vocab_size
         self.embdding_dim = embedding_dim
         self.trainable = trainable
@@ -57,20 +52,14 @@ class SparseSeqFeature(Feature):
     """Sparse sequence feature, e.g. item_id sequence
 
     Args:
-        sparse_feat (SparseFeature): sequence unit
+        unit (Union[SparseFeature, FeatureGroup]): sequence unit
         name (str): feature name
         seq_len (int): sequence length
-        group (str, optional): Group name. Defaults to 'default'.
     """
 
-    def __init__(
-        self,
-        sparse_feat: SparseFeature,
-        name: str,
-        seq_len: int,
-        group: str = "default",
-    ):
-        super().__init__(name, "int32", group)
-        self.sparse_feat = sparse_feat
+    def __init__(self, unit, name: str, seq_len: int):
+        super().__init__(name, "int32")
+        self.unit = unit
         self.seq_len = seq_len
-        self.group = group
+        # * unit is a feature group if it's not a SparseFeature
+        self.is_group = not isinstance(unit, SparseFeature)

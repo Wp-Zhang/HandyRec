@@ -1,10 +1,12 @@
-from typing import OrderedDict, Tuple, List, Any, Dict
+from typing import OrderedDict, Tuple, List, Any, Dict, Union
 import warnings
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Lambda
 
 from handyrec.features.utils import split_features
+from handyrec.features import DenseFeature, SparseFeature
 from handyrec.layers import (
     SequencePoolingLayer,
     DNN,
@@ -14,7 +16,7 @@ from handyrec.layers import (
 from handyrec.layers.utils import (
     construct_input_layers,
     construct_embedding_layers,
-    concat_inputs,
+    concat,
 )
 
 
@@ -34,6 +36,7 @@ def DSSM(
     seed: int = 2022,
     cos_sim: bool = False,
     gamma: float = 1,
+    pretrained_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
 ):
     """Implemetation of the classic two tower model originated from DSSM.
 
@@ -53,6 +56,8 @@ def DSSM(
         seed (int, optional): random seed of dropout. Defaults to 2022.
         cos_sim (bool, optional): whether use cosine similarity or not. Defaults to False
         gamma (float, optional): smoothing factor for cosine similarity softmax. Defaults to 0.2.
+        pretrained_embd (Dict[str, Union[np.ndarray, tf.Tensor]], optional):
+            pretrained embedding dict {name: weights}. Defaults to None
     """
     if len(user_features) < 1:
         raise ValueError("Should have at least one user feature")
@@ -67,7 +72,9 @@ def DSSM(
 
     # * Get input and embedding layers
     input_layers = construct_input_layers(user_features + item_features)
-    embd_layers = construct_embedding_layers(user_features + item_features, l2_emb)
+    embd_layers = construct_embedding_layers(
+        user_features + item_features, l2_emb, pretrained_embd
+    )
 
     # * Get embedding: input layer -> embedding layer (-> pooling layer)
     u_embd_outputs = OrderedDict()
@@ -91,10 +98,10 @@ def DSSM(
         # * shape: (batch, 1, n) -> (batch, n)
 
     # * Concat input layers -> DNN
-    u_dnn_input = concat_inputs(
+    u_dnn_input = concat(
         [input_layers[k] for k in u_dense_f.keys()], list(u_embd_outputs.values())
     )
-    i_dnn_input = concat_inputs([], list(i_embd_outputs.values()))
+    i_dnn_input = concat([], list(i_embd_outputs.values()))
 
     u_embedding = DNN(
         hidden_units=user_dnn_hidden_units,
@@ -126,11 +133,8 @@ def DSSM(
     )
 
     # * Construct model
-    def gather_embedding(inputs):
-        full_item_embd, index = inputs
-        return tf.squeeze(tf.gather(full_item_embd, index), axis=1)
-
-    item_embedding = Lambda(gather_embedding)([i_embedding, input_layers[item_id_name]])
+    item_embedding = tf.nn.embedding_lookup(i_embedding, input_layers[item_id_name])
+    item_embedding = tf.squeeze(item_embedding, axis=1)
 
     user_inputs = [input_layers[f.name] for f in user_features]
     item_inputs = [input_layers[f.name] for f in item_features]
