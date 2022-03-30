@@ -10,10 +10,49 @@ from handyrec.features.features import Feature, SparseFeature, SparseSeqFeature
 
 
 class FeaturePool:
-    def __init__(
-        self,
-    ) -> None:
-        pass
+    """A container to store input layers and embedding layers for groups of features.
+
+    Attributes
+    ----------
+    input_layers : OrderedDict[str, Input]
+        Dictionary of inpute layers shared by groups of features.
+    embd_layers : OrderedDict[str, CustomEmbedding]
+        Dictionary of embedding layers shared by groups of features.
+    """
+
+    def __init__(self) -> None:
+        self.input_layers = OrderedDict()
+        self.embd_layers = OrderedDict()
+
+    def check_input(self, feat_name: str) -> bool:
+        """Check if the input layer of a feature is already created.
+
+        Parameters
+        ----------
+        feat_name : str
+            Feature name.
+
+        Returns
+        -------
+        bool
+            Whether the input layer of the feature is created or not.
+        """
+        return feat_name in self.input_layers.keys()
+
+    def check_embd(self, feat_name: str) -> bool:
+        return feat_name in self.embd_layers.keys()
+
+    def get_input(self, feat_name: str) -> Input:
+        return self.input_layers[feat_name]
+
+    def get_embd(self, feat_name: str) -> CustomEmbedding:
+        return self.embd_layers[feat_name]
+
+    def add_input(self, input_layer: Input) -> None:
+        self.input_layers[input_layer.name] = input_layer
+
+    def add_embd(self, embd_layer: CustomEmbedding) -> None:
+        self.embd_layers[embd_layer.name] = embd_layer
 
 
 class FeatureGroup:
@@ -23,6 +62,8 @@ class FeatureGroup:
     ----------
     name : str
         Name of this `FeatureGroup`, should be unique.
+    feature_pool : FeaturePool
+        The `FeaturePool` instance that this `FeatureGroup` belongs to.
     input_layers : OrderedDict[str, Input]
         Dictionary that stores input layers of all features.
     embd_layers : OrderedDict[str, CustomEmbedding]
@@ -37,6 +78,7 @@ class FeatureGroup:
         self,
         name: str,
         features: List[Feature],
+        feature_pool: FeaturePool,
         l2_embd: float = 1e-6,
         pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
         pool_method: str = "mean",
@@ -49,6 +91,8 @@ class FeatureGroup:
             Name of this `FeatureGroup`, should be unique.
         features : List[Feature]
             List of features in this group.
+        feature_pool : FeaturePool
+            The `FeaturePool` instance that this `FeatureGroup` belongs to.
         l2_embd : float
             L2 regularization parameter for embeddings, by default `1e-6`
         pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
@@ -74,23 +118,30 @@ class FeatureGroup:
 
         # * initialize attributes
         self.name = name
+        self.feat_pool = feature_pool
 
         # * construct input and embedding layers, generate output
-        self.input_layers = self.construct_inputs(features)
-        self.embd_layers = self.construct_embds(features, l2_embd, pre_embd)
+        self.input_layers = self.construct_inputs(features, feature_pool)
+        self.embd_layers = self.construct_embds(
+            features, feature_pool, l2_embd, pre_embd
+        )
         # * build layers and get output
         dense, sparse, sparse_seq = split_features(features)
         self.dense_output = [self.input_layers[k] for k in dense.keys()]
         self.sparse_output = self.embedding_lookup(sparse, sparse_seq, pool_method)
 
     @classmethod
-    def construct_inputs(cls, features: List[Feature]) -> OrderedDict[str, Input]:
+    def construct_inputs(
+        cls, features: List[Feature], feature_pool: FeaturePool
+    ) -> OrderedDict[str, Input]:
         """Construct input layers pf each feature
 
         Parameters
         ----------
         features : List[Feature]
             List of features in this group.
+        feature_pool : FeaturePool
+            The `FeaturePool` instance that this `FeatureGroup` belongs to.
 
         Returns
         -------
@@ -98,28 +149,27 @@ class FeatureGroup:
             Dictionary of input layers, {name: input layer}
         """
         input_layers = OrderedDict()
-        dense, sparse, sparse_seq = split_features(features)
 
-        for feat in dense.values():
-            input_layers[feat.name] = Input(
-                shape=(1,), name=feat.name, dtype=feat.dtype
-            )
+        for feat in features:
+            if feature_pool.check_input(feat.name):
+                input_layer = feature_pool.get_input(feat.name)
+            else:
+                if isinstance(feat, SparseSeqFeature):
+                    input_layer = Input(
+                        shape=(feat.seq_len,), name=feat.name, dtype=feat.dtype
+                    )  # * sparse feature index seq
+                else:
+                    input_layer = Input(shape=(1,), name=feat.name, dtype=feat.dtype)
+                feature_pool.add_input(input_layer)
+            input_layers[feat.name] = input_layer
 
-        for feat in sparse.values():
-            input_layers[feat.name] = Input(
-                shape=(1,), name=feat.name, dtype=feat.dtype
-            )
-
-        for feat in sparse_seq.values():
-            input_layers[feat.name] = Input(
-                shape=(feat.seq_len,), name=feat.name, dtype=feat.dtype
-            )  # * sparse feature index seq
         return input_layers
 
     @classmethod
     def construct_embds(
         cls,
         features: List[Feature],
+        feature_pool: FeaturePool,
         l2_reg: float,
         pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
     ) -> OrderedDict[str, CustomEmbedding]:
@@ -129,6 +179,8 @@ class FeatureGroup:
         ----------
         features : List[Feature]
             List of features in this group.
+        feature_pool : FeaturePool
+            The `FeaturePool` instance that this `FeatureGroup` belongs to.
         l2_reg : float
             L2 regularization parameter for embeddings.
         pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
@@ -151,21 +203,25 @@ class FeatureGroup:
             elif feat.is_group:
                 # * `EmbdFeatureGroup.__call__` will be called later
                 embd_layers[feat.unit.name] = feat.unit
+                feature_pool.add_embd(feat.unit)
 
         for feat in feats_to_construct:
-            weights = None
-            if pre_embd and feat.name in pre_embd.keys():
-                weights = pre_embd[feat.name]
-            embd_layer = CustomEmbedding(
-                input_dim=feat.vocab_size,
-                output_dim=feat.embdding_dim,
-                embeddings_regularizer=l2(l2_reg),
-                trainable=feat.trainable,
-                name="embd_" + feat.name,
-                weights=weights,
-                mask_zero=feat.name in [x.unit.name for x in sparse_seq.values()],
-            )
-
+            if feature_pool.check_embd("embd_" + feat.name):
+                embd_layer = feature_pool.get_embd("embd_" + feat.name)
+            else:
+                weights = None
+                if pre_embd and feat.name in pre_embd.keys():
+                    weights = pre_embd[feat.name]
+                embd_layer = CustomEmbedding(
+                    input_dim=feat.vocab_size,
+                    output_dim=feat.embdding_dim,
+                    embeddings_regularizer=l2(l2_reg),
+                    trainable=feat.trainable,
+                    name="embd_" + feat.name,
+                    weights=weights,
+                    mask_zero=feat.name in [x.unit.name for x in sparse_seq.values()],
+                )
+                feature_pool.add_embd(embd_layer)
             embd_layers[feat.name] = embd_layer
         return embd_layers
 
@@ -220,6 +276,8 @@ class EmbdFeatureGroup:
     ----------
     name : str
         Name of this `EmbdFeatureGroup`, should be unique.
+    feature_pool : FeaturePool
+        The `FeaturePool` instance that this `FeatureGroup` belongs to.
     id_name: str
         Name of the id featrue, e.g. `item_id`, `movie_id`
     id_input : Input
@@ -235,6 +293,7 @@ class EmbdFeatureGroup:
         name: str,
         id_name: str,
         features: List[Feature],
+        feature_pool: FeaturePool,
         value_dict: Dict[str, np.ndarray],
         l2_embd: float = 1e-6,
         pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
@@ -250,6 +309,8 @@ class EmbdFeatureGroup:
             Name of the id featrue, e.g. `item_id`, `movie_id`
         features : List[Feature]
             List of features in this group.
+        feature_pool : FeaturePool
+            The `FeaturePool` instance that this `FeatureGroup` belongs to.
         value_dict : Dict[str, np.ndarray]
             Dictionary contains full fature values of all ids, {feature_name: values of all ids}.
         l2_embd : float
@@ -281,10 +342,17 @@ class EmbdFeatureGroup:
         # * initialize attributes
         self.name = name
         self.id_name = id_name
+        self.feat_pool = feature_pool
 
-        id_feat = {x.name: x for x in features}[id_name]
-        self.id_input = Input(shape=(1,), name=id_name, dtype=id_feat.dtype)
-        self.embd_layers = FeatureGroup.construct_embds(features, l2_embd, pre_embd)
+        if feature_pool.check_input(id_name):
+            self.id_input = feature_pool.get_input(id_name)
+        else:
+            id_feat = {x.name: x for x in features}[id_name]
+            self.id_input = Input(shape=(1,), name=id_name, dtype=id_feat.dtype)
+            feature_pool.add_input(self.id_input)
+        self.embd_layers = FeatureGroup.construct_embds(
+            features, feature_pool, l2_embd, pre_embd
+        )
         self.embedding = self.generate_embedding(features, value_dict, pool_method)
 
     def generate_embedding(
@@ -363,6 +431,7 @@ class EmbdFeatureGroup:
 if __name__ == "__main__":
     from handyrec.features.features import DenseFeature, SparseFeature, SparseSeqFeature
 
+    feat_pool = FeaturePool()
     all_item_model_input = {
         "movie_id": [1, 2, 3, 4, 5, 6],
         "genres": [
@@ -383,7 +452,7 @@ if __name__ == "__main__":
         ),
     ]
     item_feature_group = EmbdFeatureGroup(
-        "item", "movie_id", item_features, all_item_model_input
+        "item", "movie_id", item_features, feat_pool, all_item_model_input
     )
 
     user_features = (
@@ -391,10 +460,15 @@ if __name__ == "__main__":
         + [SparseFeature("user_id", 5500, MATCH_EMBEDDING_DIM)]
         + [
             SparseSeqFeature(
-                item_feature_group,
+                SparseFeature("movie_id", 6, MATCH_EMBEDDING_DIM),
                 "hist_movie_seq",
                 40,
             )
         ]
     )
-    user_feature_group = FeatureGroup("user", "user_id", user_features)
+    user_feature_group = FeatureGroup("user", user_features, feat_pool)
+    print(user_feature_group.input_layers)
+    print(user_feature_group.embd_layers)
+    print("=" * 100)
+    print(item_feature_group.id_input)
+    print(item_feature_group.embd_layers)
