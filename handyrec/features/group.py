@@ -6,7 +6,7 @@ from tensorflow.keras.regularizers import l2
 from handyrec.layers import CustomEmbedding, SequencePoolingLayer, ValueTable
 from handyrec.layers.utils import concat
 from handyrec.features.utils import split_features
-from handyrec.features.features import Feature, SparseFeature, SparseSeqFeature
+from handyrec.features.type import Feature, SparseFeature, SparseSeqFeature
 
 
 class FeaturePool:
@@ -30,7 +30,7 @@ class FeaturePool:
         Parameters
         ----------
         feat_name : str
-            Feature name.
+            Name of feature.
 
         Returns
         -------
@@ -40,18 +40,107 @@ class FeaturePool:
         return feat_name in self.input_layers.keys()
 
     def check_embd(self, feat_name: str) -> bool:
+        """Check if the embedding layer of a feature is already created.
+
+        Parameters
+        ----------
+        feat_name : str
+            Name of feature.
+
+        Returns
+        -------
+        bool
+            Whether the embedding layer of the feature is created or not.
+        """
         return feat_name in self.embd_layers.keys()
 
-    def get_input(self, feat_name: str) -> Input:
-        return self.input_layers[feat_name]
+    def init_input(self, name: str, params: Dict) -> Input:
+        """Get an existed or construct a new shared input layer by name.
 
-    def get_embd(self, feat_name: str) -> CustomEmbedding:
-        return self.embd_layers[feat_name]
+        Parameters
+        ----------
+        name : str
+            Name of layer.
+        params : Dict
+            Input layer parameters.
+
+        Returns
+        -------
+        Input
+            Input layer named as `feat_name`.
+
+        Raises
+        ------
+        AttributeError
+            If layer attributes conflict with an existed input layer with the same name.
+        """
+        if name in self.input_layers.keys():
+            layer = self.input_layers[name]
+            if (
+                layer.shape[-1] != params["shape"] or layer.dtype != params["dtype"]
+            ):  # TODO real check
+                raise AttributeError("Params conflict with an existed input layer!")
+        else:
+            layer = Input(**params)
+            self.input_layers[name] = layer
+        return layer
+
+    def init_embd(self, name: str, params: Dict) -> CustomEmbedding:
+        """Get an existed or construct a new shared embedding layer by name.
+
+        Parameters
+        ----------
+        name : str
+            Name of layer.
+        params : Dict
+            Input layer parameters.
+
+        Returns
+        -------
+        CustomEmbedding
+            Embedding layer named as `feat_name`.
+
+        Raises
+        ------
+        AttributeError
+            If layer attributes conflict with an existed embedding layer with the same name.
+        """
+        if name in self.embd_layers.keys():
+            layer = self.embd_layers[name]
+            if params["mask_zero"]:
+                # * always set as `True` when there is a conflict on `mask_zero`
+                layer.mask_zero = True
+            if (
+                layer.input_dim != params["input_dim"]
+                or layer.output_dim != params["output_dim"]
+            ):
+                raise AttributeError("Params conflict with an existed embedding layer!")
+        else:
+            layer = CustomEmbedding(**params)
+            self.embd_layers[name] = layer
+        return layer
 
     def add_input(self, input_layer: Input) -> None:
-        self.input_layers[input_layer.name] = input_layer
+        """Add an shared input layer.
+
+        Parameters
+        ----------
+        input_layer : Input
+            An input layer.
+        """
+        if input_layer.name in self.input_layers.keys():
+            pass
+        else:
+            self.input_layers[input_layer.name] = input_layer
 
     def add_embd(self, embd_layer: CustomEmbedding) -> None:
+        """Add an shared embedding layer.
+
+        Parameters
+        ----------
+        embd_layer : CustomEmbedding
+            An embedding layer.
+        """
         self.embd_layers[embd_layer.name] = embd_layer
 
 
@@ -62,6 +151,8 @@ class FeatureGroup:
     ----------
     name : str
         Name of this `FeatureGroup`, should be unique.
+    features : List[Feature]
+        List of features in this group.
     feature_pool : FeaturePool
         The `FeaturePool` instance that this `FeatureGroup` belongs to.
     input_layers : OrderedDict[str, Input]
@@ -81,7 +172,6 @@ class FeatureGroup:
         feature_pool: FeaturePool,
         l2_embd: float = 1e-6,
         pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
-        pool_method: str = "mean",
     ):
         """Initialize a `FeatureGroup`
 
@@ -97,8 +187,6 @@ class FeatureGroup:
             L2 regularization parameter for embeddings, by default `1e-6`
         pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
             Dictionary of pretrained embeddings, {feature_name:embd}, by default `None`
-        pool_method : str
-            Pooling method for `SparseSeqFeature`s, by default `"mean"`
 
         Raises
         ------
@@ -118,6 +206,7 @@ class FeatureGroup:
 
         # * initialize attributes
         self.name = name
+        self.features = features
         self.feat_pool = feature_pool
 
         # * construct input and embedding layers, generate output
@@ -125,10 +214,6 @@ class FeatureGroup:
         self.embd_layers = self.construct_embds(
             features, feature_pool, l2_embd, pre_embd
         )
-        # * build layers and get output
-        dense, sparse, sparse_seq = split_features(features)
-        self.dense_output = [self.input_layers[k] for k in dense.keys()]
-        self.sparse_output = self.embedding_lookup(sparse, sparse_seq, pool_method)
 
     @classmethod
     def construct_inputs(
@@ -151,16 +236,9 @@ class FeatureGroup:
         input_layers = OrderedDict()
 
         for feat in features:
-            if feature_pool.check_input(feat.name):
-                input_layer = feature_pool.get_input(feat.name)
-            else:
-                if isinstance(feat, SparseSeqFeature):
-                    input_layer = Input(
-                        shape=(feat.seq_len,), name=feat.name, dtype=feat.dtype
-                    )  # * sparse feature index seq
-                else:
-                    input_layer = Input(shape=(1,), name=feat.name, dtype=feat.dtype)
-                feature_pool.add_input(input_layer)
+            dim = feat.seq_len if isinstance(feat, SparseSeqFeature) else 1
+            params = {"name": feat.name, "shape": (dim,), "dtype": feat.dtype}
+            input_layer = feature_pool.init_input(feat.name, params)
             input_layers[feat.name] = input_layer
 
         return input_layers
@@ -192,13 +270,14 @@ class FeatureGroup:
             Dictionary of embedding layers, {name: embedding layer}.
         """
         embd_layers = OrderedDict()
-        # * construct embedding layer of `SparseFeature`s and `SparseSeqFeature`s
         _, sparse, sparse_seq = split_features(features)
+        # * unit of a `SparseSeqFeature` should be a embedding layer with `mask_zero` setting as `True`
+        mask_embds = [x.unit.name for x in sparse_seq.values()]
 
         feats_to_construct = list(sparse.values())
         for feat in sparse_seq.values():
             if not feat.is_group and feat.unit.name not in sparse.keys():
-                # * append the unit of all `SparseSeqFeature`s if it is not a `EmbdFeatureGroup`
+                # * append the unit of a `SparseSeqFeature` if it is not a `EmbdFeatureGroup`
                 feats_to_construct.append(feat.unit)
             elif feat.is_group:
                 # * `EmbdFeatureGroup.__call__` will be called later
@@ -206,54 +285,48 @@ class FeatureGroup:
                 feature_pool.add_embd(feat.unit)
 
         for feat in feats_to_construct:
-            if feature_pool.check_embd("embd_" + feat.name):
-                embd_layer = feature_pool.get_embd("embd_" + feat.name)
-            else:
-                weights = None
-                if pre_embd and feat.name in pre_embd.keys():
-                    weights = pre_embd[feat.name]
-                embd_layer = CustomEmbedding(
-                    input_dim=feat.vocab_size,
-                    output_dim=feat.embdding_dim,
-                    embeddings_regularizer=l2(l2_reg),
-                    trainable=feat.trainable,
-                    name="embd_" + feat.name,
-                    weights=weights,
-                    mask_zero=feat.name in [x.unit.name for x in sparse_seq.values()],
-                )
-                feature_pool.add_embd(embd_layer)
+            weights = None
+            if pre_embd and feat.name in pre_embd.keys():
+                weights = pre_embd[feat.name]
+            params = {
+                "name": "embd_" + feat.name,
+                "input_dim": feat.vocab_size,
+                "output_dim": feat.embdding_dim,
+                "embeddings_regularizer": l2(l2_reg),
+                "trainable": feat.trainable,
+                "weights": weights,
+                "mask_zero": feat.name in mask_embds,
+            }
+
+            embd_layer = feature_pool.init_embd(feat.name, params)
             embd_layers[feat.name] = embd_layer
         return embd_layers
 
     def embedding_lookup(
         self,
-        sparse_feats: List[Feature],
-        sparse_seq_feats: List[Feature],
         pool_method: str = "mean",
-    ) -> List[tf.Tensor]:
+    ) -> Tuple[List[Input], List[tf.Tensor]]:
         """Concatenate all features in this group and output a tensor that is ready for model input.
 
         Parameters
         ----------
-        sparse_feats : List[Feature]
-            `SparseFeature` list.
-        sparse_seq_feats : List[Feature]
-            `SparseSeqFeature` list.
         pool_method : str, optional
             Pooling method for `SparseSeqFeature`s, by default `"mean"`.
 
         Returns
         -------
-        List[tf.Tensor]
+        Tuple[List[Input], List[tf.Tensor]]
             Output of all features in this group, (dense output list, sparse output list)
         """
+        dense, sparse, sparse_seq = split_features(self.features)
+        dense_output = [self.input_layers[k] for k in dense.keys()]
 
         # * Embedding output: input layer -> embedding layer (-> pooling layer)
         embd_outputs = OrderedDict()
-        for name in sparse_feats.keys():
+        for name in sparse.keys():
             embd_outputs[name] = self.embd_layers[name](self.input_layers[name])
 
-        for feat in sparse_seq_feats.values():
+        for feat in sparse_seq.values():
             sparse_embd = self.embd_layers[feat.unit.name]
             seq_input = self.input_layers[feat.name]
             pool_layer = SequencePoolingLayer(pool_method)
@@ -266,7 +339,7 @@ class FeatureGroup:
 
         embd_output = list(embd_outputs.values())
 
-        return embd_output
+        return dense_output, embd_output
 
 
 class EmbdFeatureGroup:
@@ -344,92 +417,110 @@ class EmbdFeatureGroup:
         self.id_name = id_name
         self.feat_pool = feature_pool
 
-        if feature_pool.check_input(id_name):
-            self.id_input = feature_pool.get_input(id_name)
-        else:
-            id_feat = {x.name: x for x in features}[id_name]
-            self.id_input = Input(shape=(1,), name=id_name, dtype=id_feat.dtype)
-            feature_pool.add_input(self.id_input)
+        # * init input layer of id feature for embedding lookup in the future
+        id_feat = {x.name: x for x in features}[id_name]
+        params = {"name": id_name, "shape": (1,), "dtype": id_feat.dtype}
+        self.id_input = feature_pool.init_input(id_name, params)
+
+        # * construct embedding layers
         self.embd_layers = FeatureGroup.construct_embds(
             features, feature_pool, l2_embd, pre_embd
         )
-        self.embedding = self.generate_embedding(features, value_dict, pool_method)
 
-    def generate_embedding(
-        self,
-        features: List[Feature],
-        value_dict: Dict[str, np.ndarray],
-        pool_method: str = "mean",
-    ) -> tf.Tensor:
+        self._features = features
+        self._value_dict = value_dict
+        self._layers = {}
+        for feat in features:
+            self._layers[feat.name] = ValueTable(
+                value_dict[feat.name], name=feat.name + "_list"
+            )
+            if isinstance(feat, SparseSeqFeature):
+                self._layers[feat.name + "_pool"] = SequencePoolingLayer(
+                    pool_method, name=feat.name + "_" + pool_method
+                )
+
+    def get_embd(self, index: Input) -> tf.Tensor:
         """Concatenate all features in this group and output a tensor that is ready for lookup.
 
         Parameters
         ----------
-        features : List[Feature]
-            List of features in this group.
-        value_dict : Dict[str, np.ndarray]
-            Dictionary contains full fature values of all ids, {feature_name: values of all ids}.
+        index : Input
+            Lookup index.
         pool_method : str, optional
             Pooling method for `SparseSeqFeature`s, by default `"mean"`.
+
+        Note
+        ----
+            The code will run successfully after replacing `index` with `[]`, but there will be a
+                huge decrease in performance and converge speed, WHY? **TO BE SOLVED**
 
         Returns
         -------
         tf.Tensor
             concatenated full feature value list of all ids, size: (id feature vocab_size, k)
         """
-        dense, sparse, sparse_seq = split_features(features)
         # * Embedding output: input layer -> embedding layer (-> pooling layer)
         embd_outputs = OrderedDict()
+        dense, sparse, sparse_seq = split_features(self._features)
 
-        # * if this FeatureGroup is an embedding, a dense feature needs to be treated as an 1-d embedding
+        # * a dense feature needs to be treated as an 1-d embedding
         for name in dense.keys():
-            embd = ValueTable(value_dict[name])([])
-            # ? Changing self.id_input into [] will lead to decrease of performance and converge speed, why?
+            embd = self._layers[name](index)
             embd_outputs[name] = tf.expand_dims(embd, axis=-1)  # * (n,1)
 
         for name in sparse.keys():
-            embd_input = ValueTable(value_dict[name])([])
+            embd_input = self._layers[name](index)
             embd_outputs[name] = self.embd_layers[name](embd_input)  # * (n,d)
 
-        for feat in sparse_seq.values():
-            sparse_embd = self.embd_layers[feat.unit.name]
-            seq_input = ValueTable(value_dict[feat.name])([])
+        for name, feat in sparse_seq.items():
+            embd_input = self._layers[name](index)
+            embd_layer = self.embd_layers[feat.unit.name]
             if not feat.is_group:
-                embd_seq = sparse_embd(seq_input)
+                embd_seq = embd_layer(embd_input)
+                embd_outputs[name] = self._layers[name + "_pool"](embd_seq)
             else:
-                embd_seq = tf.nn.embedding_lookup(sparse_embd, seq_input)
-            embd_outputs[feat.name] = SequencePoolingLayer(pool_method)(embd_seq)
-            embd_outputs[feat.name] = tf.squeeze(embd_outputs[feat.name])  # * (n,d)
+                # * __call__ method of `EmbdFeatureGrouop` will also return manually computed mask
+                embd_seq, mask = embd_layer(embd_input)
+                embd_outputs[name] = self._layers[name + "_pool"](embd_seq, mask)
+            embd_outputs[name] = tf.squeeze(embd_outputs[name])  # * (n,d)
 
-        output = concat([], list(embd_outputs.values()))  # * shape: (n, 2d+k)
+        output = concat([], list(embd_outputs.values()))  # * (n, 2d+k)
 
         return output
 
-    def __call__(self, seq_input) -> Tuple[tf.Tensor]:
-        output = tf.nn.embedding_lookup(self.embedding, seq_input)
-        # * manually compute mask
-        mask = tf.not_equal(seq_input, 0)  # (?, n)
-        mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
-        tile_shape = [1] * (len(mask.shape) - 1) + [self.embedding.shape[1]]
-        mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
+    def lookup(self, index: Input) -> tf.Tensor:
+        """Lookup all feature values by given id.
 
-        return output, mask
-
-    def lookup(self) -> tf.Tensor:
-        """Lookup embedding of `id_input`
+        Parameters
+        ----------
+        index : Input
+            Target ids.
 
         Returns
         -------
         tf.Tensor
-            Embedding of `id_input`, size = (batch_size,d).
+            Concatenated feature values of given ids.
         """
-        embedding = tf.nn.embedding_lookup(self.embedding, self.id_input)
-        embedding = tf.squeeze(embedding, axis=1)
-        return embedding
+        embedding = self.get_embd(index)
+        output = tf.nn.embedding_lookup(embedding, index)  # * (batch, seq, 2d+k)
+        if index.shape[-1] == 1:
+            # * index is not sequence
+            output = tf.squeeze(output, axis=1)  # * (batch, 2d+k)
+        return output
+
+    def __call__(self, seq_input: Input) -> Tuple[tf.Tensor]:
+        output = self.lookup(seq_input)
+        # * manually compute mask
+        mask = tf.not_equal(seq_input, 0)  # (?, n)
+        mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
+        tile_shape = [1] * (len(mask.shape) - 1) + [output.shape[-1]]
+        mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
+
+        return output, mask
 
 
 if __name__ == "__main__":
-    from handyrec.features.features import DenseFeature, SparseFeature, SparseSeqFeature
+    from handyrec.features.type import DenseFeature, SparseFeature, SparseSeqFeature
 
     feat_pool = FeaturePool()
     all_item_model_input = {
@@ -467,8 +558,8 @@ if __name__ == "__main__":
         ]
     )
     user_feature_group = FeatureGroup("user", user_features, feat_pool)
+    dense_output, sparse_output = user_feature_group.embedding_lookup()
     print(user_feature_group.input_layers)
     print(user_feature_group.embd_layers)
-    print("=" * 100)
-    print(item_feature_group.id_input)
+
     print(item_feature_group.embd_layers)

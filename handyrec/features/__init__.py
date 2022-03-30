@@ -1,5 +1,5 @@
-from .features import DenseFeature, SparseFeature, SparseSeqFeature
-from .feature_group import FeaturePool, FeatureGroup, EmbdFeatureGroup
+from .type import DenseFeature, SparseFeature, SparseSeqFeature
+from .group import FeaturePool, FeatureGroup, EmbdFeatureGroup
 
 __all__ = [
     "DenseFeature",
