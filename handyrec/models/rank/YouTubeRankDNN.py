@@ -31,11 +31,8 @@ def YouTubeRankDNN(
     Returns:
         Model: YouTubeDNN Match Model
     """
-    user_dense = user_feature_group.dense_output
-    user_sparse = user_feature_group.sparse_output
-
-    item_dense = item_feature_group.dense_output
-    item_sparse = item_feature_group.sparse_output
+    user_dense, user_sparse = user_feature_group.embedding_lookup(pool_method="mean")
+    item_dense, item_sparse = item_feature_group.embedding_lookup(pool_method="mean")
 
     # * concat input layers -> DNN
     dnn_input = concat(user_dense + item_dense, user_sparse + item_sparse)

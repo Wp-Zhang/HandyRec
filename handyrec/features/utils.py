@@ -1,5 +1,5 @@
 from typing import Union, List, Tuple, OrderedDict
-from .features import DenseFeature, SparseFeature, SparseSeqFeature
+from .type import DenseFeature, SparseFeature, SparseSeqFeature
 
 
 def split_features(

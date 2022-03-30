@@ -60,11 +60,11 @@ def YouTubeMatchDNN(
             "Item feature group should be an instance of `EmbdFeatureGroup`!"
         )
 
-    user_dense = user_feature_group.dense_output
-    user_sparse = user_feature_group.sparse_output
+    user_dense, user_sparse = user_feature_group.embedding_lookup(pool_method="mean")
 
     user_dnn_input = concat(user_dense, user_sparse)
-    full_item_embd = item_feature_group.embedding
+    item_id = item_feature_group.id_input
+    full_item_embd = item_feature_group.get_embd(item_id)
 
     dnn_hidden_units = list(dnn_hidden_units) + [full_item_embd.shape[-1]]
     user_dnn_output = DNN(
@@ -79,17 +79,16 @@ def YouTubeMatchDNN(
 
     # * Sampled softmax output
     output = SampledSoftmaxLayer(num_sampled=num_sampled)(
-        [full_item_embd, user_dnn_output, item_feature_group.id_input]
+        [full_item_embd, user_dnn_output, item_id]
     )
 
     # * Construct model
     user_input = list(user_feature_group.input_layers.values())
-    item_input = item_feature_group.id_input
 
-    model = Model(inputs=user_input + [item_input], outputs=output)
+    model = Model(inputs=user_input + [item_id], outputs=output)
     model.__setattr__("user_input", user_input)
     model.__setattr__("user_embedding", user_dnn_output)
-    model.__setattr__("item_input", item_input)
-    model.__setattr__("item_embedding", item_feature_group.lookup())
+    model.__setattr__("item_input", item_id)
+    model.__setattr__("item_embedding", item_feature_group.lookup(item_id))
 
     return model
