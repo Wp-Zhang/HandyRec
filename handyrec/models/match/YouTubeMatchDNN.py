@@ -1,5 +1,3 @@
-"""Implementation of YoutubeDNN match model
-"""
 from typing import Tuple
 import tensorflow as tf
 from tensorflow.keras import Model

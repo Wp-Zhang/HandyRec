@@ -10,7 +10,16 @@ Welcome to HandyRec's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-handyrec.features
+None
+
+.. toctree::
+   :maxdepth: 3
+   :caption: API:
+
+   Dataset<Dataset>
+   Features<Features>
+   Layers<Layers>
+   Models<Models>
 
 
 Indices and tables

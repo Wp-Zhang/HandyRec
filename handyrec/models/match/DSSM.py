@@ -1,5 +1,3 @@
-"""Implemetation of the classic two-tower model originated from DSSM.
-"""
 from typing import Tuple
 import tensorflow as tf
 from tensorflow.keras import Model

@@ -1,5 +1,3 @@
-"""Implementation of YoutubeDNN rank model
-"""
 from typing import Tuple
 from tensorflow.keras import Model
 from handyrec.layers import DNN

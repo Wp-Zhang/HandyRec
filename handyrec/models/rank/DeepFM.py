@@ -1,5 +1,3 @@
-"""Implementation of DeepFM
-"""
 from typing import Tuple
 import warnings
 from tensorflow.keras import Model
