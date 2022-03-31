@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>handyrec.layers.tools API documentation</title>
+<meta name="description" content="Contains some tool layers." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>handyrec.layers.tools</code></h1>
+</header>
+<section id="section-intro">
+<p>Contains some tool layers.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Contains some tool layers.
+&#34;&#34;&#34;
+import tensorflow as tf
+from tensorflow.keras.layers import Layer, Embedding
+from tensorflow.keras.initializers import Zeros
+from typing import List
+
+
+class SequencePoolingLayer(Layer):
+    &#34;&#34;&#34;Pooling layer for sequence feature&#34;&#34;&#34;
+
+    def __init__(self, method: str, **kwargs):
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        method : str
+            Pooling method.
+        &#34;&#34;&#34;
+        super().__init__(**kwargs)
+
+        assert method in [
+            &#34;mean&#34;,
+            &#34;max&#34;,
+            &#34;sum&#34;,
+        ], &#34;Pooling method should be `mean`, `max`, or `sum`&#34;
+        self.method = method
+
+    def call(self, inputs, mask=None):
+        if mask is None:
+            raise ValueError(&#34;Embedding layer should set `mask_zero` as True&#34;)
+        # * inputs: (batch, seq_max_len, emb_dim)
+        # * mask: (batch, seq_max_len, emb_dim)
+        # * output: (batch, 1, emb_dim)
+        mask = tf.dtypes.cast(mask, tf.float32)
+
+        if self.method == &#34;max&#34;:
+            output = inputs - (1 - mask) * 1e9
+            return tf.reduce_max(output, axis=1, keepdims=True)
+
+        elif self.method == &#34;sum&#34;:
+            output = inputs * mask
+            return tf.reduce_sum(output, axis=1, keepdims=True)
+
+        else:  # * self.method == &#34;mean&#34;
+            mask_sum = tf.reduce_sum(mask, axis=1, keepdims=True)
+            mask_weight = tf.math.divide_no_nan(mask, mask_sum)
+            output = inputs * mask_weight
+            return tf.reduce_sum(output, axis=1, keepdims=True)
+
+    def compute_output_shape(self, input_shape):
+        return (None, 1, input_shape[-1])
+
+    def get_config(self):
+        config = {&#34;method&#34;: self.method}
+        base_config = super().get_config()
+        return {**config, **base_config}
+
+
+class ValueTable(Layer):
+    &#34;&#34;&#34;Output a full list of values of a feature to be the input of embedding layer&#34;&#34;&#34;
+
+    def __init__(self, value_list: List, **kwargs):
+        &#34;&#34;&#34;Parameters
+        ----------
+        value_list : List
+            Feature values of all items.
+        &#34;&#34;&#34;
+        self.value = tf.constant(value_list)
+        super().__init__(**kwargs)
+
+    def call(self, *args, **kwargs):
+        return self.value
+
+    def get_config(self):
+        return super().get_config()
+
+
+class SampledSoftmaxLayer(Layer):
+    &#34;&#34;&#34;Sampled softmax&#34;&#34;&#34;
+
+    def __init__(self, num_sampled=5, **kwargs):
+        &#34;&#34;&#34;Parameters
+        ----------
+        num_sampled : int, optional
+            Number of sampled negative samples, by default ``5``.
+        &#34;&#34;&#34;
+        self.num_sampled = num_sampled
+        self.size = None
+        self.zero_bias = None
+        super().__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.size = input_shape[0][0]
+        self.zero_bias = self.add_weight(
+            shape=[self.size],
+            initializer=Zeros,
+            dtype=tf.float32,
+            trainable=False,
+            name=&#34;bias&#34;,
+        )
+        super().build(input_shape)
+
+    def call(self, inputs, **kwargs):
+        &#34;&#34;&#34;
+        Note
+        ----
+        `inputs` is a tuple with length of 3.
+            inputs[0] is embedding of all items
+            inputs[1] is user embedding
+            inputs[2] is the index of label items for each user
+        &#34;&#34;&#34;
+        item_embeddings, user_embeddings, item_idx = inputs
+
+        loss = tf.nn.sampled_softmax_loss(
+            weights=item_embeddings,
+            biases=self.zero_bias,
+            labels=item_idx,
+            inputs=user_embeddings,
+            num_sampled=self.num_sampled,
+            num_classes=self.size,
+        )
+        return tf.expand_dims(loss, axis=1)
+
+    def compute_output_shape(self, input_shape):
+        return (None, 1)
+
+    def get_config(self):
+        config = {&#34;num_sampled&#34;: self.num_sampled}
+        base_config = super().get_config()
+        return {**config, **base_config}
+
+
+class CustomEmbedding(Embedding):
+    &#34;&#34;&#34;
+    Rewrite official embedding layer so that masked and un-masked
+        embeddings can be concatenated together.
+    &#34;&#34;&#34;
+
+    def compute_mask(self, inputs, mask=None):
+        if not self.mask_zero:
+            return None
+        # * Rewrite compute_mask
+        mask = tf.not_equal(inputs, 0)  # (?, n)
+        mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
+        tile_shape = [1] * (len(mask.shape) - 1) + [self.output_dim]
+        mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
+        return mask
+
+
+# class Similarity(Layer):
+#     def __init__(self, type: str, **kwargs):
+#         self.type = type
+#         super().__init__(**kwargs)
+
+#     def call(self, inputs, *args, **kwargs):
+#         embd_a, embd_b = inputs
+#         if self.type == &#34;cos&#34;:
+#             embd_a = tf.nn.l2_normalize(embd_a, axis=-1)
+#             embd_b = tf.nn.l2_normalize(embd_b, axis=-1)
+#         output = tf.reduce_sum(tf.multiply(embd_a, embd_b), axis=-1, keepdims=True)
+#         return output
+
+#     def get_config(self):
+#         config = {&#34;type&#34;: self.type}
+#         base_config = super().get_config()
+#         return {**config, **base_config}</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="handyrec.layers.tools.CustomEmbedding"><code class="flex name class">
+<span>class <span class="ident">CustomEmbedding</span></span>
+<span>(</span><span>input_dim, output_dim, embeddings_initializer='uniform', embeddings_regularizer=None, activity_regularizer=None, embeddings_constraint=None, mask_zero=False, input_length=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Rewrite official embedding layer so that masked and un-masked
+embeddings can be concatenated together.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CustomEmbedding(Embedding):
+    &#34;&#34;&#34;
+    Rewrite official embedding layer so that masked and un-masked
+        embeddings can be concatenated together.
+    &#34;&#34;&#34;
+
+    def compute_mask(self, inputs, mask=None):
+        if not self.mask_zero:
+            return None
+        # * Rewrite compute_mask
+        mask = tf.not_equal(inputs, 0)  # (?, n)
+        mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
+        tile_shape = [1] * (len(mask.shape) - 1) + [self.output_dim]
+        mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
+        return mask</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>keras.layers.embeddings.Embedding</li>
+<li>keras.engine.base_layer.Layer</li>
+<li>tensorflow.python.module.module.Module</li>
+<li>tensorflow.python.training.tracking.tracking.AutoTrackable</li>
+<li>tensorflow.python.training.tracking.base.Trackable</li>
+<li>keras.utils.version_utils.LayerVersionSelector</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.layers.tools.CustomEmbedding.compute_mask"><code class="name flex">
+<span>def <span class="ident">compute_mask</span></span>(<span>self, inputs, mask=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes an output mask tensor.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>inputs</code></strong></dt>
+<dd>Tensor or list of tensors.</dd>
+<dt><strong><code>mask</code></strong></dt>
+<dd>Tensor or list of tensors.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>None or a tensor (or list of tensors,
+one per output tensor of the layer).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute_mask(self, inputs, mask=None):
+    if not self.mask_zero:
+        return None
+    # * Rewrite compute_mask
+    mask = tf.not_equal(inputs, 0)  # (?, n)
+    mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
+    tile_shape = [1] * (len(mask.shape) - 1) + [self.output_dim]
+    mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
+    return mask</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="handyrec.layers.tools.SampledSoftmaxLayer"><code class="flex name class">
+<span>class <span class="ident">SampledSoftmaxLayer</span></span>
+<span>(</span><span>num_sampled=5, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sampled softmax</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>num_sampled</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Number of sampled negative samples, by default <code>5</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SampledSoftmaxLayer(Layer):
+    &#34;&#34;&#34;Sampled softmax&#34;&#34;&#34;
+
+    def __init__(self, num_sampled=5, **kwargs):
+        &#34;&#34;&#34;Parameters
+        ----------
+        num_sampled : int, optional
+            Number of sampled negative samples, by default ``5``.
+        &#34;&#34;&#34;
+        self.num_sampled = num_sampled
+        self.size = None
+        self.zero_bias = None
+        super().__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.size = input_shape[0][0]
+        self.zero_bias = self.add_weight(
+            shape=[self.size],
+            initializer=Zeros,
+            dtype=tf.float32,
+            trainable=False,
+            name=&#34;bias&#34;,
+        )
+        super().build(input_shape)
+
+    def call(self, inputs, **kwargs):
+        &#34;&#34;&#34;
+        Note
+        ----
+        `inputs` is a tuple with length of 3.
+            inputs[0] is embedding of all items
+            inputs[1] is user embedding
+            inputs[2] is the index of label items for each user
+        &#34;&#34;&#34;
+        item_embeddings, user_embeddings, item_idx = inputs
+
+        loss = tf.nn.sampled_softmax_loss(
+            weights=item_embeddings,
+            biases=self.zero_bias,
+            labels=item_idx,
+            inputs=user_embeddings,
+            num_sampled=self.num_sampled,
+            num_classes=self.size,
+        )
+        return tf.expand_dims(loss, axis=1)
+
+    def compute_output_shape(self, input_shape):
+        return (None, 1)
+
+    def get_config(self):
+        config = {&#34;num_sampled&#34;: self.num_sampled}
+        base_config = super().get_config()
+        return {**config, **base_config}</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>keras.engine.base_layer.Layer</li>
+<li>tensorflow.python.module.module.Module</li>
+<li>tensorflow.python.training.tracking.tracking.AutoTrackable</li>
+<li>tensorflow.python.training.tracking.base.Trackable</li>
+<li>keras.utils.version_utils.LayerVersionSelector</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.layers.tools.SampledSoftmaxLayer.build"><code class="name flex">
+<span>def <span class="ident">build</span></span>(<span>self, input_shape)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates the variables of the layer (optional, for subclass implementers).</p>
+<p>This is a method that implementers of subclasses of <code>Layer</code> or <code>Model</code>
+can override if they need a state-creation step in-between
+layer instantiation and layer call.</p>
+<p>This is typically used to create the weights of <code>Layer</code> subclasses.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>input_shape</code></strong></dt>
+<dd>Instance of <code>TensorShape</code>, or list of instances of
+<code>TensorShape</code> if the layer expects a list of inputs
+(one instance per input).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build(self, input_shape):
+    self.size = input_shape[0][0]
+    self.zero_bias = self.add_weight(
+        shape=[self.size],
+        initializer=Zeros,
+        dtype=tf.float32,
+        trainable=False,
+        name=&#34;bias&#34;,
+    )
+    super().build(input_shape)</code></pre>
+</details>
+</dd>
+<dt id="handyrec.layers.tools.SampledSoftmaxLayer.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>self, inputs, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="note">Note</h2>
+<p><code>inputs</code> is a tuple with length of 3.
+inputs[0] is embedding of all items
+inputs[1] is user embedding
+inputs[2] is the index of label items for each user</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call(self, inputs, **kwargs):
+    &#34;&#34;&#34;
+    Note
+    ----
+    `inputs` is a tuple with length of 3.
+        inputs[0] is embedding of all items
+        inputs[1] is user embedding
+        inputs[2] is the index of label items for each user
+    &#34;&#34;&#34;
+    item_embeddings, user_embeddings, item_idx = inputs
+
+    loss = tf.nn.sampled_softmax_loss(
+        weights=item_embeddings,
+        biases=self.zero_bias,
+        labels=item_idx,
+        inputs=user_embeddings,
+        num_sampled=self.num_sampled,
+        num_classes=self.size,
+    )
+    return tf.expand_dims(loss, axis=1)</code></pre>
+</details>
+</dd>
+<dt id="handyrec.layers.tools.SampledSoftmaxLayer.compute_output_shape"><code class="name flex">
+<span>def <span class="ident">compute_output_shape</span></span>(<span>self, input_shape)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes the output shape of the layer.</p>
+<p>If the layer has not been built, this method will call <code>build</code> on the
+layer. This assumes that the layer will later be used with inputs that
+match the input shape provided here.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>input_shape</code></strong></dt>
+<dd>Shape tuple (tuple of integers)
+or list of shape tuples (one per output tensor of the layer).
+Shape tuples can include None for free dimensions,
+instead of an integer.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>An input shape tuple.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute_output_shape(self, input_shape):
+    return (None, 1)</code></pre>
+</details>
+</dd>
+<dt id="handyrec.layers.tools.SampledSoftmaxLayer.get_config"><code class="name flex">
+<span>def <span class="ident">get_config</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the config of the layer.</p>
+<p>A layer config is a Python dictionary (serializable)
+containing the configuration of a layer.
+The same layer can be reinstantiated later
+(without its trained weights) from this configuration.</p>
+<p>The config of a layer does not include connectivity
+information, nor the layer class name. These are handled
+by <code>Network</code> (one layer of abstraction above).</p>
+<p>Note that <code>get_config()</code> does not guarantee to return a fresh copy of dict
+every time it is called. The callers should make a copy of the returned dict
+if they want to modify it.</p>
+<h2 id="returns">Returns</h2>
+<p>Python dictionary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_config(self):
+    config = {&#34;num_sampled&#34;: self.num_sampled}
+    base_config = super().get_config()
+    return {**config, **base_config}</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="handyrec.layers.tools.SequencePoolingLayer"><code class="flex name class">
+<span>class <span class="ident">SequencePoolingLayer</span></span>
+<span>(</span><span>method: str, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Pooling layer for sequence feature</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>method</code></strong> :&ensp;<code>str</code></dt>
+<dd>Pooling method.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SequencePoolingLayer(Layer):
+    &#34;&#34;&#34;Pooling layer for sequence feature&#34;&#34;&#34;
+
+    def __init__(self, method: str, **kwargs):
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        method : str
+            Pooling method.
+        &#34;&#34;&#34;
+        super().__init__(**kwargs)
+
+        assert method in [
+            &#34;mean&#34;,
+            &#34;max&#34;,
+            &#34;sum&#34;,
+        ], &#34;Pooling method should be `mean`, `max`, or `sum`&#34;
+        self.method = method
+
+    def call(self, inputs, mask=None):
+        if mask is None:
+            raise ValueError(&#34;Embedding layer should set `mask_zero` as True&#34;)
+        # * inputs: (batch, seq_max_len, emb_dim)
+        # * mask: (batch, seq_max_len, emb_dim)
+        # * output: (batch, 1, emb_dim)
+        mask = tf.dtypes.cast(mask, tf.float32)
+
+        if self.method == &#34;max&#34;:
+            output = inputs - (1 - mask) * 1e9
+            return tf.reduce_max(output, axis=1, keepdims=True)
+
+        elif self.method == &#34;sum&#34;:
+            output = inputs * mask
+            return tf.reduce_sum(output, axis=1, keepdims=True)
+
+        else:  # * self.method == &#34;mean&#34;
+            mask_sum = tf.reduce_sum(mask, axis=1, keepdims=True)
+            mask_weight = tf.math.divide_no_nan(mask, mask_sum)
+            output = inputs * mask_weight
+            return tf.reduce_sum(output, axis=1, keepdims=True)
+
+    def compute_output_shape(self, input_shape):
+        return (None, 1, input_shape[-1])
+
+    def get_config(self):
+        config = {&#34;method&#34;: self.method}
+        base_config = super().get_config()
+        return {**config, **base_config}</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>keras.engine.base_layer.Layer</li>
+<li>tensorflow.python.module.module.Module</li>
+<li>tensorflow.python.training.tracking.tracking.AutoTrackable</li>
+<li>tensorflow.python.training.tracking.base.Trackable</li>
+<li>keras.utils.version_utils.LayerVersionSelector</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.layers.tools.SequencePoolingLayer.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>self, inputs, mask=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This is where the layer's logic lives.</p>
+<p>Note here that <code>call()</code> method in <code>tf.keras</code> is little bit different
+from <code>keras</code> API. In <code>keras</code> API, you can pass support masking for
+layers as additional arguments. Whereas <code>tf.keras</code> has <code>compute_mask()</code>
+method to support masking.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>inputs</code></strong></dt>
+<dd>Input tensor, or dict/list/tuple of input tensors.
+The first positional <code>inputs</code> argument is subject to special rules:
+- <code>inputs</code> must be explicitly passed. A layer cannot have zero
+arguments, and <code>inputs</code> cannot be provided via the default value
+of a keyword argument.
+- NumPy array or Python scalar values in <code>inputs</code> get cast as tensors.
+- Keras mask metadata is only collected from <code>inputs</code>.
+- Layers are built (<code>build(input_shape)</code> method)
+using shape info from <code>inputs</code> only.
+- <code>input_spec</code> compatibility is only checked against <code>inputs</code>.
+- Mixed precision input casting is only applied to <code>inputs</code>.
+If a layer has tensor arguments in <code>*args</code> or <code>**kwargs</code>, their
+casting behavior in mixed precision should be handled manually.
+- The SavedModel input specification is generated using <code>inputs</code> only.
+- Integration with various ecosystem packages like TFMOT, TFLite,
+TF.js, etc is only supported for <code>inputs</code> and not for tensors in
+positional and keyword arguments.</dd>
+<dt><strong><code>*args</code></strong></dt>
+<dd>Additional positional arguments. May contain tensors, although
+this is not recommended, for the reasons above.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Additional keyword arguments. May contain tensors, although
+this is not recommended, for the reasons above.
+The following optional keyword arguments are reserved:
+- <code>training</code>: Boolean scalar tensor of Python boolean indicating
+whether the <code>call</code> is meant for training or inference.
+- <code>mask</code>: Boolean input mask. If the layer's <code>call()</code> method takes a
+<code>mask</code> argument, its default value will be set to the mask generated
+for <code>inputs</code> by the previous layer (if <code>input</code> did come from a layer
+that generated a corresponding mask, i.e. if it came from a Keras
+layer with masking support).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>A tensor or list/tuple of tensors.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call(self, inputs, mask=None):
+    if mask is None:
+        raise ValueError(&#34;Embedding layer should set `mask_zero` as True&#34;)
+    # * inputs: (batch, seq_max_len, emb_dim)
+    # * mask: (batch, seq_max_len, emb_dim)
+    # * output: (batch, 1, emb_dim)
+    mask = tf.dtypes.cast(mask, tf.float32)
+
+    if self.method == &#34;max&#34;:
+        output = inputs - (1 - mask) * 1e9
+        return tf.reduce_max(output, axis=1, keepdims=True)
+
+    elif self.method == &#34;sum&#34;:
+        output = inputs * mask
+        return tf.reduce_sum(output, axis=1, keepdims=True)
+
+    else:  # * self.method == &#34;mean&#34;
+        mask_sum = tf.reduce_sum(mask, axis=1, keepdims=True)
+        mask_weight = tf.math.divide_no_nan(mask, mask_sum)
+        output = inputs * mask_weight
+        return tf.reduce_sum(output, axis=1, keepdims=True)</code></pre>
+</details>
+</dd>
+<dt id="handyrec.layers.tools.SequencePoolingLayer.compute_output_shape"><code class="name flex">
+<span>def <span class="ident">compute_output_shape</span></span>(<span>self, input_shape)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes the output shape of the layer.</p>
+<p>If the layer has not been built, this method will call <code>build</code> on the
+layer. This assumes that the layer will later be used with inputs that
+match the input shape provided here.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>input_shape</code></strong></dt>
+<dd>Shape tuple (tuple of integers)
+or list of shape tuples (one per output tensor of the layer).
+Shape tuples can include None for free dimensions,
+instead of an integer.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>An input shape tuple.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute_output_shape(self, input_shape):
+    return (None, 1, input_shape[-1])</code></pre>
+</details>
+</dd>
+<dt id="handyrec.layers.tools.SequencePoolingLayer.get_config"><code class="name flex">
+<span>def <span class="ident">get_config</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the config of the layer.</p>
+<p>A layer config is a Python dictionary (serializable)
+containing the configuration of a layer.
+The same layer can be reinstantiated later
+(without its trained weights) from this configuration.</p>
+<p>The config of a layer does not include connectivity
+information, nor the layer class name. These are handled
+by <code>Network</code> (one layer of abstraction above).</p>
+<p>Note that <code>get_config()</code> does not guarantee to return a fresh copy of dict
+every time it is called. The callers should make a copy of the returned dict
+if they want to modify it.</p>
+<h2 id="returns">Returns</h2>
+<p>Python dictionary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_config(self):
+    config = {&#34;method&#34;: self.method}
+    base_config = super().get_config()
+    return {**config, **base_config}</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="handyrec.layers.tools.ValueTable"><code class="flex name class">
+<span>class <span class="ident">ValueTable</span></span>
+<span>(</span><span>value_list: List[~T], **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Output a full list of values of a feature to be the input of embedding layer</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>value_list</code></strong> :&ensp;<code>List</code></dt>
+<dd>Feature values of all items.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ValueTable(Layer):
+    &#34;&#34;&#34;Output a full list of values of a feature to be the input of embedding layer&#34;&#34;&#34;
+
+    def __init__(self, value_list: List, **kwargs):
+        &#34;&#34;&#34;Parameters
+        ----------
+        value_list : List
+            Feature values of all items.
+        &#34;&#34;&#34;
+        self.value = tf.constant(value_list)
+        super().__init__(**kwargs)
+
+    def call(self, *args, **kwargs):
+        return self.value
+
+    def get_config(self):
+        return super().get_config()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>keras.engine.base_layer.Layer</li>
+<li>tensorflow.python.module.module.Module</li>
+<li>tensorflow.python.training.tracking.tracking.AutoTrackable</li>
+<li>tensorflow.python.training.tracking.base.Trackable</li>
+<li>keras.utils.version_utils.LayerVersionSelector</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.layers.tools.ValueTable.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This is where the layer's logic lives.</p>
+<p>Note here that <code>call()</code> method in <code>tf.keras</code> is little bit different
+from <code>keras</code> API. In <code>keras</code> API, you can pass support masking for
+layers as additional arguments. Whereas <code>tf.keras</code> has <code>compute_mask()</code>
+method to support masking.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>inputs</code></strong></dt>
+<dd>Input tensor, or dict/list/tuple of input tensors.
+The first positional <code>inputs</code> argument is subject to special rules:
+- <code>inputs</code> must be explicitly passed. A layer cannot have zero
+arguments, and <code>inputs</code> cannot be provided via the default value
+of a keyword argument.
+- NumPy array or Python scalar values in <code>inputs</code> get cast as tensors.
+- Keras mask metadata is only collected from <code>inputs</code>.
+- Layers are built (<code>build(input_shape)</code> method)
+using shape info from <code>inputs</code> only.
+- <code>input_spec</code> compatibility is only checked against <code>inputs</code>.
+- Mixed precision input casting is only applied to <code>inputs</code>.
+If a layer has tensor arguments in <code>*args</code> or <code>**kwargs</code>, their
+casting behavior in mixed precision should be handled manually.
+- The SavedModel input specification is generated using <code>inputs</code> only.
+- Integration with various ecosystem packages like TFMOT, TFLite,
+TF.js, etc is only supported for <code>inputs</code> and not for tensors in
+positional and keyword arguments.</dd>
+<dt><strong><code>*args</code></strong></dt>
+<dd>Additional positional arguments. May contain tensors, although
+this is not recommended, for the reasons above.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Additional keyword arguments. May contain tensors, although
+this is not recommended, for the reasons above.
+The following optional keyword arguments are reserved:
+- <code>training</code>: Boolean scalar tensor of Python boolean indicating
+whether the <code>call</code> is meant for training or inference.
+- <code>mask</code>: Boolean input mask. If the layer's <code>call()</code> method takes a
+<code>mask</code> argument, its default value will be set to the mask generated
+for <code>inputs</code> by the previous layer (if <code>input</code> did come from a layer
+that generated a corresponding mask, i.e. if it came from a Keras
+layer with masking support).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>A tensor or list/tuple of tensors.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call(self, *args, **kwargs):
+    return self.value</code></pre>
+</details>
+</dd>
+<dt id="handyrec.layers.tools.ValueTable.get_config"><code class="name flex">
+<span>def <span class="ident">get_config</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the config of the layer.</p>
+<p>A layer config is a Python dictionary (serializable)
+containing the configuration of a layer.
+The same layer can be reinstantiated later
+(without its trained weights) from this configuration.</p>
+<p>The config of a layer does not include connectivity
+information, nor the layer class name. These are handled
+by <code>Network</code> (one layer of abstraction above).</p>
+<p>Note that <code>get_config()</code> does not guarantee to return a fresh copy of dict
+every time it is called. The callers should make a copy of the returned dict
+if they want to modify it.</p>
+<h2 id="returns">Returns</h2>
+<p>Python dictionary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_config(self):
+    return super().get_config()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="handyrec.layers" href="index.html">handyrec.layers</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="handyrec.layers.tools.CustomEmbedding" href="#handyrec.layers.tools.CustomEmbedding">CustomEmbedding</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.layers.tools.CustomEmbedding.compute_mask" href="#handyrec.layers.tools.CustomEmbedding.compute_mask">compute_mask</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="handyrec.layers.tools.SampledSoftmaxLayer" href="#handyrec.layers.tools.SampledSoftmaxLayer">SampledSoftmaxLayer</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.layers.tools.SampledSoftmaxLayer.build" href="#handyrec.layers.tools.SampledSoftmaxLayer.build">build</a></code></li>
+<li><code><a title="handyrec.layers.tools.SampledSoftmaxLayer.call" href="#handyrec.layers.tools.SampledSoftmaxLayer.call">call</a></code></li>
+<li><code><a title="handyrec.layers.tools.SampledSoftmaxLayer.compute_output_shape" href="#handyrec.layers.tools.SampledSoftmaxLayer.compute_output_shape">compute_output_shape</a></code></li>
+<li><code><a title="handyrec.layers.tools.SampledSoftmaxLayer.get_config" href="#handyrec.layers.tools.SampledSoftmaxLayer.get_config">get_config</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="handyrec.layers.tools.SequencePoolingLayer" href="#handyrec.layers.tools.SequencePoolingLayer">SequencePoolingLayer</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.layers.tools.SequencePoolingLayer.call" href="#handyrec.layers.tools.SequencePoolingLayer.call">call</a></code></li>
+<li><code><a title="handyrec.layers.tools.SequencePoolingLayer.compute_output_shape" href="#handyrec.layers.tools.SequencePoolingLayer.compute_output_shape">compute_output_shape</a></code></li>
+<li><code><a title="handyrec.layers.tools.SequencePoolingLayer.get_config" href="#handyrec.layers.tools.SequencePoolingLayer.get_config">get_config</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="handyrec.layers.tools.ValueTable" href="#handyrec.layers.tools.ValueTable">ValueTable</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.layers.tools.ValueTable.call" href="#handyrec.layers.tools.ValueTable.call">call</a></code></li>
+<li><code><a title="handyrec.layers.tools.ValueTable.get_config" href="#handyrec.layers.tools.ValueTable.get_config">get_config</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

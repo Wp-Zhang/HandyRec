@@ -1,0 +1,1459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>handyrec.features API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>handyrec.features</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from .type import DenseFeature, SparseFeature, SparseSeqFeature
+from .group import FeaturePool, FeatureGroup, EmbdFeatureGroup
+
+__all__ = [
+    &#34;DenseFeature&#34;,
+    &#34;SparseFeature&#34;,
+    &#34;SparseSeqFeature&#34;,
+    &#34;FeaturePool&#34;,
+    &#34;FeatureGroup&#34;,
+    &#34;EmbdFeatureGroup&#34;,
+]</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="handyrec.features.group" href="group.html">handyrec.features.group</a></code></dt>
+<dd>
+<div class="desc"><p>Definition of feature wrappers.</p></div>
+</dd>
+<dt><code class="name"><a title="handyrec.features.type" href="type.html">handyrec.features.type</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="handyrec.features.utils" href="utils.html">handyrec.features.utils</a></code></dt>
+<dd>
+<div class="desc"><p>Contains feature-related utility functions.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="handyrec.features.DenseFeature"><code class="flex name class">
+<span>class <span class="ident">DenseFeature</span></span>
+<span>(</span><span>name: str, dtype: str = 'int32')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Feature class for dense features.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of feature, each feature should have a distinct name.</dd>
+<dt><strong><code>dtype</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Data type, by default <code>"int32"</code>.</dd>
+</dl>
+<p>Initialize a <code><a title="handyrec.features.DenseFeature" href="#handyrec.features.DenseFeature">DenseFeature</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of feature, each feature should have a distinct name.</dd>
+<dt><strong><code>dtype</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Data type, by default <code>"int32"</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DenseFeature(Feature):
+    &#34;&#34;&#34;Feature class for dense features.
+
+    Attributes
+    ----------
+    name : str
+        Name of feature, each feature should have a distinct name.
+    dtype : str, optional
+        Data type, by default ``&#34;int32&#34;``.
+    &#34;&#34;&#34;
+
+    def __init__(self, name: str, dtype: str = &#34;int32&#34;):
+        &#34;&#34;&#34;Initialize a `DenseFeature`.
+
+        Parameters
+        ----------
+        name : str
+            Name of feature, each feature should have a distinct name.
+        dtype : str, optional
+            Data type, by default ``&#34;int32&#34;``.
+        &#34;&#34;&#34;
+        super().__init__(name, dtype)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="handyrec.features.type.Feature" href="type.html#handyrec.features.type.Feature">Feature</a></li>
+</ul>
+</dd>
+<dt id="handyrec.features.EmbdFeatureGroup"><code class="flex name class">
+<span>class <span class="ident">EmbdFeatureGroup</span></span>
+<span>(</span><span>name: str, id_name: str, features: List[<a title="handyrec.features.type.Feature" href="type.html#handyrec.features.type.Feature">Feature</a>], feature_pool: <a title="handyrec.features.group.FeaturePool" href="group.html#handyrec.features.group.FeaturePool">FeaturePool</a>, value_dict: Dict[str, numpy.ndarray], embd_dim: int, l2_embd: float = 1e-06, pool_method: str = 'mean')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A wrapper that consturct concatenated embeddings of a group of features</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of this <code><a title="handyrec.features.EmbdFeatureGroup" href="#handyrec.features.EmbdFeatureGroup">EmbdFeatureGroup</a></code>, should be unique.</dd>
+<dt><strong><code>feature_pool</code></strong> :&ensp;<code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code></dt>
+<dd>The <code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code> instance that this <code><a title="handyrec.features.FeatureGroup" href="#handyrec.features.FeatureGroup">FeatureGroup</a></code> belongs to.</dd>
+<dt><strong><code>embd_dim</code></strong> :&ensp;<code>int</code></dt>
+<dd>Output dimension of embedding, use a <code>Dense</code> layer to compress.</dd>
+<dt><strong><code>id_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the id featrue, e.g. <code>item_id</code>, <code>movie_id</code></dd>
+<dt><strong><code>id_input</code></strong> :&ensp;<code>Input</code></dt>
+<dd>An input layer of the id feature.</dd>
+<dt><strong><code>embd_layers</code></strong> :&ensp;<code>OrderedDict[str, CustomEmbedding]</code></dt>
+<dd>Dictionary that stores embedding layer of sparse features.</dd>
+<dt><strong><code>embedding</code></strong> :&ensp;<code>tf.Tensor</code></dt>
+<dd>Concatenated all feature values/embeddings of all ids.</dd>
+</dl>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of this <code><a title="handyrec.features.EmbdFeatureGroup" href="#handyrec.features.EmbdFeatureGroup">EmbdFeatureGroup</a></code>, should be unique.</dd>
+<dt><strong><code>id_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the id featrue, e.g. <code>item_id</code>, <code>movie_id</code></dd>
+<dt><strong><code>features</code></strong> :&ensp;<code>List[Feature]</code></dt>
+<dd>List of features in this group.</dd>
+<dt><strong><code>feature_pool</code></strong> :&ensp;<code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code></dt>
+<dd>The <code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code> instance that this <code><a title="handyrec.features.FeatureGroup" href="#handyrec.features.FeatureGroup">FeatureGroup</a></code> belongs to.</dd>
+<dt><strong><code>value_dict</code></strong> :&ensp;<code>Dict[str, np.ndarray]</code></dt>
+<dd>Dictionary contains full fature values of all ids, {feature_name: values of all ids}.</dd>
+<dt><strong><code>embd_dim</code></strong> :&ensp;<code>int</code></dt>
+<dd>Output dimension of embedding, use a <code>Dense</code> layer to compress.</dd>
+<dt><strong><code>l2_embd</code></strong> :&ensp;<code>float</code></dt>
+<dd>L2 regularization parameter for embeddings, by default <code>1e-6</code>.</dd>
+<dt><strong><code>pool_method</code></strong> :&ensp;<code>str</code></dt>
+<dd>Pooling method for <code><a title="handyrec.features.SparseSeqFeature" href="#handyrec.features.SparseSeqFeature">SparseSeqFeature</a></code>s, by default <code>"mean"</code>.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>If <code>id_name</code> is not the name of the feature in <code>features</code>.</dd>
+<dt><code>ValueError</code></dt>
+<dd>If the unit of a <code><a title="handyrec.features.SparseSeqFeature" href="#handyrec.features.SparseSeqFeature">SparseSeqFeature</a></code> is not <code><a title="handyrec.features.SparseFeature" href="#handyrec.features.SparseFeature">SparseFeature</a></code> nor <code><a title="handyrec.features.EmbdFeatureGroup" href="#handyrec.features.EmbdFeatureGroup">EmbdFeatureGroup</a></code></dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EmbdFeatureGroup:
+    &#34;&#34;&#34;A wrapper that consturct concatenated embeddings of a group of features
+
+    Attributes
+    ----------
+    name : str
+        Name of this `EmbdFeatureGroup`, should be unique.
+    feature_pool : FeaturePool
+        The `FeaturePool` instance that this `FeatureGroup` belongs to.
+    embd_dim : int
+        Output dimension of embedding, use a `Dense` layer to compress.
+    id_name: str
+        Name of the id featrue, e.g. ``item_id``, ``movie_id``
+    id_input : Input
+        An input layer of the id feature.
+    embd_layers : OrderedDict[str, CustomEmbedding]
+        Dictionary that stores embedding layer of sparse features.
+    embedding: tf.Tensor
+        Concatenated all feature values/embeddings of all ids.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        name: str,
+        id_name: str,
+        features: List[Feature],
+        feature_pool: FeaturePool,
+        value_dict: Dict[str, np.ndarray],
+        embd_dim: int,
+        l2_embd: float = 1e-6,
+        pool_method: str = &#34;mean&#34;,
+    ):
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        name : str
+            Name of this `EmbdFeatureGroup`, should be unique.
+        id_name: str
+            Name of the id featrue, e.g. `item_id`, `movie_id`
+        features : List[Feature]
+            List of features in this group.
+        feature_pool : FeaturePool
+            The `FeaturePool` instance that this `FeatureGroup` belongs to.
+        value_dict : Dict[str, np.ndarray]
+            Dictionary contains full fature values of all ids, {feature_name: values of all ids}.
+        embd_dim : int
+            Output dimension of embedding, use a `Dense` layer to compress.
+        l2_embd : float
+            L2 regularization parameter for embeddings, by default ``1e-6``.
+        pool_method : str
+            Pooling method for `SparseSeqFeature`s, by default ``&#34;mean&#34;``.
+
+        Raises
+        ------
+        ValueError
+            If `id_name` is not the name of the feature in `features`.
+        ValueError
+            If the unit of a `SparseSeqFeature` is not `SparseFeature` nor `EmbdFeatureGroup`
+        &#34;&#34;&#34;
+        # * check validity
+        if id_name not in [x.name for x in features]:
+            raise ValueError(&#34;`id_name` should be the name of a feature in `features`&#34;)
+        for feat in features:
+            if (
+                isinstance(feat, SparseSeqFeature)
+                and not isinstance(feat.unit, SparseFeature)
+                and not isinstance(feat.unit, EmbdFeatureGroup)
+            ):
+                raise ValueError(
+                    &#34;&#34;&#34;Only a `EmbdFeatureGroup` can be the unit of a `SparseSeqFeature`&#34;&#34;&#34;
+                )
+
+        # * initialize attributes
+        self.name = name
+        self.id_name = id_name
+        self.feat_pool = feature_pool
+        self.embd_dim = embd_dim
+
+        # * init input layer of id feature for embedding lookup in the future
+        id_feat = {x.name: x for x in features}[id_name]
+        params = {&#34;name&#34;: id_name, &#34;shape&#34;: (1,), &#34;dtype&#34;: id_feat.dtype}
+        self.id_input = feature_pool.init_input(id_name, params)
+
+        # * construct embedding layers
+        self.embd_layers = FeatureGroup.construct_embds(features, feature_pool, l2_embd)
+
+        self._features = features
+        self._value_dict = value_dict
+        self._layers = {}
+        for feat in features:
+            self._layers[feat.name] = ValueTable(
+                value_dict[feat.name], name=feat.name + &#34;_list&#34;
+            )
+            if isinstance(feat, SparseSeqFeature):
+                self._layers[feat.name + &#34;_pool&#34;] = SequencePoolingLayer(
+                    pool_method, name=feat.name + &#34;_&#34; + pool_method
+                )
+        self._output_layer = Dense(embd_dim, name=&#34;reduce_dim&#34;)
+
+    def get_embd(self, index: Input, compress: bool = True) -&gt; tf.Tensor:
+        &#34;&#34;&#34;Concatenate all features in this group and output a tensor that is ready for lookup.
+
+        Parameters
+        ----------
+        index : Input
+            Lookup index.
+        compress : bool
+            Whether compress the output into a size of ``self.embd_dim``.
+
+        Note
+        ----
+        The code will run successfully after replacing ``index`` with ``[]``, but there will be a
+            huge decrease in performance and converge speed, WHY? **TO BE SOLVED**
+
+        Returns
+        -------
+        tf.Tensor
+            concatenated full feature value list of all ids, size: (id feature vocab_size, k)
+        &#34;&#34;&#34;
+        # * Embedding output: input layer -&gt; embedding layer (-&gt; pooling layer)
+        embd_outputs = OrderedDict()
+        dense, sparse, sparse_seq = split_features(self._features)
+
+        # * a dense feature needs to be treated as an 1-d embedding
+        for name in dense.keys():
+            embd = self._layers[name](index)
+            embd_outputs[name] = tf.expand_dims(embd, axis=-1)  # * (n,1)
+
+        for name in sparse.keys():
+            embd_input = self._layers[name](index)
+            embd_outputs[name] = self.embd_layers[name](embd_input)  # * (n,d)
+
+        for name, feat in sparse_seq.items():
+            embd_input = self._layers[name](index)
+            embd_layer = self.embd_layers[feat.unit.name]
+            if not feat.is_group:
+                embd_seq = embd_layer(embd_input)
+                embd_outputs[name] = self._layers[name + &#34;_pool&#34;](embd_seq)
+            else:
+                # * __call__ method of `EmbdFeatureGrouop` will also return manually computed mask
+                embd_seq, mask = embd_layer(embd_input)
+                embd_outputs[name] = self._layers[name + &#34;_pool&#34;](embd_seq, mask)
+            embd_outputs[name] = tf.squeeze(embd_outputs[name])  # * (n,d)
+
+        output = concat([], list(embd_outputs.values()))  # * (n, 2d+k)
+        if compress:
+            output = self._output_layer(output)  # * (n, embd_dim)
+        return output
+
+    def lookup(self, index: Input) -&gt; tf.Tensor:
+        &#34;&#34;&#34;Lookup all feature values by given id.
+
+        Parameters
+        ----------
+        index : Input
+            Target ids.
+
+        Returns
+        -------
+        tf.Tensor
+            Concatenated feature values of given ids.
+        &#34;&#34;&#34;
+        embedding = self.get_embd(index)
+        output = tf.nn.embedding_lookup(embedding, index)  # * (batch, seq, embd_dim)
+        if index.shape[-1] == 1:
+            # * index is not sequence
+            output = tf.squeeze(output, axis=1)  # * (batch, embd_dim)
+        return output
+
+    def __call__(self, seq_input: Input) -&gt; Tuple[tf.Tensor]:
+        output = self.lookup(seq_input)
+        # * manually compute mask
+        mask = tf.not_equal(seq_input, 0)  # (?, n)
+        mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
+        tile_shape = [1] * (len(mask.shape) - 1) + [output.shape[-1]]
+        mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
+
+        return output, mask</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.features.EmbdFeatureGroup.get_embd"><code class="name flex">
+<span>def <span class="ident">get_embd</span></span>(<span>self, index: <function Input at 0x0000012EA3F318B8>, compress: bool = True) ‑> tensorflow.python.framework.ops.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Concatenate all features in this group and output a tensor that is ready for lookup.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>index</code></strong> :&ensp;<code>Input</code></dt>
+<dd>Lookup index.</dd>
+<dt><strong><code>compress</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Whether compress the output into a size of <code>self.embd_dim</code>.</dd>
+</dl>
+<h2 id="note">Note</h2>
+<p>The code will run successfully after replacing <code>index</code> with <code>[]</code>, but there will be a
+huge decrease in performance and converge speed, WHY? <strong>TO BE SOLVED</strong></p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tf.Tensor</code></dt>
+<dd>concatenated full feature value list of all ids, size: (id feature vocab_size, k)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_embd(self, index: Input, compress: bool = True) -&gt; tf.Tensor:
+    &#34;&#34;&#34;Concatenate all features in this group and output a tensor that is ready for lookup.
+
+    Parameters
+    ----------
+    index : Input
+        Lookup index.
+    compress : bool
+        Whether compress the output into a size of ``self.embd_dim``.
+
+    Note
+    ----
+    The code will run successfully after replacing ``index`` with ``[]``, but there will be a
+        huge decrease in performance and converge speed, WHY? **TO BE SOLVED**
+
+    Returns
+    -------
+    tf.Tensor
+        concatenated full feature value list of all ids, size: (id feature vocab_size, k)
+    &#34;&#34;&#34;
+    # * Embedding output: input layer -&gt; embedding layer (-&gt; pooling layer)
+    embd_outputs = OrderedDict()
+    dense, sparse, sparse_seq = split_features(self._features)
+
+    # * a dense feature needs to be treated as an 1-d embedding
+    for name in dense.keys():
+        embd = self._layers[name](index)
+        embd_outputs[name] = tf.expand_dims(embd, axis=-1)  # * (n,1)
+
+    for name in sparse.keys():
+        embd_input = self._layers[name](index)
+        embd_outputs[name] = self.embd_layers[name](embd_input)  # * (n,d)
+
+    for name, feat in sparse_seq.items():
+        embd_input = self._layers[name](index)
+        embd_layer = self.embd_layers[feat.unit.name]
+        if not feat.is_group:
+            embd_seq = embd_layer(embd_input)
+            embd_outputs[name] = self._layers[name + &#34;_pool&#34;](embd_seq)
+        else:
+            # * __call__ method of `EmbdFeatureGrouop` will also return manually computed mask
+            embd_seq, mask = embd_layer(embd_input)
+            embd_outputs[name] = self._layers[name + &#34;_pool&#34;](embd_seq, mask)
+        embd_outputs[name] = tf.squeeze(embd_outputs[name])  # * (n,d)
+
+    output = concat([], list(embd_outputs.values()))  # * (n, 2d+k)
+    if compress:
+        output = self._output_layer(output)  # * (n, embd_dim)
+    return output</code></pre>
+</details>
+</dd>
+<dt id="handyrec.features.EmbdFeatureGroup.lookup"><code class="name flex">
+<span>def <span class="ident">lookup</span></span>(<span>self, index: <function Input at 0x0000012EA3F318B8>) ‑> tensorflow.python.framework.ops.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Lookup all feature values by given id.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>index</code></strong> :&ensp;<code>Input</code></dt>
+<dd>Target ids.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tf.Tensor</code></dt>
+<dd>Concatenated feature values of given ids.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lookup(self, index: Input) -&gt; tf.Tensor:
+    &#34;&#34;&#34;Lookup all feature values by given id.
+
+    Parameters
+    ----------
+    index : Input
+        Target ids.
+
+    Returns
+    -------
+    tf.Tensor
+        Concatenated feature values of given ids.
+    &#34;&#34;&#34;
+    embedding = self.get_embd(index)
+    output = tf.nn.embedding_lookup(embedding, index)  # * (batch, seq, embd_dim)
+    if index.shape[-1] == 1:
+        # * index is not sequence
+        output = tf.squeeze(output, axis=1)  # * (batch, embd_dim)
+    return output</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="handyrec.features.FeatureGroup"><code class="flex name class">
+<span>class <span class="ident">FeatureGroup</span></span>
+<span>(</span><span>name: str, features: List[<a title="handyrec.features.type.Feature" href="type.html#handyrec.features.type.Feature">Feature</a>], feature_pool: <a title="handyrec.features.group.FeaturePool" href="group.html#handyrec.features.group.FeaturePool">FeaturePool</a>, l2_embd: float = 1e-06)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A wrapper that consturct input, embedding, and concatenated output of a group of features</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of this <code><a title="handyrec.features.FeatureGroup" href="#handyrec.features.FeatureGroup">FeatureGroup</a></code>, should be unique.</dd>
+<dt><strong><code>features</code></strong> :&ensp;<code>List[Feature]</code></dt>
+<dd>List of features in this group.</dd>
+<dt><strong><code>feature_pool</code></strong> :&ensp;<code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code></dt>
+<dd>The <code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code> instance that this <code><a title="handyrec.features.FeatureGroup" href="#handyrec.features.FeatureGroup">FeatureGroup</a></code> belongs to.</dd>
+<dt><strong><code>input_layers</code></strong> :&ensp;<code>OrderedDict[str, Input]</code></dt>
+<dd>Dictionary that stores input layers of all features.</dd>
+<dt><strong><code>embd_layers</code></strong> :&ensp;<code>OrderedDict[str, CustomEmbedding]</code></dt>
+<dd>Dictionary that stores embedding layer of sparse features.</dd>
+<dt><strong><code>dense_output</code></strong> :&ensp;<code>List[Input]</code></dt>
+<dd>List of input layers of dense features, to be concatenated</dd>
+<dt><strong><code>sparse_output</code></strong> :&ensp;<code>List</code></dt>
+<dd>List of embeddings corredsponding to the input index</dd>
+</dl>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of this <code><a title="handyrec.features.FeatureGroup" href="#handyrec.features.FeatureGroup">FeatureGroup</a></code>, should be unique.</dd>
+<dt><strong><code>features</code></strong> :&ensp;<code>List[Feature]</code></dt>
+<dd>List of features in this group.</dd>
+<dt><strong><code>feature_pool</code></strong> :&ensp;<code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code></dt>
+<dd>The <code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code> instance that this <code><a title="handyrec.features.FeatureGroup" href="#handyrec.features.FeatureGroup">FeatureGroup</a></code> belongs to.</dd>
+<dt><strong><code>l2_embd</code></strong> :&ensp;<code>float</code></dt>
+<dd>L2 regularization parameter for embeddings, by default <code>1e-6</code></dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>If the unit of a <code><a title="handyrec.features.SparseSeqFeature" href="#handyrec.features.SparseSeqFeature">SparseSeqFeature</a></code> is not <code><a title="handyrec.features.SparseFeature" href="#handyrec.features.SparseFeature">SparseFeature</a></code> nor <code><a title="handyrec.features.EmbdFeatureGroup" href="#handyrec.features.EmbdFeatureGroup">EmbdFeatureGroup</a></code></dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FeatureGroup:
+    &#34;&#34;&#34;A wrapper that consturct input, embedding, and concatenated output of a group of features
+
+    Attributes
+    ----------
+    name : str
+        Name of this `FeatureGroup`, should be unique.
+    features : List[Feature]
+        List of features in this group.
+    feature_pool : FeaturePool
+        The `FeaturePool` instance that this `FeatureGroup` belongs to.
+    input_layers : OrderedDict[str, Input]
+        Dictionary that stores input layers of all features.
+    embd_layers : OrderedDict[str, CustomEmbedding]
+        Dictionary that stores embedding layer of sparse features.
+    dense_output: List[Input]
+        List of input layers of dense features, to be concatenated
+    sparse_output: List
+        List of embeddings corredsponding to the input index
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        name: str,
+        features: List[Feature],
+        feature_pool: FeaturePool,
+        l2_embd: float = 1e-6,
+    ):
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        name : str
+            Name of this `FeatureGroup`, should be unique.
+        features : List[Feature]
+            List of features in this group.
+        feature_pool : FeaturePool
+            The `FeaturePool` instance that this `FeatureGroup` belongs to.
+        l2_embd : float
+            L2 regularization parameter for embeddings, by default ``1e-6``
+
+        Raises
+        ------
+        ValueError
+            If the unit of a `SparseSeqFeature` is not `SparseFeature` nor `EmbdFeatureGroup`
+        &#34;&#34;&#34;
+        # * check validity
+        for feat in features:
+            if (
+                isinstance(feat, SparseSeqFeature)
+                and not isinstance(feat.unit, SparseFeature)
+                and not isinstance(feat.unit, EmbdFeatureGroup)
+            ):
+                raise ValueError(
+                    &#34;&#34;&#34;Only a `EmbdFeatureGroup` can be the unit of a `SparseSeqFeature`&#34;&#34;&#34;
+                )
+
+        # * initialize attributes
+        self.name = name
+        self.features = features
+        self.feat_pool = feature_pool
+
+        # * construct input and embedding layers, generate output
+        self.input_layers = self.construct_inputs(features, feature_pool)
+        self.embd_layers = self.construct_embds(features, feature_pool, l2_embd)
+
+    @classmethod
+    def construct_inputs(
+        cls, features: List[Feature], feature_pool: FeaturePool
+    ) -&gt; OrderedDict[str, Input]:
+        &#34;&#34;&#34;Construct input layers pf each feature
+
+        Parameters
+        ----------
+        features : List[Feature]
+            List of features in this group.
+        feature_pool : FeaturePool
+            The `FeaturePool` instance that this `FeatureGroup` belongs to.
+
+        Returns
+        -------
+        OrderedDict[str, Input]
+            Dictionary of input layers, {name: input layer}
+        &#34;&#34;&#34;
+        input_layers = OrderedDict()
+
+        for feat in features:
+            dim = feat.seq_len if isinstance(feat, SparseSeqFeature) else 1
+            params = {&#34;name&#34;: feat.name, &#34;shape&#34;: (dim,), &#34;dtype&#34;: feat.dtype}
+            input_layer = feature_pool.init_input(feat.name, params)
+            input_layers[feat.name] = input_layer
+
+        return input_layers
+
+    @classmethod
+    def construct_embds(
+        cls, features: List[Feature], feature_pool: FeaturePool, l2_reg: float
+    ) -&gt; OrderedDict[str, CustomEmbedding]:
+        &#34;&#34;&#34;Construct embedding layers of sparse features
+
+        Parameters
+        ----------
+        features : List[Feature]
+            List of features in this group.
+        feature_pool : FeaturePool
+            The `FeaturePool` instance that this `FeatureGroup` belongs to.
+        l2_reg : float
+            L2 regularization parameter for embeddings.
+
+        Returns
+        -------
+        OrderedDict[str, CustomEmbedding]
+            Dictionary of embedding layers, {name: embedding layer}.
+        &#34;&#34;&#34;
+        embd_layers = OrderedDict()
+        _, sparse, sparse_seq = split_features(features)
+        # * unit of a `SparseSeqFeature` should be a embedding layer with `mask_zero` setting as `True`
+        mask_embds = [x.unit.name for x in sparse_seq.values()]
+
+        feats_to_construct = list(sparse.values())
+        for feat in sparse_seq.values():
+            if not feat.is_group and feat.unit.name not in sparse.keys():
+                # * append the unit of a `SparseSeqFeature` if it is not a `EmbdFeatureGroup`
+                feats_to_construct.append(feat.unit)
+            elif feat.is_group:
+                # * `EmbdFeatureGroup.__call__` will be called later
+                embd_layers[feat.unit.name] = feat.unit
+                feature_pool.add_embd(feat.unit)
+
+        for feat in feats_to_construct:
+            weights = None
+            if feature_pool.pre_embd and feat.name in feature_pool.pre_embd.keys():
+                weights = feature_pool.pre_embd[feat.name]
+            params = {
+                &#34;name&#34;: &#34;embd_&#34; + feat.name,
+                &#34;input_dim&#34;: feat.vocab_size,
+                &#34;output_dim&#34;: feat.embdding_dim,
+                &#34;embeddings_regularizer&#34;: l2(l2_reg),
+                &#34;trainable&#34;: feat.trainable,
+                &#34;weights&#34;: weights,
+                &#34;mask_zero&#34;: feat.name in mask_embds,
+            }
+
+            embd_layer = feature_pool.init_embd(feat.name, params)
+            embd_layers[feat.name] = embd_layer
+        return embd_layers
+
+    def embedding_lookup(
+        self,
+        pool_method: str = &#34;mean&#34;,
+    ) -&gt; Tuple[List[Input], List[tf.Tensor]]:
+        &#34;&#34;&#34;Concatenate all features in this group and output a tensor that is ready for model input.
+
+        Parameters
+        ----------
+        pool_method : str, optional
+            Pooling method for `SparseSeqFeature`s, by default ``&#34;mean&#34;``.
+
+        Returns
+        -------
+        Tuple[List[Input], List[tf.Tensor]]
+            Output of all features in this group, (dense output list, sparse output list)
+        &#34;&#34;&#34;
+        dense, sparse, sparse_seq = split_features(self.features)
+        dense_output = [self.input_layers[k] for k in dense.keys()]
+
+        # * Embedding output: input layer -&gt; embedding layer (-&gt; pooling layer)
+        embd_outputs = OrderedDict()
+        for name in sparse.keys():
+            embd_outputs[name] = self.embd_layers[name](self.input_layers[name])
+
+        for feat in sparse_seq.values():
+            sparse_embd = self.embd_layers[feat.unit.name]
+            seq_input = self.input_layers[feat.name]
+            pool_layer = SequencePoolingLayer(pool_method)
+            if feat.is_group:
+                embd_seq, mask = sparse_embd(seq_input)
+                embd_outputs[feat.name] = pool_layer(embd_seq, mask)
+            else:
+                embd_seq = sparse_embd(seq_input)
+                embd_outputs[feat.name] = pool_layer(embd_seq)
+
+        embd_output = list(embd_outputs.values())
+
+        return dense_output, embd_output</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="handyrec.features.FeatureGroup.construct_embds"><code class="name flex">
+<span>def <span class="ident">construct_embds</span></span>(<span>features: List[<a title="handyrec.features.type.Feature" href="type.html#handyrec.features.type.Feature">Feature</a>], feature_pool: <a title="handyrec.features.group.FeaturePool" href="group.html#handyrec.features.group.FeaturePool">FeaturePool</a>, l2_reg: float) ‑> OrderedDict[str, <a title="handyrec.layers.tools.CustomEmbedding" href="../layers/tools.html#handyrec.layers.tools.CustomEmbedding">CustomEmbedding</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Construct embedding layers of sparse features</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>features</code></strong> :&ensp;<code>List[Feature]</code></dt>
+<dd>List of features in this group.</dd>
+<dt><strong><code>feature_pool</code></strong> :&ensp;<code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code></dt>
+<dd>The <code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code> instance that this <code><a title="handyrec.features.FeatureGroup" href="#handyrec.features.FeatureGroup">FeatureGroup</a></code> belongs to.</dd>
+<dt><strong><code>l2_reg</code></strong> :&ensp;<code>float</code></dt>
+<dd>L2 regularization parameter for embeddings.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>OrderedDict[str, CustomEmbedding]</code></dt>
+<dd>Dictionary of embedding layers, {name: embedding layer}.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def construct_embds(
+    cls, features: List[Feature], feature_pool: FeaturePool, l2_reg: float
+) -&gt; OrderedDict[str, CustomEmbedding]:
+    &#34;&#34;&#34;Construct embedding layers of sparse features
+
+    Parameters
+    ----------
+    features : List[Feature]
+        List of features in this group.
+    feature_pool : FeaturePool
+        The `FeaturePool` instance that this `FeatureGroup` belongs to.
+    l2_reg : float
+        L2 regularization parameter for embeddings.
+
+    Returns
+    -------
+    OrderedDict[str, CustomEmbedding]
+        Dictionary of embedding layers, {name: embedding layer}.
+    &#34;&#34;&#34;
+    embd_layers = OrderedDict()
+    _, sparse, sparse_seq = split_features(features)
+    # * unit of a `SparseSeqFeature` should be a embedding layer with `mask_zero` setting as `True`
+    mask_embds = [x.unit.name for x in sparse_seq.values()]
+
+    feats_to_construct = list(sparse.values())
+    for feat in sparse_seq.values():
+        if not feat.is_group and feat.unit.name not in sparse.keys():
+            # * append the unit of a `SparseSeqFeature` if it is not a `EmbdFeatureGroup`
+            feats_to_construct.append(feat.unit)
+        elif feat.is_group:
+            # * `EmbdFeatureGroup.__call__` will be called later
+            embd_layers[feat.unit.name] = feat.unit
+            feature_pool.add_embd(feat.unit)
+
+    for feat in feats_to_construct:
+        weights = None
+        if feature_pool.pre_embd and feat.name in feature_pool.pre_embd.keys():
+            weights = feature_pool.pre_embd[feat.name]
+        params = {
+            &#34;name&#34;: &#34;embd_&#34; + feat.name,
+            &#34;input_dim&#34;: feat.vocab_size,
+            &#34;output_dim&#34;: feat.embdding_dim,
+            &#34;embeddings_regularizer&#34;: l2(l2_reg),
+            &#34;trainable&#34;: feat.trainable,
+            &#34;weights&#34;: weights,
+            &#34;mask_zero&#34;: feat.name in mask_embds,
+        }
+
+        embd_layer = feature_pool.init_embd(feat.name, params)
+        embd_layers[feat.name] = embd_layer
+    return embd_layers</code></pre>
+</details>
+</dd>
+<dt id="handyrec.features.FeatureGroup.construct_inputs"><code class="name flex">
+<span>def <span class="ident">construct_inputs</span></span>(<span>features: List[<a title="handyrec.features.type.Feature" href="type.html#handyrec.features.type.Feature">Feature</a>], feature_pool: <a title="handyrec.features.group.FeaturePool" href="group.html#handyrec.features.group.FeaturePool">FeaturePool</a>) ‑> OrderedDict[str, Input]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Construct input layers pf each feature</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>features</code></strong> :&ensp;<code>List[Feature]</code></dt>
+<dd>List of features in this group.</dd>
+<dt><strong><code>feature_pool</code></strong> :&ensp;<code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code></dt>
+<dd>The <code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code> instance that this <code><a title="handyrec.features.FeatureGroup" href="#handyrec.features.FeatureGroup">FeatureGroup</a></code> belongs to.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>OrderedDict[str, Input]</code></dt>
+<dd>Dictionary of input layers, {name: input layer}</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def construct_inputs(
+    cls, features: List[Feature], feature_pool: FeaturePool
+) -&gt; OrderedDict[str, Input]:
+    &#34;&#34;&#34;Construct input layers pf each feature
+
+    Parameters
+    ----------
+    features : List[Feature]
+        List of features in this group.
+    feature_pool : FeaturePool
+        The `FeaturePool` instance that this `FeatureGroup` belongs to.
+
+    Returns
+    -------
+    OrderedDict[str, Input]
+        Dictionary of input layers, {name: input layer}
+    &#34;&#34;&#34;
+    input_layers = OrderedDict()
+
+    for feat in features:
+        dim = feat.seq_len if isinstance(feat, SparseSeqFeature) else 1
+        params = {&#34;name&#34;: feat.name, &#34;shape&#34;: (dim,), &#34;dtype&#34;: feat.dtype}
+        input_layer = feature_pool.init_input(feat.name, params)
+        input_layers[feat.name] = input_layer
+
+    return input_layers</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.features.FeatureGroup.embedding_lookup"><code class="name flex">
+<span>def <span class="ident">embedding_lookup</span></span>(<span>self, pool_method: str = 'mean') ‑> Tuple[List[Input], List[tensorflow.python.framework.ops.Tensor]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Concatenate all features in this group and output a tensor that is ready for model input.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>pool_method</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Pooling method for <code><a title="handyrec.features.SparseSeqFeature" href="#handyrec.features.SparseSeqFeature">SparseSeqFeature</a></code>s, by default <code>"mean"</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Tuple[List[Input], List[tf.Tensor]]</code></dt>
+<dd>Output of all features in this group, (dense output list, sparse output list)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def embedding_lookup(
+    self,
+    pool_method: str = &#34;mean&#34;,
+) -&gt; Tuple[List[Input], List[tf.Tensor]]:
+    &#34;&#34;&#34;Concatenate all features in this group and output a tensor that is ready for model input.
+
+    Parameters
+    ----------
+    pool_method : str, optional
+        Pooling method for `SparseSeqFeature`s, by default ``&#34;mean&#34;``.
+
+    Returns
+    -------
+    Tuple[List[Input], List[tf.Tensor]]
+        Output of all features in this group, (dense output list, sparse output list)
+    &#34;&#34;&#34;
+    dense, sparse, sparse_seq = split_features(self.features)
+    dense_output = [self.input_layers[k] for k in dense.keys()]
+
+    # * Embedding output: input layer -&gt; embedding layer (-&gt; pooling layer)
+    embd_outputs = OrderedDict()
+    for name in sparse.keys():
+        embd_outputs[name] = self.embd_layers[name](self.input_layers[name])
+
+    for feat in sparse_seq.values():
+        sparse_embd = self.embd_layers[feat.unit.name]
+        seq_input = self.input_layers[feat.name]
+        pool_layer = SequencePoolingLayer(pool_method)
+        if feat.is_group:
+            embd_seq, mask = sparse_embd(seq_input)
+            embd_outputs[feat.name] = pool_layer(embd_seq, mask)
+        else:
+            embd_seq = sparse_embd(seq_input)
+            embd_outputs[feat.name] = pool_layer(embd_seq)
+
+    embd_output = list(embd_outputs.values())
+
+    return dense_output, embd_output</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="handyrec.features.FeaturePool"><code class="flex name class">
+<span>class <span class="ident">FeaturePool</span></span>
+<span>(</span><span>pre_embd: Dict[str, Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor]] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A container that stores input layers and embedding layers for groups of features.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>input_layers</code></strong> :&ensp;<code>OrderedDict[str, Input]</code></dt>
+<dd>Dictionary of inpute layers shared by groups of features.</dd>
+<dt><strong><code>embd_layers</code></strong> :&ensp;<code>OrderedDict[str, CustomEmbedding]</code></dt>
+<dd>Dictionary of embedding layers shared by groups of features.</dd>
+<dt><strong><code>pre_embd</code></strong> :&ensp;<code>Dict[str, Union[np.ndarray, tf.Tensor]]</code>, optional</dt>
+<dd>Dictionary of pretrained embeddings, {feature_name:embd}</dd>
+</dl>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>pre_embd</code></strong> :&ensp;<code>Dict[str, Union[np.ndarray, tf.Tensor]]</code>, optional</dt>
+<dd>Pretrained embedding dictionary, by default <code>None</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FeaturePool:
+    &#34;&#34;&#34;A container that stores input layers and embedding layers for groups of features.
+
+    Attributes
+    ----------
+    input_layers : OrderedDict[str, Input]
+        Dictionary of inpute layers shared by groups of features.
+    embd_layers : OrderedDict[str, CustomEmbedding]
+        Dictionary of embedding layers shared by groups of features.
+    pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
+        Dictionary of pretrained embeddings, {feature_name:embd}
+    &#34;&#34;&#34;
+
+    def __init__(
+        self, pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None
+    ) -&gt; None:
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
+            Pretrained embedding dictionary, by default ``None``.
+        &#34;&#34;&#34;
+        self.input_layers = OrderedDict()
+        self.embd_layers = OrderedDict()
+
+        self.pre_embd = pre_embd
+
+    def init_input(self, name: str, params: Dict) -&gt; Input:
+        &#34;&#34;&#34;Get an existed or construct a new shared input layer by name.
+
+        Parameters
+        ----------
+        name : str
+            Name of layer.
+        params : Dict
+            Input layer parameters.
+
+        Returns
+        -------
+        Input
+            Input layer named as ``feat_name``.
+
+        Raises
+        ------
+        AttributeError
+            If layer attributes conflict with an existed input layer with the same name.
+        &#34;&#34;&#34;
+        if name in self.input_layers.keys():
+            layer = self.input_layers[name]
+
+            curr_dim = layer.shape[-1]
+            curr_dtype = layer.dtype.name
+            new_dim = params[&#34;shape&#34;][0]
+            new_dtype = params[&#34;dtype&#34;]
+            if curr_dim != new_dim or curr_dtype != new_dtype:
+                raise AttributeError(
+                    f&#34;Params of {name} conflict with an existed input layer!\n&#34;
+                    + f&#34;\t existed shape:{curr_dim}, new shape:{new_dim}\n&#34;
+                    + f&#34;\t existed dtype:{curr_dtype}, new dtype:{new_dtype}&#34;
+                )
+        else:
+            layer = Input(**params)
+            self.input_layers[name] = layer
+        return layer
+
+    def init_embd(self, name: str, params: Dict) -&gt; CustomEmbedding:
+        &#34;&#34;&#34;Get an existed or construct a new shared embedding layer by name.
+
+        Parameters
+        ----------
+        name : str
+            Name of layer.
+        params : Dict
+            Input layer parameters.
+
+        Returns
+        -------
+        CustomEmbedding
+            Embedding layer named as ``feat_name``.
+
+        Raises
+        ------
+        AttributeError
+            If layer attributes conflict with an existed embedding layer with the same name.
+        &#34;&#34;&#34;
+        if name in self.embd_layers.keys():
+            layer = self.embd_layers[name]
+
+            old_in_dim = layer.input_dim
+            old_out_dim = layer.output_dim
+            new_in_dim = params[&#34;input_dim&#34;]
+            new_out_dim = params[&#34;output_dim&#34;]
+            if old_in_dim != new_in_dim or old_out_dim != new_out_dim:
+                raise AttributeError(
+                    f&#34;Params of {name} conflict with an existed embedding layer!\n&#34;
+                    + f&#34;\t existed input_dim:{old_in_dim}, new input_dim:{new_in_dim}\n&#34;
+                    + f&#34;\t existed dtype:{old_out_dim}, new dtype:{new_out_dim}&#34;
+                )
+            if params[&#34;mask_zero&#34;] and not layer.mask_zero:
+                # * always set as `True` when there is a conflict on `mask_zero`
+                layer = CustomEmbedding(**params)
+        else:
+            layer = CustomEmbedding(**params)
+        self.embd_layers[name] = layer
+        return layer
+
+    def add_input(self, input_layer: Input) -&gt; None:
+        &#34;&#34;&#34;Add an shared input layer.
+
+        Parameters
+        ----------
+        input_layer : Input
+            An input layer.
+        &#34;&#34;&#34;
+        if input_layer.name in self.input_layers.keys():
+            pass
+        else:
+            self.input_layers[input_layer.name] = input_layer
+
+    def add_embd(self, embd_layer: CustomEmbedding) -&gt; None:
+        &#34;&#34;&#34;Add an shared embedding layer.
+
+        Parameters
+        ----------
+        embd_layer : CustomEmbedding
+            An embedding layer.
+        &#34;&#34;&#34;
+        self.embd_layers[embd_layer.name] = embd_layer</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.features.FeaturePool.add_embd"><code class="name flex">
+<span>def <span class="ident">add_embd</span></span>(<span>self, embd_layer: <a title="handyrec.layers.tools.CustomEmbedding" href="../layers/tools.html#handyrec.layers.tools.CustomEmbedding">CustomEmbedding</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add an shared embedding layer.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>embd_layer</code></strong> :&ensp;<code>CustomEmbedding</code></dt>
+<dd>An embedding layer.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_embd(self, embd_layer: CustomEmbedding) -&gt; None:
+    &#34;&#34;&#34;Add an shared embedding layer.
+
+    Parameters
+    ----------
+    embd_layer : CustomEmbedding
+        An embedding layer.
+    &#34;&#34;&#34;
+    self.embd_layers[embd_layer.name] = embd_layer</code></pre>
+</details>
+</dd>
+<dt id="handyrec.features.FeaturePool.add_input"><code class="name flex">
+<span>def <span class="ident">add_input</span></span>(<span>self, input_layer: <function Input at 0x0000012EA3F318B8>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add an shared input layer.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>input_layer</code></strong> :&ensp;<code>Input</code></dt>
+<dd>An input layer.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_input(self, input_layer: Input) -&gt; None:
+    &#34;&#34;&#34;Add an shared input layer.
+
+    Parameters
+    ----------
+    input_layer : Input
+        An input layer.
+    &#34;&#34;&#34;
+    if input_layer.name in self.input_layers.keys():
+        pass
+    else:
+        self.input_layers[input_layer.name] = input_layer</code></pre>
+</details>
+</dd>
+<dt id="handyrec.features.FeaturePool.init_embd"><code class="name flex">
+<span>def <span class="ident">init_embd</span></span>(<span>self, name: str, params: Dict[~KT, ~VT]) ‑> <a title="handyrec.layers.tools.CustomEmbedding" href="../layers/tools.html#handyrec.layers.tools.CustomEmbedding">CustomEmbedding</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get an existed or construct a new shared embedding layer by name.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of layer.</dd>
+<dt><strong><code>params</code></strong> :&ensp;<code>Dict</code></dt>
+<dd>Input layer parameters.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>CustomEmbedding</code></dt>
+<dd>Embedding layer named as <code>feat_name</code>.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>AttributeError</code></dt>
+<dd>If layer attributes conflict with an existed embedding layer with the same name.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_embd(self, name: str, params: Dict) -&gt; CustomEmbedding:
+    &#34;&#34;&#34;Get an existed or construct a new shared embedding layer by name.
+
+    Parameters
+    ----------
+    name : str
+        Name of layer.
+    params : Dict
+        Input layer parameters.
+
+    Returns
+    -------
+    CustomEmbedding
+        Embedding layer named as ``feat_name``.
+
+    Raises
+    ------
+    AttributeError
+        If layer attributes conflict with an existed embedding layer with the same name.
+    &#34;&#34;&#34;
+    if name in self.embd_layers.keys():
+        layer = self.embd_layers[name]
+
+        old_in_dim = layer.input_dim
+        old_out_dim = layer.output_dim
+        new_in_dim = params[&#34;input_dim&#34;]
+        new_out_dim = params[&#34;output_dim&#34;]
+        if old_in_dim != new_in_dim or old_out_dim != new_out_dim:
+            raise AttributeError(
+                f&#34;Params of {name} conflict with an existed embedding layer!\n&#34;
+                + f&#34;\t existed input_dim:{old_in_dim}, new input_dim:{new_in_dim}\n&#34;
+                + f&#34;\t existed dtype:{old_out_dim}, new dtype:{new_out_dim}&#34;
+            )
+        if params[&#34;mask_zero&#34;] and not layer.mask_zero:
+            # * always set as `True` when there is a conflict on `mask_zero`
+            layer = CustomEmbedding(**params)
+    else:
+        layer = CustomEmbedding(**params)
+    self.embd_layers[name] = layer
+    return layer</code></pre>
+</details>
+</dd>
+<dt id="handyrec.features.FeaturePool.init_input"><code class="name flex">
+<span>def <span class="ident">init_input</span></span>(<span>self, name: str, params: Dict[~KT, ~VT]) ‑> <function Input at 0x0000012EA3F318B8></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get an existed or construct a new shared input layer by name.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of layer.</dd>
+<dt><strong><code>params</code></strong> :&ensp;<code>Dict</code></dt>
+<dd>Input layer parameters.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Input</code></dt>
+<dd>Input layer named as <code>feat_name</code>.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>AttributeError</code></dt>
+<dd>If layer attributes conflict with an existed input layer with the same name.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_input(self, name: str, params: Dict) -&gt; Input:
+    &#34;&#34;&#34;Get an existed or construct a new shared input layer by name.
+
+    Parameters
+    ----------
+    name : str
+        Name of layer.
+    params : Dict
+        Input layer parameters.
+
+    Returns
+    -------
+    Input
+        Input layer named as ``feat_name``.
+
+    Raises
+    ------
+    AttributeError
+        If layer attributes conflict with an existed input layer with the same name.
+    &#34;&#34;&#34;
+    if name in self.input_layers.keys():
+        layer = self.input_layers[name]
+
+        curr_dim = layer.shape[-1]
+        curr_dtype = layer.dtype.name
+        new_dim = params[&#34;shape&#34;][0]
+        new_dtype = params[&#34;dtype&#34;]
+        if curr_dim != new_dim or curr_dtype != new_dtype:
+            raise AttributeError(
+                f&#34;Params of {name} conflict with an existed input layer!\n&#34;
+                + f&#34;\t existed shape:{curr_dim}, new shape:{new_dim}\n&#34;
+                + f&#34;\t existed dtype:{curr_dtype}, new dtype:{new_dtype}&#34;
+            )
+    else:
+        layer = Input(**params)
+        self.input_layers[name] = layer
+    return layer</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="handyrec.features.SparseFeature"><code class="flex name class">
+<span>class <span class="ident">SparseFeature</span></span>
+<span>(</span><span>name: str, vocab_size: int, embedding_dim: int, trainable: bool = True, dtype: str = 'int32')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Feature class for sparse features.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of feature, each feature should have a distinct name.</dd>
+<dt><strong><code>vocab_size</code></strong> :&ensp;<code>int</code></dt>
+<dd>Vocabulary size.</dd>
+<dt><strong><code>embedding_dim</code></strong> :&ensp;<code>int</code></dt>
+<dd>Embedding dimension.</dd>
+<dt><strong><code>trainable</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Whether embedding is trainable or not, by default <code>True</code>.</dd>
+<dt><strong><code>dtype</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Data type, by default <code>"int32"</code>.</dd>
+</dl>
+<p>Initialize a <code><a title="handyrec.features.SparseFeature" href="#handyrec.features.SparseFeature">SparseFeature</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of feature, each feature should have a distinct name.</dd>
+<dt><strong><code>vocab_size</code></strong> :&ensp;<code>int</code></dt>
+<dd>Vocabulary size.</dd>
+<dt><strong><code>embedding_dim</code></strong> :&ensp;<code>int</code></dt>
+<dd>Embedding dimension.</dd>
+<dt><strong><code>trainable</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Whether embedding is trainable or not, by default <code>True</code>.</dd>
+<dt><strong><code>dtype</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Data type, by default <code>"int32"</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SparseFeature(Feature):
+    &#34;&#34;&#34;Feature class for sparse features.
+
+    Attributes
+    ----------
+    name : str
+        Name of feature, each feature should have a distinct name.
+    vocab_size : int
+        Vocabulary size.
+    embedding_dim : int
+        Embedding dimension.
+    trainable : bool, optional
+        Whether embedding is trainable or not, by default ``True``.
+    dtype : str, optional
+        Data type, by default ``&#34;int32&#34;``.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        name: str,
+        vocab_size: int,
+        embedding_dim: int,
+        trainable: bool = True,
+        dtype: str = &#34;int32&#34;,
+    ):
+        &#34;&#34;&#34;Initialize a `SparseFeature`.
+
+        Parameters
+        ----------
+        name : str
+            Name of feature, each feature should have a distinct name.
+        vocab_size : int
+            Vocabulary size.
+        embedding_dim : int
+            Embedding dimension.
+        trainable : bool, optional
+            Whether embedding is trainable or not, by default ``True``.
+        dtype : str, optional
+            Data type, by default ``&#34;int32&#34;``.
+        &#34;&#34;&#34;
+        super().__init__(name, dtype)
+        self.vocab_size = vocab_size
+        self.embdding_dim = embedding_dim
+        self.trainable = trainable</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="handyrec.features.type.Feature" href="type.html#handyrec.features.type.Feature">Feature</a></li>
+</ul>
+</dd>
+<dt id="handyrec.features.SparseSeqFeature"><code class="flex name class">
+<span>class <span class="ident">SparseSeqFeature</span></span>
+<span>(</span><span>unit, name: str, seq_len: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Feature class for sparse sequence features, e.g. watch history of movies.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt>unit :</dt>
+<dt>Unit of sequence, can be a instance of <code><a title="handyrec.features.SparseFeature" href="#handyrec.features.SparseFeature">SparseFeature</a></code> or <code><a title="handyrec.features.EmbdFeatureGroup" href="#handyrec.features.EmbdFeatureGroup">EmbdFeatureGroup</a></code>.</dt>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of feature, each feature should have a distinct name.</dd>
+<dt><strong><code>seq_len</code></strong> :&ensp;<code>int</code></dt>
+<dd>Sequence length.</dd>
+<dt><strong><code>dtype</code></strong> :&ensp;<code>str</code></dt>
+<dd>Set as <code>"int32"</code>.</dd>
+<dt><strong><code>is_group</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Whether <code>unit</code> is a instance of <code><a title="handyrec.features.EmbdFeatureGroup" href="#handyrec.features.EmbdFeatureGroup">EmbdFeatureGroup</a></code>.</dd>
+</dl>
+<p>Initialize a <code><a title="handyrec.features.SparseSeqFeature" href="#handyrec.features.SparseSeqFeature">SparseSeqFeature</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt>unit :</dt>
+<dt>Unit of sequence, can be a instance of <code><a title="handyrec.features.SparseFeature" href="#handyrec.features.SparseFeature">SparseFeature</a></code> or <code><a title="handyrec.features.EmbdFeatureGroup" href="#handyrec.features.EmbdFeatureGroup">EmbdFeatureGroup</a></code>.</dt>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of feature, each feature should have a distinct name.</dd>
+<dt><strong><code>seq_len</code></strong> :&ensp;<code>int</code></dt>
+<dd>Sequence length.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SparseSeqFeature(Feature):
+    &#34;&#34;&#34;Feature class for sparse sequence features, e.g. watch history of movies.
+
+    Attributes
+    ----------
+    unit :
+        Unit of sequence, can be a instance of `SparseFeature` or `EmbdFeatureGroup`.
+    name : str
+        Name of feature, each feature should have a distinct name.
+    seq_len : int
+        Sequence length.
+    dtype : str
+        Set as ``&#34;int32&#34;``.
+    is_group : bool
+        Whether `unit` is a instance of `EmbdFeatureGroup`.
+    &#34;&#34;&#34;
+
+    def __init__(self, unit, name: str, seq_len: int):
+        &#34;&#34;&#34;Initialize a `SparseSeqFeature`.
+
+        Parameters
+        ----------
+        unit :
+            Unit of sequence, can be a instance of `SparseFeature` or `EmbdFeatureGroup`.
+        name : str
+            Name of feature, each feature should have a distinct name.
+        seq_len : int
+            Sequence length.
+        &#34;&#34;&#34;
+        super().__init__(name, &#34;int32&#34;)
+        self.unit = unit
+        self.seq_len = seq_len
+        # * unit is a feature group if it&#39;s not a SparseFeature
+        self.is_group = not isinstance(unit, SparseFeature)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="handyrec.features.type.Feature" href="type.html#handyrec.features.type.Feature">Feature</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="handyrec" href="../index.html">handyrec</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="handyrec.features.group" href="group.html">handyrec.features.group</a></code></li>
+<li><code><a title="handyrec.features.type" href="type.html">handyrec.features.type</a></code></li>
+<li><code><a title="handyrec.features.utils" href="utils.html">handyrec.features.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="handyrec.features.DenseFeature" href="#handyrec.features.DenseFeature">DenseFeature</a></code></h4>
+</li>
+<li>
+<h4><code><a title="handyrec.features.EmbdFeatureGroup" href="#handyrec.features.EmbdFeatureGroup">EmbdFeatureGroup</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.features.EmbdFeatureGroup.get_embd" href="#handyrec.features.EmbdFeatureGroup.get_embd">get_embd</a></code></li>
+<li><code><a title="handyrec.features.EmbdFeatureGroup.lookup" href="#handyrec.features.EmbdFeatureGroup.lookup">lookup</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="handyrec.features.FeatureGroup" href="#handyrec.features.FeatureGroup">FeatureGroup</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.features.FeatureGroup.construct_embds" href="#handyrec.features.FeatureGroup.construct_embds">construct_embds</a></code></li>
+<li><code><a title="handyrec.features.FeatureGroup.construct_inputs" href="#handyrec.features.FeatureGroup.construct_inputs">construct_inputs</a></code></li>
+<li><code><a title="handyrec.features.FeatureGroup.embedding_lookup" href="#handyrec.features.FeatureGroup.embedding_lookup">embedding_lookup</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="handyrec.features.FeaturePool" href="#handyrec.features.FeaturePool">FeaturePool</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.features.FeaturePool.add_embd" href="#handyrec.features.FeaturePool.add_embd">add_embd</a></code></li>
+<li><code><a title="handyrec.features.FeaturePool.add_input" href="#handyrec.features.FeaturePool.add_input">add_input</a></code></li>
+<li><code><a title="handyrec.features.FeaturePool.init_embd" href="#handyrec.features.FeaturePool.init_embd">init_embd</a></code></li>
+<li><code><a title="handyrec.features.FeaturePool.init_input" href="#handyrec.features.FeaturePool.init_input">init_input</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="handyrec.features.SparseFeature" href="#handyrec.features.SparseFeature">SparseFeature</a></code></h4>
+</li>
+<li>
+<h4><code><a title="handyrec.features.SparseSeqFeature" href="#handyrec.features.SparseSeqFeature">SparseSeqFeature</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,1984 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>handyrec.dataset.movielens API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>handyrec.dataset.movielens</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import pandas as pd
+from sklearn.preprocessing import LabelEncoder, QuantileTransformer
+from tqdm import tqdm
+from typing import Tuple, List, Dict
+import numpy as np
+import gc
+import os
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from .datahelper import DataHelper
+
+
+class MovielensDataHelper(DataHelper):
+    &#34;&#34;&#34;Base class for DataHelper for movielens dataset.
+
+    Attributes
+    ----------
+    data_dir : str
+        Diectory to load raw data and save generated dataset.
+    sub_dir_name : str
+        Diectory to save and load generated feature values for training.
+    &#34;&#34;&#34;
+
+    def __init__(self, data_dir: str, sub_dir_name: str):
+        &#34;&#34;&#34;Initialize a `MovielensDataHelper`
+
+        Parameters
+        ----------
+        data_dir : str
+            Diectory to load raw data and save generated dataset.
+        sub_dir_name : str
+            Diectory to save and load generated feature values for training.
+        &#34;&#34;&#34;
+        super().__init__(data_dir)
+        self.sub_dir = data_dir + sub_dir_name + &#34;/&#34;
+        if not os.path.exists(self.sub_dir):
+            os.makedirs(self.sub_dir)
+
+    def load_data(self) -&gt; Dict:
+        &#34;&#34;&#34;Load original raw data.
+
+        Returns
+        -------
+        Dict
+            Dictionary of raw data with three keys: ``user``, ``item``, and ``interact``.
+        &#34;&#34;&#34;
+        unames = [&#34;user_id&#34;, &#34;gender&#34;, &#34;age&#34;, &#34;occupation&#34;, &#34;zip&#34;]
+        user = pd.read_csv(
+            self.base + &#34;users.dat&#34;,
+            sep=&#34;::&#34;,
+            header=None,
+            names=unames,
+            encoding=&#34;latin-1&#34;,
+            engine=&#34;python&#34;,
+        )
+        rnames = [&#34;user_id&#34;, &#34;movie_id&#34;, &#34;interact&#34;, &#34;timestamp&#34;]
+        ratings = pd.read_csv(
+            self.base + &#34;ratings.dat&#34;,
+            sep=&#34;::&#34;,
+            header=None,
+            names=rnames,
+            encoding=&#34;latin-1&#34;,
+            engine=&#34;python&#34;,
+        )
+        mnames = [&#34;movie_id&#34;, &#34;title&#34;, &#34;genres&#34;]
+        movies = pd.read_csv(
+            self.base + &#34;movies.dat&#34;,
+            sep=&#34;::&#34;,
+            header=None,
+            names=mnames,
+            encoding=&#34;latin-1&#34;,
+            engine=&#34;python&#34;,
+        )
+        movies[&#34;year&#34;] = movies[&#34;title&#34;].str.slice(-5, -1).astype(int)
+        genres = list(movies[&#34;genres&#34;].str.get_dummies(sep=&#34;|&#34;).columns)
+        genre_map = {x: i + 1 for i, x in enumerate(genres)}  # index 0 is for padding
+        movies[&#34;genres&#34;] = movies[&#34;genres&#34;].apply(
+            lambda x: sorted([genre_map[k] for k in x.split(&#34;|&#34;)])
+        )
+        pad_genres = pad_sequences(movies[&#34;genres&#34;], padding=&#34;post&#34;)
+        movies[&#34;genres&#34;] = (
+            movies.reset_index()
+            .pop(&#34;index&#34;)
+            .apply(lambda x: pad_genres[x - 1].tolist())
+        )
+
+        return {&#34;item&#34;: movies, &#34;user&#34;: user, &#34;interact&#34;: ratings}
+
+    def preprocess_data(self, data: dict, sparse_features: List[str]) -&gt; Dict:
+        &#34;&#34;&#34;Preprocess raw data
+
+        Parameters
+        ----------
+        data : dict
+            Dictionary with three keys: ``user``, ``item``, and ``interact``.
+        sparse_features : List[str]
+            List of sparse features to be label encoded.
+
+        Returns
+        -------
+        Dict
+            Dictionary of processed data with three keys: ``user``, ``item``, and ``interact``.
+        &#34;&#34;&#34;
+        user = data[&#34;user&#34;]
+        item = data[&#34;item&#34;]
+
+        # Users
+        for feat in tqdm(
+            [f for f in sparse_features if f in user.columns],
+            &#34;Encode User Sparse Feats&#34;,
+        ):
+            lbe = LabelEncoder()
+            user[feat] = lbe.fit_transform(user[feat].astype(str)) + 1
+            user[feat] = user[feat].astype(&#34;int32&#34;)
+
+        # Movies
+        for feat in tqdm(
+            [f for f in sparse_features if f in item.columns],
+            &#34;Encode Item Sparse Feats&#34;,
+        ):
+            lbe = LabelEncoder()
+            item[feat] = lbe.fit_transform(item[feat].astype(str)) + 1
+            item[feat] = item[feat].astype(&#34;int32&#34;)
+
+        data[&#34;user&#34;] = user
+        data[&#34;item&#34;] = item
+
+        return data
+
+    def get_clean_data(self, sparse_features: List[str]) -&gt; Dict:
+        &#34;&#34;&#34;Wrapper for load and preprocess data.
+
+        Parameters
+        ----------
+        sparse_features : List[str]
+            List of sparse features to be label encoded.
+
+        Returns
+        -------
+        Dict
+            Dictionary of processed data with three keys: ``user``, ``item``, and ``interact``.
+        &#34;&#34;&#34;
+        data = self.load_data()
+        data = self.preprocess_data(data, sparse_features)
+        return data
+
+
+class MovieMatchDataHelper(MovielensDataHelper):
+    &#34;&#34;&#34;DataHelper for generating movielens dataset for matching models.&#34;&#34;&#34;
+
+    def __init__(self, data_dir: str):
+        &#34;&#34;&#34;Initialize a ``MovieMatchDataHelper``.
+
+        Parameters
+        ----------
+        data_dir : str
+            Diectory to load raw data and save generated dataset.
+        &#34;&#34;&#34;
+        super().__init__(data_dir, &#34;match&#34;)
+
+    def gen_dataset(
+        self,
+        features: List[str],
+        data: dict,
+        seq_max_len: int = 20,
+        negnum: int = 0,
+        min_rating: float = 0.35,
+        n: int = 10,
+    ):
+        &#34;&#34;&#34;Generate and save train set and test set.
+
+        Parameters
+        ----------
+        features : List[str]
+            List of features to be contained in the dataset.
+        data : dict
+            Data dictionary with three keys: ``user``, ``item``, and ``interact``.
+        seq_max_len : int, optional
+            Maximum history sequence length, by default ``20``.
+        negnum : int, optional
+            Number of negative samples, by default ``0``.
+        min_rating : float, optional
+            Minimum rating for positive smaples, by default ``0.35``.
+        n : int, optional
+            Hold out the last n samples for each user for testing, by default ``10``.
+        &#34;&#34;&#34;
+        data[&#34;interact&#34;].sort_values(&#34;timestamp&#34;, inplace=True)
+        df = data[&#34;interact&#34;]
+        item_ids = set(data[&#34;item&#34;][&#34;movie_id&#34;].values)
+
+        # * Calculate number of rows of dataset to fasten the dataset generating process
+        df = df[df[&#34;interact&#34;] &gt;= min_rating]
+        counter = df[[&#34;user_id&#34;, &#34;movie_id&#34;]].groupby(&#34;user_id&#34;, as_index=False).count()
+        counter = counter[counter[&#34;movie_id&#34;] &gt; n]
+        df = df[df[&#34;user_id&#34;].isin(counter[&#34;user_id&#34;].values)]
+        train_rows = ((counter[&#34;movie_id&#34;] - n) * (negnum + 1)).sum()
+        test_rows = counter.shape[0]
+
+        # * Generate rows
+        # * train_set format: [uid, moiveID, sample_age, label, history_seq]
+        # * test_set format: [uid, sample_age(0), moiveIDs, history_seq]
+        train_set = np.zeros((train_rows, 4 + seq_max_len), dtype=int)
+        test_set = np.zeros((test_rows, 2 + n + seq_max_len), dtype=int)
+
+        p, q = 0, 0
+        for uid, hist in tqdm(df.groupby(&#34;user_id&#34;), &#34;Generate train set&#34;):
+            pos_list = hist[&#34;movie_id&#34;].tolist()
+            if negnum &gt; 0:
+                candidate_set = list(item_ids - set(pos_list))  # Negative samples
+                negs = np.random.choice(
+                    candidate_set, size=(len(pos_list) - n) * negnum, replace=True
+                )
+            train_pos_list = pos_list[:-n]
+            for i in range(len(train_pos_list)):
+                seq = train_pos_list[:i]
+                # Positive sample
+                tmp_seq = seq[-seq_max_len:][::-1]
+                train_set[p] = (
+                    [
+                        uid,
+                        train_pos_list[i],
+                        len(train_pos_list) - 1 - i,
+                        1,
+                    ]
+                    + tmp_seq
+                    + [0] * (seq_max_len - len(tmp_seq))
+                )
+                p += 1
+                # Negative smaples
+                for j in range(negnum):
+                    train_set[p] = (
+                        [
+                            uid,
+                            negs[i * negnum + j],
+                            len(pos_list) - 1 - i,
+                            0,
+                        ]
+                        + tmp_seq
+                        + [0] * (seq_max_len - len(tmp_seq))
+                    )
+                    p += 1
+            test_pos_list = pos_list[-seq_max_len - n : -n][::-1]
+            test_pos_list += [0] * (seq_max_len - len(test_pos_list))
+            test_set[q] = [uid, 0] + pos_list[-n:] + test_pos_list
+            q += 1
+
+        np.random.seed(2022)
+        np.random.shuffle(train_set)
+        np.random.shuffle(test_set)
+
+        user = data[&#34;user&#34;]
+        item = data[&#34;item&#34;]
+        user = user.set_index(&#34;user_id&#34;)
+        item = item.set_index(&#34;movie_id&#34;)
+
+        train_uid = train_set[:, 0].astype(np.int)
+        train_iid = train_set[:, 1].astype(np.int)
+        train_age = train_set[:, 2].astype(np.int)
+        train_label = train_set[:, 3].astype(np.int)
+        normalizer = QuantileTransformer()
+        train_age = normalizer.fit_transform(train_age.reshape(-1, 1))
+        np.save(open(self.sub_dir + &#34;train_user_id.npy&#34;, &#34;wb&#34;), train_uid)
+        np.save(open(self.sub_dir + &#34;train_movie_id.npy&#34;, &#34;wb&#34;), train_iid)
+        np.save(open(self.sub_dir + &#34;train_example_age.npy&#34;, &#34;wb&#34;), train_age)
+        np.save(open(self.sub_dir + &#34;train_label.npy&#34;, &#34;wb&#34;), train_label)
+        np.save(open(self.sub_dir + &#34;train_hist_movie_id.npy&#34;, &#34;wb&#34;), train_set[:, 4:])
+
+        test_uid = test_set[:, 0].astype(np.int)
+        test_age = test_set[:, 1].astype(np.int)
+        test_age = normalizer.transform(test_age.reshape(-1, 1))
+        np.save(open(self.sub_dir + &#34;test_user_id.npy&#34;, &#34;wb&#34;), test_uid)
+        np.save(open(self.sub_dir + &#34;test_example_age.npy&#34;, &#34;wb&#34;), test_age)
+        np.save(open(self.sub_dir + &#34;test_label.npy&#34;, &#34;wb&#34;), test_set[:, 2 : 2 + n])
+        np.save(
+            open(self.sub_dir + &#34;test_hist_movie_id.npy&#34;, &#34;wb&#34;), test_set[:, 2 + n :]
+        )
+
+        del train_set, test_set
+        gc.collect()
+
+        for key in tqdm([x for x in user.columns if x in features and x != &#34;user_id&#34;]):
+            train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+            test_tmp_array = np.array(user[key].loc[test_uid].tolist())
+            np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+            np.save(open(self.sub_dir + &#34;test_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), test_tmp_array)
+            del train_tmp_array, test_tmp_array
+            gc.collect()
+
+        del train_uid, user
+        gc.collect()
+
+        for key in tqdm([x for x in item.columns if x in features and x != &#34;movie_id&#34;]):
+            train_tmp_array = np.array(item[key].loc[train_iid].tolist())
+            np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+            del train_tmp_array
+            gc.collect()
+
+    def load_dataset(
+        self,
+        user_feats: List[str],
+        movie_feats: List[str],
+    ) -&gt; Tuple:
+        &#34;&#34;&#34;Load saved dataset.
+
+        Parameters
+        ----------
+        user_feats : List[str]
+            List of user features to be loaded.
+        movie_feats : List[str]
+            List of movie features to be loaded.
+
+        Returns
+        -------
+        Tuple
+            [train set, test set].
+        &#34;&#34;&#34;
+
+        train_set = {}
+        test_set = {}
+
+        for feat in tqdm(
+            user_feats + [&#34;hist_movie_id&#34;, &#34;example_age&#34;],
+            &#34;Load user Features&#34;,
+        ):
+            train_set[feat] = np.load(
+                open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+            test_set[feat] = np.load(
+                open(self.sub_dir + &#34;test_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+
+        for feat in tqdm(movie_feats, &#34;Load movie Features&#34;):
+            train_set[feat] = np.load(
+                open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+
+        train_label = np.load(
+            open(self.sub_dir + &#34;train_label.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+        test_label = np.load(
+            open(self.sub_dir + &#34;test_label.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+
+        return train_set, train_label, test_set, test_label
+
+
+class MovieRankDataHelper(MovielensDataHelper):
+    def __init__(self, data_dir: str):
+        super(MovieRankDataHelper, self).__init__(data_dir, &#34;rank&#34;)
+
+    def gen_dataset(
+        self,
+        features: List[str],
+        data: dict,
+        test_id: dict,
+        seq_max_len: int = 20,
+        negnum: int = 0,
+        min_rating: float = 0.35,
+        n: int = 10,
+    ):
+        &#34;&#34;&#34;Generate and save train set and test set.
+
+        Parameters
+        ----------
+        features : List[str]
+            List of features to be contained in the dataset.
+        data : dict
+            Data dictionary with three keys: ``user``, ``item``, and ``interact``.
+        test_id : dict
+            Test id dictionary, {user_id: movie_id}.
+        seq_max_len : int, optional
+            Maximum history sequence length, by default ``20``.
+        negnum : int, optional
+            Number of negative samples, by default ``0``.
+        min_rating : float, optional
+            Minimum rating for positive smaples, by default ``0.35``.
+        n : int, optional
+            Hold out the last n samples for each user for testing, by default ``10``.
+
+        Notes
+        -----
+        In ``test_id``, each user should have the same number of movie_ids.
+        &#34;&#34;&#34;
+
+        data[&#34;interact&#34;].sort_values(by=&#34;timestamp&#34;, ascending=True, inplace=True)
+        df = data[&#34;interact&#34;]
+        df[&#34;time_diff&#34;] = df.groupby([&#34;user_id&#34;])[&#34;timestamp&#34;].diff().fillna(0)
+
+        # * Split train set and test set
+        item_ids = set(data[&#34;item&#34;][&#34;movie_id&#34;].values)
+
+        # * Calculate number of rows of dataset to fasten the dataset generating process
+        df = df[df[&#34;interact&#34;] &gt;= min_rating]
+        counter = df[[&#34;user_id&#34;, &#34;movie_id&#34;]].groupby(&#34;user_id&#34;, as_index=False).count()
+        counter = counter[counter[&#34;movie_id&#34;] &gt; n]
+        df = df[df[&#34;user_id&#34;].isin(counter[&#34;user_id&#34;].values)]
+        train_rows = ((counter[&#34;movie_id&#34;] - n) * (negnum + 1)).sum()
+        test_rows = len(test_id.keys()) * len(list(test_id.values())[0])
+
+        # * Generate rows
+        # * train_set format: [uid, moiveID, sample_age, time_since_last_movie, label, history_seq]
+        # * test_set format: [uid, moiveID, sample_age(0), time_since_last_movie, history_seq]
+        train_set = np.zeros((train_rows, 5 + seq_max_len), dtype=int)
+        test_set = np.zeros((test_rows, 4 + seq_max_len), dtype=int)
+
+        p, q = 0, 0
+        for uid, hist in tqdm(df.groupby(&#34;user_id&#34;), &#34;Generate train set&#34;):
+            pos_list = hist[&#34;movie_id&#34;].tolist()
+            time_diff_list = hist[&#34;time_diff&#34;].tolist()
+            if negnum &gt; 0:
+                candidate_set = list(item_ids - set(pos_list))  # Negative samples
+                negs = np.random.choice(
+                    candidate_set, size=(len(pos_list) - n) * negnum, replace=True
+                )
+            pos_list = pos_list[:-n]
+            for i in range(len(pos_list)):
+                seq = pos_list[:i]
+                # Positive sample
+                tmp_seq = seq[-seq_max_len:][::-1]
+                train_set[p] = (
+                    [
+                        uid,
+                        pos_list[i],
+                        len(pos_list) - 1 - i,
+                        time_diff_list[i],
+                        1,
+                    ]
+                    + tmp_seq
+                    + [0] * (seq_max_len - len(tmp_seq))
+                )
+                p += 1
+                # Negative smaples
+                for j in range(negnum):
+                    train_set[p] = (
+                        [
+                            uid,
+                            negs[i * negnum + j],
+                            len(pos_list) - 1 - i,
+                            time_diff_list[i],
+                            0,
+                        ]
+                        + tmp_seq
+                        + [0] * (seq_max_len - len(tmp_seq))
+                    )
+                    p += 1
+            if uid in test_id.keys():
+                for mid in test_id[uid]:
+                    tmp_pos_list = pos_list[-seq_max_len:][::-1]
+                    test_set[q] = (
+                        [uid, mid, 0, time_diff_list[-1]]
+                        + tmp_pos_list
+                        + [0] * (seq_max_len - len(tmp_pos_list))
+                    )
+                    q += 1
+
+        np.random.seed(2022)
+        np.random.shuffle(train_set)
+        # np.random.shuffle(test_set)
+
+        user = data[&#34;user&#34;]
+        item = data[&#34;item&#34;]
+        user = user.set_index(&#34;user_id&#34;)
+        item = item.set_index(&#34;movie_id&#34;)
+
+        train_uid = train_set[:, 0].astype(np.int)
+        train_iid = train_set[:, 1].astype(np.int)
+        train_age = train_set[:, 2].astype(np.int)
+        train_time_gap = train_set[:, 3].astype(np.int)
+        train_label = train_set[:, 4].astype(np.int)
+        normalizer = QuantileTransformer()
+        normalizer2 = QuantileTransformer()
+        train_age = normalizer.fit_transform(train_age.reshape(-1, 1))
+        train_time_gap = normalizer2.fit_transform(train_time_gap.reshape(-1, 1))
+        np.save(open(self.sub_dir + &#34;train_user_id.npy&#34;, &#34;wb&#34;), train_uid)
+        np.save(open(self.sub_dir + &#34;train_movie_id.npy&#34;, &#34;wb&#34;), train_iid)
+        np.save(open(self.sub_dir + &#34;train_example_age.npy&#34;, &#34;wb&#34;), train_age)
+        np.save(open(self.sub_dir + &#34;train_time_gap.npy&#34;, &#34;wb&#34;), train_time_gap)
+        np.save(open(self.sub_dir + &#34;train_label.npy&#34;, &#34;wb&#34;), train_label)
+        np.save(open(self.sub_dir + &#34;train_hist_movie_id.npy&#34;, &#34;wb&#34;), train_set[:, 5:])
+
+        test_uid = test_set[:, 0].astype(np.int)
+        test_iid = test_set[:, 1].astype(np.int)
+        test_age = test_set[:, 2].astype(np.int)
+        test_time_gap = test_set[:, 3].astype(np.int)
+        test_age = normalizer.transform(test_age.reshape(-1, 1))
+        test_time_gap = normalizer2.transform(test_time_gap.reshape(-1, 1))
+        np.save(open(self.sub_dir + &#34;test_user_id.npy&#34;, &#34;wb&#34;), test_uid)
+        np.save(open(self.sub_dir + &#34;test_movie_id.npy&#34;, &#34;wb&#34;), test_iid)
+        np.save(open(self.sub_dir + &#34;test_example_age.npy&#34;, &#34;wb&#34;), test_age)
+        np.save(open(self.sub_dir + &#34;test_time_gap.npy&#34;, &#34;wb&#34;), test_time_gap)
+        np.save(open(self.sub_dir + &#34;test_hist_movie_id.npy&#34;, &#34;wb&#34;), test_set[:, 4:])
+
+        del train_set, test_set  # , hist_seq, hist_seq_pad
+        gc.collect()
+
+        for key in tqdm([x for x in user.columns if x in features and x != &#34;user_id&#34;]):
+            train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+            test_tmp_array = np.array(user[key].loc[test_uid].tolist())
+            np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+            np.save(open(self.sub_dir + &#34;test_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), test_tmp_array)
+            del train_tmp_array, test_tmp_array
+            gc.collect()
+
+        del train_uid, user
+        gc.collect()
+
+        for key in tqdm([x for x in item.columns if x in features and x != &#34;movie_id&#34;]):
+            train_tmp_array = np.array(item[key].loc[train_iid].tolist())
+            test_tmp_array = np.array(item[key].loc[test_iid].tolist())
+            np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+            np.save(open(self.sub_dir + &#34;test_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), test_tmp_array)
+            del train_tmp_array, test_tmp_array
+            gc.collect()
+
+    def load_dataset(
+        self,
+        user_feats: List[str],
+        movie_feats: List[str],
+    ) -&gt; Tuple:
+        &#34;&#34;&#34;Load saved dataset.
+
+        Parameters
+        ----------
+        user_feats : List[str]
+            List of user features to be loaded.
+        movie_feats : List[str]
+            List of movie features to be loaded.
+
+        Returns
+        -------
+        Tuple
+            [train set, test set].
+        &#34;&#34;&#34;
+        train_set = {}
+        test_set = {}
+
+        for feat in tqdm(
+            user_feats + [&#34;hist_movie_id&#34;, &#34;time_gap&#34;, &#34;example_age&#34;],
+            &#34;Load user Features&#34;,
+        ):
+            train_set[feat] = np.load(
+                open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+            test_set[feat] = np.load(
+                open(self.sub_dir + &#34;test_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+
+        for feat in tqdm(movie_feats, &#34;Load movie Features&#34;):
+            train_set[feat] = np.load(
+                open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+            test_set[feat] = np.load(
+                open(self.sub_dir + &#34;test_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+
+        train_label = np.load(
+            open(self.sub_dir + &#34;train_label.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+
+        return train_set, train_label, test_set</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="handyrec.dataset.movielens.MovieMatchDataHelper"><code class="flex name class">
+<span>class <span class="ident">MovieMatchDataHelper</span></span>
+<span>(</span><span>data_dir: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>DataHelper for generating movielens dataset for matching models.</p>
+<p>Initialize a <code><a title="handyrec.dataset.movielens.MovieMatchDataHelper" href="#handyrec.dataset.movielens.MovieMatchDataHelper">MovieMatchDataHelper</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Diectory to load raw data and save generated dataset.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MovieMatchDataHelper(MovielensDataHelper):
+    &#34;&#34;&#34;DataHelper for generating movielens dataset for matching models.&#34;&#34;&#34;
+
+    def __init__(self, data_dir: str):
+        &#34;&#34;&#34;Initialize a ``MovieMatchDataHelper``.
+
+        Parameters
+        ----------
+        data_dir : str
+            Diectory to load raw data and save generated dataset.
+        &#34;&#34;&#34;
+        super().__init__(data_dir, &#34;match&#34;)
+
+    def gen_dataset(
+        self,
+        features: List[str],
+        data: dict,
+        seq_max_len: int = 20,
+        negnum: int = 0,
+        min_rating: float = 0.35,
+        n: int = 10,
+    ):
+        &#34;&#34;&#34;Generate and save train set and test set.
+
+        Parameters
+        ----------
+        features : List[str]
+            List of features to be contained in the dataset.
+        data : dict
+            Data dictionary with three keys: ``user``, ``item``, and ``interact``.
+        seq_max_len : int, optional
+            Maximum history sequence length, by default ``20``.
+        negnum : int, optional
+            Number of negative samples, by default ``0``.
+        min_rating : float, optional
+            Minimum rating for positive smaples, by default ``0.35``.
+        n : int, optional
+            Hold out the last n samples for each user for testing, by default ``10``.
+        &#34;&#34;&#34;
+        data[&#34;interact&#34;].sort_values(&#34;timestamp&#34;, inplace=True)
+        df = data[&#34;interact&#34;]
+        item_ids = set(data[&#34;item&#34;][&#34;movie_id&#34;].values)
+
+        # * Calculate number of rows of dataset to fasten the dataset generating process
+        df = df[df[&#34;interact&#34;] &gt;= min_rating]
+        counter = df[[&#34;user_id&#34;, &#34;movie_id&#34;]].groupby(&#34;user_id&#34;, as_index=False).count()
+        counter = counter[counter[&#34;movie_id&#34;] &gt; n]
+        df = df[df[&#34;user_id&#34;].isin(counter[&#34;user_id&#34;].values)]
+        train_rows = ((counter[&#34;movie_id&#34;] - n) * (negnum + 1)).sum()
+        test_rows = counter.shape[0]
+
+        # * Generate rows
+        # * train_set format: [uid, moiveID, sample_age, label, history_seq]
+        # * test_set format: [uid, sample_age(0), moiveIDs, history_seq]
+        train_set = np.zeros((train_rows, 4 + seq_max_len), dtype=int)
+        test_set = np.zeros((test_rows, 2 + n + seq_max_len), dtype=int)
+
+        p, q = 0, 0
+        for uid, hist in tqdm(df.groupby(&#34;user_id&#34;), &#34;Generate train set&#34;):
+            pos_list = hist[&#34;movie_id&#34;].tolist()
+            if negnum &gt; 0:
+                candidate_set = list(item_ids - set(pos_list))  # Negative samples
+                negs = np.random.choice(
+                    candidate_set, size=(len(pos_list) - n) * negnum, replace=True
+                )
+            train_pos_list = pos_list[:-n]
+            for i in range(len(train_pos_list)):
+                seq = train_pos_list[:i]
+                # Positive sample
+                tmp_seq = seq[-seq_max_len:][::-1]
+                train_set[p] = (
+                    [
+                        uid,
+                        train_pos_list[i],
+                        len(train_pos_list) - 1 - i,
+                        1,
+                    ]
+                    + tmp_seq
+                    + [0] * (seq_max_len - len(tmp_seq))
+                )
+                p += 1
+                # Negative smaples
+                for j in range(negnum):
+                    train_set[p] = (
+                        [
+                            uid,
+                            negs[i * negnum + j],
+                            len(pos_list) - 1 - i,
+                            0,
+                        ]
+                        + tmp_seq
+                        + [0] * (seq_max_len - len(tmp_seq))
+                    )
+                    p += 1
+            test_pos_list = pos_list[-seq_max_len - n : -n][::-1]
+            test_pos_list += [0] * (seq_max_len - len(test_pos_list))
+            test_set[q] = [uid, 0] + pos_list[-n:] + test_pos_list
+            q += 1
+
+        np.random.seed(2022)
+        np.random.shuffle(train_set)
+        np.random.shuffle(test_set)
+
+        user = data[&#34;user&#34;]
+        item = data[&#34;item&#34;]
+        user = user.set_index(&#34;user_id&#34;)
+        item = item.set_index(&#34;movie_id&#34;)
+
+        train_uid = train_set[:, 0].astype(np.int)
+        train_iid = train_set[:, 1].astype(np.int)
+        train_age = train_set[:, 2].astype(np.int)
+        train_label = train_set[:, 3].astype(np.int)
+        normalizer = QuantileTransformer()
+        train_age = normalizer.fit_transform(train_age.reshape(-1, 1))
+        np.save(open(self.sub_dir + &#34;train_user_id.npy&#34;, &#34;wb&#34;), train_uid)
+        np.save(open(self.sub_dir + &#34;train_movie_id.npy&#34;, &#34;wb&#34;), train_iid)
+        np.save(open(self.sub_dir + &#34;train_example_age.npy&#34;, &#34;wb&#34;), train_age)
+        np.save(open(self.sub_dir + &#34;train_label.npy&#34;, &#34;wb&#34;), train_label)
+        np.save(open(self.sub_dir + &#34;train_hist_movie_id.npy&#34;, &#34;wb&#34;), train_set[:, 4:])
+
+        test_uid = test_set[:, 0].astype(np.int)
+        test_age = test_set[:, 1].astype(np.int)
+        test_age = normalizer.transform(test_age.reshape(-1, 1))
+        np.save(open(self.sub_dir + &#34;test_user_id.npy&#34;, &#34;wb&#34;), test_uid)
+        np.save(open(self.sub_dir + &#34;test_example_age.npy&#34;, &#34;wb&#34;), test_age)
+        np.save(open(self.sub_dir + &#34;test_label.npy&#34;, &#34;wb&#34;), test_set[:, 2 : 2 + n])
+        np.save(
+            open(self.sub_dir + &#34;test_hist_movie_id.npy&#34;, &#34;wb&#34;), test_set[:, 2 + n :]
+        )
+
+        del train_set, test_set
+        gc.collect()
+
+        for key in tqdm([x for x in user.columns if x in features and x != &#34;user_id&#34;]):
+            train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+            test_tmp_array = np.array(user[key].loc[test_uid].tolist())
+            np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+            np.save(open(self.sub_dir + &#34;test_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), test_tmp_array)
+            del train_tmp_array, test_tmp_array
+            gc.collect()
+
+        del train_uid, user
+        gc.collect()
+
+        for key in tqdm([x for x in item.columns if x in features and x != &#34;movie_id&#34;]):
+            train_tmp_array = np.array(item[key].loc[train_iid].tolist())
+            np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+            del train_tmp_array
+            gc.collect()
+
+    def load_dataset(
+        self,
+        user_feats: List[str],
+        movie_feats: List[str],
+    ) -&gt; Tuple:
+        &#34;&#34;&#34;Load saved dataset.
+
+        Parameters
+        ----------
+        user_feats : List[str]
+            List of user features to be loaded.
+        movie_feats : List[str]
+            List of movie features to be loaded.
+
+        Returns
+        -------
+        Tuple
+            [train set, test set].
+        &#34;&#34;&#34;
+
+        train_set = {}
+        test_set = {}
+
+        for feat in tqdm(
+            user_feats + [&#34;hist_movie_id&#34;, &#34;example_age&#34;],
+            &#34;Load user Features&#34;,
+        ):
+            train_set[feat] = np.load(
+                open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+            test_set[feat] = np.load(
+                open(self.sub_dir + &#34;test_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+
+        for feat in tqdm(movie_feats, &#34;Load movie Features&#34;):
+            train_set[feat] = np.load(
+                open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+
+        train_label = np.load(
+            open(self.sub_dir + &#34;train_label.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+        test_label = np.load(
+            open(self.sub_dir + &#34;test_label.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+
+        return train_set, train_label, test_set, test_label</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="handyrec.dataset.movielens.MovielensDataHelper" href="#handyrec.dataset.movielens.MovielensDataHelper">MovielensDataHelper</a></li>
+<li><a title="handyrec.dataset.datahelper.DataHelper" href="datahelper.html#handyrec.dataset.datahelper.DataHelper">DataHelper</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.dataset.movielens.MovieMatchDataHelper.gen_dataset"><code class="name flex">
+<span>def <span class="ident">gen_dataset</span></span>(<span>self, features: List[str], data: dict, seq_max_len: int = 20, negnum: int = 0, min_rating: float = 0.35, n: int = 10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate and save train set and test set.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>features</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>List of features to be contained in the dataset.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Data dictionary with three keys: <code>user</code>, <code>item</code>, and <code>interact</code>.</dd>
+<dt><strong><code>seq_max_len</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Maximum history sequence length, by default <code>20</code>.</dd>
+<dt><strong><code>negnum</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Number of negative samples, by default <code>0</code>.</dd>
+<dt><strong><code>min_rating</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Minimum rating for positive smaples, by default <code>0.35</code>.</dd>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Hold out the last n samples for each user for testing, by default <code>10</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gen_dataset(
+    self,
+    features: List[str],
+    data: dict,
+    seq_max_len: int = 20,
+    negnum: int = 0,
+    min_rating: float = 0.35,
+    n: int = 10,
+):
+    &#34;&#34;&#34;Generate and save train set and test set.
+
+    Parameters
+    ----------
+    features : List[str]
+        List of features to be contained in the dataset.
+    data : dict
+        Data dictionary with three keys: ``user``, ``item``, and ``interact``.
+    seq_max_len : int, optional
+        Maximum history sequence length, by default ``20``.
+    negnum : int, optional
+        Number of negative samples, by default ``0``.
+    min_rating : float, optional
+        Minimum rating for positive smaples, by default ``0.35``.
+    n : int, optional
+        Hold out the last n samples for each user for testing, by default ``10``.
+    &#34;&#34;&#34;
+    data[&#34;interact&#34;].sort_values(&#34;timestamp&#34;, inplace=True)
+    df = data[&#34;interact&#34;]
+    item_ids = set(data[&#34;item&#34;][&#34;movie_id&#34;].values)
+
+    # * Calculate number of rows of dataset to fasten the dataset generating process
+    df = df[df[&#34;interact&#34;] &gt;= min_rating]
+    counter = df[[&#34;user_id&#34;, &#34;movie_id&#34;]].groupby(&#34;user_id&#34;, as_index=False).count()
+    counter = counter[counter[&#34;movie_id&#34;] &gt; n]
+    df = df[df[&#34;user_id&#34;].isin(counter[&#34;user_id&#34;].values)]
+    train_rows = ((counter[&#34;movie_id&#34;] - n) * (negnum + 1)).sum()
+    test_rows = counter.shape[0]
+
+    # * Generate rows
+    # * train_set format: [uid, moiveID, sample_age, label, history_seq]
+    # * test_set format: [uid, sample_age(0), moiveIDs, history_seq]
+    train_set = np.zeros((train_rows, 4 + seq_max_len), dtype=int)
+    test_set = np.zeros((test_rows, 2 + n + seq_max_len), dtype=int)
+
+    p, q = 0, 0
+    for uid, hist in tqdm(df.groupby(&#34;user_id&#34;), &#34;Generate train set&#34;):
+        pos_list = hist[&#34;movie_id&#34;].tolist()
+        if negnum &gt; 0:
+            candidate_set = list(item_ids - set(pos_list))  # Negative samples
+            negs = np.random.choice(
+                candidate_set, size=(len(pos_list) - n) * negnum, replace=True
+            )
+        train_pos_list = pos_list[:-n]
+        for i in range(len(train_pos_list)):
+            seq = train_pos_list[:i]
+            # Positive sample
+            tmp_seq = seq[-seq_max_len:][::-1]
+            train_set[p] = (
+                [
+                    uid,
+                    train_pos_list[i],
+                    len(train_pos_list) - 1 - i,
+                    1,
+                ]
+                + tmp_seq
+                + [0] * (seq_max_len - len(tmp_seq))
+            )
+            p += 1
+            # Negative smaples
+            for j in range(negnum):
+                train_set[p] = (
+                    [
+                        uid,
+                        negs[i * negnum + j],
+                        len(pos_list) - 1 - i,
+                        0,
+                    ]
+                    + tmp_seq
+                    + [0] * (seq_max_len - len(tmp_seq))
+                )
+                p += 1
+        test_pos_list = pos_list[-seq_max_len - n : -n][::-1]
+        test_pos_list += [0] * (seq_max_len - len(test_pos_list))
+        test_set[q] = [uid, 0] + pos_list[-n:] + test_pos_list
+        q += 1
+
+    np.random.seed(2022)
+    np.random.shuffle(train_set)
+    np.random.shuffle(test_set)
+
+    user = data[&#34;user&#34;]
+    item = data[&#34;item&#34;]
+    user = user.set_index(&#34;user_id&#34;)
+    item = item.set_index(&#34;movie_id&#34;)
+
+    train_uid = train_set[:, 0].astype(np.int)
+    train_iid = train_set[:, 1].astype(np.int)
+    train_age = train_set[:, 2].astype(np.int)
+    train_label = train_set[:, 3].astype(np.int)
+    normalizer = QuantileTransformer()
+    train_age = normalizer.fit_transform(train_age.reshape(-1, 1))
+    np.save(open(self.sub_dir + &#34;train_user_id.npy&#34;, &#34;wb&#34;), train_uid)
+    np.save(open(self.sub_dir + &#34;train_movie_id.npy&#34;, &#34;wb&#34;), train_iid)
+    np.save(open(self.sub_dir + &#34;train_example_age.npy&#34;, &#34;wb&#34;), train_age)
+    np.save(open(self.sub_dir + &#34;train_label.npy&#34;, &#34;wb&#34;), train_label)
+    np.save(open(self.sub_dir + &#34;train_hist_movie_id.npy&#34;, &#34;wb&#34;), train_set[:, 4:])
+
+    test_uid = test_set[:, 0].astype(np.int)
+    test_age = test_set[:, 1].astype(np.int)
+    test_age = normalizer.transform(test_age.reshape(-1, 1))
+    np.save(open(self.sub_dir + &#34;test_user_id.npy&#34;, &#34;wb&#34;), test_uid)
+    np.save(open(self.sub_dir + &#34;test_example_age.npy&#34;, &#34;wb&#34;), test_age)
+    np.save(open(self.sub_dir + &#34;test_label.npy&#34;, &#34;wb&#34;), test_set[:, 2 : 2 + n])
+    np.save(
+        open(self.sub_dir + &#34;test_hist_movie_id.npy&#34;, &#34;wb&#34;), test_set[:, 2 + n :]
+    )
+
+    del train_set, test_set
+    gc.collect()
+
+    for key in tqdm([x for x in user.columns if x in features and x != &#34;user_id&#34;]):
+        train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+        test_tmp_array = np.array(user[key].loc[test_uid].tolist())
+        np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+        np.save(open(self.sub_dir + &#34;test_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), test_tmp_array)
+        del train_tmp_array, test_tmp_array
+        gc.collect()
+
+    del train_uid, user
+    gc.collect()
+
+    for key in tqdm([x for x in item.columns if x in features and x != &#34;movie_id&#34;]):
+        train_tmp_array = np.array(item[key].loc[train_iid].tolist())
+        np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+        del train_tmp_array
+        gc.collect()</code></pre>
+</details>
+</dd>
+<dt id="handyrec.dataset.movielens.MovieMatchDataHelper.load_dataset"><code class="name flex">
+<span>def <span class="ident">load_dataset</span></span>(<span>self, user_feats: List[str], movie_feats: List[str]) ‑> Tuple[]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load saved dataset.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>user_feats</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>List of user features to be loaded.</dd>
+<dt><strong><code>movie_feats</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>List of movie features to be loaded.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Tuple</code></dt>
+<dd>[train set, test set].</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_dataset(
+    self,
+    user_feats: List[str],
+    movie_feats: List[str],
+) -&gt; Tuple:
+    &#34;&#34;&#34;Load saved dataset.
+
+    Parameters
+    ----------
+    user_feats : List[str]
+        List of user features to be loaded.
+    movie_feats : List[str]
+        List of movie features to be loaded.
+
+    Returns
+    -------
+    Tuple
+        [train set, test set].
+    &#34;&#34;&#34;
+
+    train_set = {}
+    test_set = {}
+
+    for feat in tqdm(
+        user_feats + [&#34;hist_movie_id&#34;, &#34;example_age&#34;],
+        &#34;Load user Features&#34;,
+    ):
+        train_set[feat] = np.load(
+            open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+        test_set[feat] = np.load(
+            open(self.sub_dir + &#34;test_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+
+    for feat in tqdm(movie_feats, &#34;Load movie Features&#34;):
+        train_set[feat] = np.load(
+            open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+
+    train_label = np.load(
+        open(self.sub_dir + &#34;train_label.npy&#34;, &#34;rb&#34;), allow_pickle=True
+    )
+    test_label = np.load(
+        open(self.sub_dir + &#34;test_label.npy&#34;, &#34;rb&#34;), allow_pickle=True
+    )
+
+    return train_set, train_label, test_set, test_label</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="handyrec.dataset.movielens.MovielensDataHelper" href="#handyrec.dataset.movielens.MovielensDataHelper">MovielensDataHelper</a></b></code>:
+<ul class="hlist">
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.get_clean_data" href="#handyrec.dataset.movielens.MovielensDataHelper.get_clean_data">get_clean_data</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.get_feature_dim" href="datahelper.html#handyrec.dataset.datahelper.DataHelper.get_feature_dim">get_feature_dim</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.load_data" href="#handyrec.dataset.movielens.MovielensDataHelper.load_data">load_data</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.preprocess_data" href="#handyrec.dataset.movielens.MovielensDataHelper.preprocess_data">preprocess_data</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="handyrec.dataset.movielens.MovieRankDataHelper"><code class="flex name class">
+<span>class <span class="ident">MovieRankDataHelper</span></span>
+<span>(</span><span>data_dir: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for DataHelper for movielens dataset.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>data_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Diectory to load raw data and save generated dataset.</dd>
+<dt><strong><code>sub_dir_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Diectory to save and load generated feature values for training.</dd>
+</dl>
+<p>Initialize a <code><a title="handyrec.dataset.movielens.MovielensDataHelper" href="#handyrec.dataset.movielens.MovielensDataHelper">MovielensDataHelper</a></code></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Diectory to load raw data and save generated dataset.</dd>
+<dt><strong><code>sub_dir_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Diectory to save and load generated feature values for training.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MovieRankDataHelper(MovielensDataHelper):
+    def __init__(self, data_dir: str):
+        super(MovieRankDataHelper, self).__init__(data_dir, &#34;rank&#34;)
+
+    def gen_dataset(
+        self,
+        features: List[str],
+        data: dict,
+        test_id: dict,
+        seq_max_len: int = 20,
+        negnum: int = 0,
+        min_rating: float = 0.35,
+        n: int = 10,
+    ):
+        &#34;&#34;&#34;Generate and save train set and test set.
+
+        Parameters
+        ----------
+        features : List[str]
+            List of features to be contained in the dataset.
+        data : dict
+            Data dictionary with three keys: ``user``, ``item``, and ``interact``.
+        test_id : dict
+            Test id dictionary, {user_id: movie_id}.
+        seq_max_len : int, optional
+            Maximum history sequence length, by default ``20``.
+        negnum : int, optional
+            Number of negative samples, by default ``0``.
+        min_rating : float, optional
+            Minimum rating for positive smaples, by default ``0.35``.
+        n : int, optional
+            Hold out the last n samples for each user for testing, by default ``10``.
+
+        Notes
+        -----
+        In ``test_id``, each user should have the same number of movie_ids.
+        &#34;&#34;&#34;
+
+        data[&#34;interact&#34;].sort_values(by=&#34;timestamp&#34;, ascending=True, inplace=True)
+        df = data[&#34;interact&#34;]
+        df[&#34;time_diff&#34;] = df.groupby([&#34;user_id&#34;])[&#34;timestamp&#34;].diff().fillna(0)
+
+        # * Split train set and test set
+        item_ids = set(data[&#34;item&#34;][&#34;movie_id&#34;].values)
+
+        # * Calculate number of rows of dataset to fasten the dataset generating process
+        df = df[df[&#34;interact&#34;] &gt;= min_rating]
+        counter = df[[&#34;user_id&#34;, &#34;movie_id&#34;]].groupby(&#34;user_id&#34;, as_index=False).count()
+        counter = counter[counter[&#34;movie_id&#34;] &gt; n]
+        df = df[df[&#34;user_id&#34;].isin(counter[&#34;user_id&#34;].values)]
+        train_rows = ((counter[&#34;movie_id&#34;] - n) * (negnum + 1)).sum()
+        test_rows = len(test_id.keys()) * len(list(test_id.values())[0])
+
+        # * Generate rows
+        # * train_set format: [uid, moiveID, sample_age, time_since_last_movie, label, history_seq]
+        # * test_set format: [uid, moiveID, sample_age(0), time_since_last_movie, history_seq]
+        train_set = np.zeros((train_rows, 5 + seq_max_len), dtype=int)
+        test_set = np.zeros((test_rows, 4 + seq_max_len), dtype=int)
+
+        p, q = 0, 0
+        for uid, hist in tqdm(df.groupby(&#34;user_id&#34;), &#34;Generate train set&#34;):
+            pos_list = hist[&#34;movie_id&#34;].tolist()
+            time_diff_list = hist[&#34;time_diff&#34;].tolist()
+            if negnum &gt; 0:
+                candidate_set = list(item_ids - set(pos_list))  # Negative samples
+                negs = np.random.choice(
+                    candidate_set, size=(len(pos_list) - n) * negnum, replace=True
+                )
+            pos_list = pos_list[:-n]
+            for i in range(len(pos_list)):
+                seq = pos_list[:i]
+                # Positive sample
+                tmp_seq = seq[-seq_max_len:][::-1]
+                train_set[p] = (
+                    [
+                        uid,
+                        pos_list[i],
+                        len(pos_list) - 1 - i,
+                        time_diff_list[i],
+                        1,
+                    ]
+                    + tmp_seq
+                    + [0] * (seq_max_len - len(tmp_seq))
+                )
+                p += 1
+                # Negative smaples
+                for j in range(negnum):
+                    train_set[p] = (
+                        [
+                            uid,
+                            negs[i * negnum + j],
+                            len(pos_list) - 1 - i,
+                            time_diff_list[i],
+                            0,
+                        ]
+                        + tmp_seq
+                        + [0] * (seq_max_len - len(tmp_seq))
+                    )
+                    p += 1
+            if uid in test_id.keys():
+                for mid in test_id[uid]:
+                    tmp_pos_list = pos_list[-seq_max_len:][::-1]
+                    test_set[q] = (
+                        [uid, mid, 0, time_diff_list[-1]]
+                        + tmp_pos_list
+                        + [0] * (seq_max_len - len(tmp_pos_list))
+                    )
+                    q += 1
+
+        np.random.seed(2022)
+        np.random.shuffle(train_set)
+        # np.random.shuffle(test_set)
+
+        user = data[&#34;user&#34;]
+        item = data[&#34;item&#34;]
+        user = user.set_index(&#34;user_id&#34;)
+        item = item.set_index(&#34;movie_id&#34;)
+
+        train_uid = train_set[:, 0].astype(np.int)
+        train_iid = train_set[:, 1].astype(np.int)
+        train_age = train_set[:, 2].astype(np.int)
+        train_time_gap = train_set[:, 3].astype(np.int)
+        train_label = train_set[:, 4].astype(np.int)
+        normalizer = QuantileTransformer()
+        normalizer2 = QuantileTransformer()
+        train_age = normalizer.fit_transform(train_age.reshape(-1, 1))
+        train_time_gap = normalizer2.fit_transform(train_time_gap.reshape(-1, 1))
+        np.save(open(self.sub_dir + &#34;train_user_id.npy&#34;, &#34;wb&#34;), train_uid)
+        np.save(open(self.sub_dir + &#34;train_movie_id.npy&#34;, &#34;wb&#34;), train_iid)
+        np.save(open(self.sub_dir + &#34;train_example_age.npy&#34;, &#34;wb&#34;), train_age)
+        np.save(open(self.sub_dir + &#34;train_time_gap.npy&#34;, &#34;wb&#34;), train_time_gap)
+        np.save(open(self.sub_dir + &#34;train_label.npy&#34;, &#34;wb&#34;), train_label)
+        np.save(open(self.sub_dir + &#34;train_hist_movie_id.npy&#34;, &#34;wb&#34;), train_set[:, 5:])
+
+        test_uid = test_set[:, 0].astype(np.int)
+        test_iid = test_set[:, 1].astype(np.int)
+        test_age = test_set[:, 2].astype(np.int)
+        test_time_gap = test_set[:, 3].astype(np.int)
+        test_age = normalizer.transform(test_age.reshape(-1, 1))
+        test_time_gap = normalizer2.transform(test_time_gap.reshape(-1, 1))
+        np.save(open(self.sub_dir + &#34;test_user_id.npy&#34;, &#34;wb&#34;), test_uid)
+        np.save(open(self.sub_dir + &#34;test_movie_id.npy&#34;, &#34;wb&#34;), test_iid)
+        np.save(open(self.sub_dir + &#34;test_example_age.npy&#34;, &#34;wb&#34;), test_age)
+        np.save(open(self.sub_dir + &#34;test_time_gap.npy&#34;, &#34;wb&#34;), test_time_gap)
+        np.save(open(self.sub_dir + &#34;test_hist_movie_id.npy&#34;, &#34;wb&#34;), test_set[:, 4:])
+
+        del train_set, test_set  # , hist_seq, hist_seq_pad
+        gc.collect()
+
+        for key in tqdm([x for x in user.columns if x in features and x != &#34;user_id&#34;]):
+            train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+            test_tmp_array = np.array(user[key].loc[test_uid].tolist())
+            np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+            np.save(open(self.sub_dir + &#34;test_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), test_tmp_array)
+            del train_tmp_array, test_tmp_array
+            gc.collect()
+
+        del train_uid, user
+        gc.collect()
+
+        for key in tqdm([x for x in item.columns if x in features and x != &#34;movie_id&#34;]):
+            train_tmp_array = np.array(item[key].loc[train_iid].tolist())
+            test_tmp_array = np.array(item[key].loc[test_iid].tolist())
+            np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+            np.save(open(self.sub_dir + &#34;test_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), test_tmp_array)
+            del train_tmp_array, test_tmp_array
+            gc.collect()
+
+    def load_dataset(
+        self,
+        user_feats: List[str],
+        movie_feats: List[str],
+    ) -&gt; Tuple:
+        &#34;&#34;&#34;Load saved dataset.
+
+        Parameters
+        ----------
+        user_feats : List[str]
+            List of user features to be loaded.
+        movie_feats : List[str]
+            List of movie features to be loaded.
+
+        Returns
+        -------
+        Tuple
+            [train set, test set].
+        &#34;&#34;&#34;
+        train_set = {}
+        test_set = {}
+
+        for feat in tqdm(
+            user_feats + [&#34;hist_movie_id&#34;, &#34;time_gap&#34;, &#34;example_age&#34;],
+            &#34;Load user Features&#34;,
+        ):
+            train_set[feat] = np.load(
+                open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+            test_set[feat] = np.load(
+                open(self.sub_dir + &#34;test_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+
+        for feat in tqdm(movie_feats, &#34;Load movie Features&#34;):
+            train_set[feat] = np.load(
+                open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+            test_set[feat] = np.load(
+                open(self.sub_dir + &#34;test_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+            )
+
+        train_label = np.load(
+            open(self.sub_dir + &#34;train_label.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+
+        return train_set, train_label, test_set</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="handyrec.dataset.movielens.MovielensDataHelper" href="#handyrec.dataset.movielens.MovielensDataHelper">MovielensDataHelper</a></li>
+<li><a title="handyrec.dataset.datahelper.DataHelper" href="datahelper.html#handyrec.dataset.datahelper.DataHelper">DataHelper</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.dataset.movielens.MovieRankDataHelper.gen_dataset"><code class="name flex">
+<span>def <span class="ident">gen_dataset</span></span>(<span>self, features: List[str], data: dict, test_id: dict, seq_max_len: int = 20, negnum: int = 0, min_rating: float = 0.35, n: int = 10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate and save train set and test set.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>features</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>List of features to be contained in the dataset.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Data dictionary with three keys: <code>user</code>, <code>item</code>, and <code>interact</code>.</dd>
+<dt><strong><code>test_id</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Test id dictionary, {user_id: movie_id}.</dd>
+<dt><strong><code>seq_max_len</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Maximum history sequence length, by default <code>20</code>.</dd>
+<dt><strong><code>negnum</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Number of negative samples, by default <code>0</code>.</dd>
+<dt><strong><code>min_rating</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Minimum rating for positive smaples, by default <code>0.35</code>.</dd>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Hold out the last n samples for each user for testing, by default <code>10</code>.</dd>
+</dl>
+<h2 id="notes">Notes</h2>
+<p>In <code>test_id</code>, each user should have the same number of movie_ids.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gen_dataset(
+    self,
+    features: List[str],
+    data: dict,
+    test_id: dict,
+    seq_max_len: int = 20,
+    negnum: int = 0,
+    min_rating: float = 0.35,
+    n: int = 10,
+):
+    &#34;&#34;&#34;Generate and save train set and test set.
+
+    Parameters
+    ----------
+    features : List[str]
+        List of features to be contained in the dataset.
+    data : dict
+        Data dictionary with three keys: ``user``, ``item``, and ``interact``.
+    test_id : dict
+        Test id dictionary, {user_id: movie_id}.
+    seq_max_len : int, optional
+        Maximum history sequence length, by default ``20``.
+    negnum : int, optional
+        Number of negative samples, by default ``0``.
+    min_rating : float, optional
+        Minimum rating for positive smaples, by default ``0.35``.
+    n : int, optional
+        Hold out the last n samples for each user for testing, by default ``10``.
+
+    Notes
+    -----
+    In ``test_id``, each user should have the same number of movie_ids.
+    &#34;&#34;&#34;
+
+    data[&#34;interact&#34;].sort_values(by=&#34;timestamp&#34;, ascending=True, inplace=True)
+    df = data[&#34;interact&#34;]
+    df[&#34;time_diff&#34;] = df.groupby([&#34;user_id&#34;])[&#34;timestamp&#34;].diff().fillna(0)
+
+    # * Split train set and test set
+    item_ids = set(data[&#34;item&#34;][&#34;movie_id&#34;].values)
+
+    # * Calculate number of rows of dataset to fasten the dataset generating process
+    df = df[df[&#34;interact&#34;] &gt;= min_rating]
+    counter = df[[&#34;user_id&#34;, &#34;movie_id&#34;]].groupby(&#34;user_id&#34;, as_index=False).count()
+    counter = counter[counter[&#34;movie_id&#34;] &gt; n]
+    df = df[df[&#34;user_id&#34;].isin(counter[&#34;user_id&#34;].values)]
+    train_rows = ((counter[&#34;movie_id&#34;] - n) * (negnum + 1)).sum()
+    test_rows = len(test_id.keys()) * len(list(test_id.values())[0])
+
+    # * Generate rows
+    # * train_set format: [uid, moiveID, sample_age, time_since_last_movie, label, history_seq]
+    # * test_set format: [uid, moiveID, sample_age(0), time_since_last_movie, history_seq]
+    train_set = np.zeros((train_rows, 5 + seq_max_len), dtype=int)
+    test_set = np.zeros((test_rows, 4 + seq_max_len), dtype=int)
+
+    p, q = 0, 0
+    for uid, hist in tqdm(df.groupby(&#34;user_id&#34;), &#34;Generate train set&#34;):
+        pos_list = hist[&#34;movie_id&#34;].tolist()
+        time_diff_list = hist[&#34;time_diff&#34;].tolist()
+        if negnum &gt; 0:
+            candidate_set = list(item_ids - set(pos_list))  # Negative samples
+            negs = np.random.choice(
+                candidate_set, size=(len(pos_list) - n) * negnum, replace=True
+            )
+        pos_list = pos_list[:-n]
+        for i in range(len(pos_list)):
+            seq = pos_list[:i]
+            # Positive sample
+            tmp_seq = seq[-seq_max_len:][::-1]
+            train_set[p] = (
+                [
+                    uid,
+                    pos_list[i],
+                    len(pos_list) - 1 - i,
+                    time_diff_list[i],
+                    1,
+                ]
+                + tmp_seq
+                + [0] * (seq_max_len - len(tmp_seq))
+            )
+            p += 1
+            # Negative smaples
+            for j in range(negnum):
+                train_set[p] = (
+                    [
+                        uid,
+                        negs[i * negnum + j],
+                        len(pos_list) - 1 - i,
+                        time_diff_list[i],
+                        0,
+                    ]
+                    + tmp_seq
+                    + [0] * (seq_max_len - len(tmp_seq))
+                )
+                p += 1
+        if uid in test_id.keys():
+            for mid in test_id[uid]:
+                tmp_pos_list = pos_list[-seq_max_len:][::-1]
+                test_set[q] = (
+                    [uid, mid, 0, time_diff_list[-1]]
+                    + tmp_pos_list
+                    + [0] * (seq_max_len - len(tmp_pos_list))
+                )
+                q += 1
+
+    np.random.seed(2022)
+    np.random.shuffle(train_set)
+    # np.random.shuffle(test_set)
+
+    user = data[&#34;user&#34;]
+    item = data[&#34;item&#34;]
+    user = user.set_index(&#34;user_id&#34;)
+    item = item.set_index(&#34;movie_id&#34;)
+
+    train_uid = train_set[:, 0].astype(np.int)
+    train_iid = train_set[:, 1].astype(np.int)
+    train_age = train_set[:, 2].astype(np.int)
+    train_time_gap = train_set[:, 3].astype(np.int)
+    train_label = train_set[:, 4].astype(np.int)
+    normalizer = QuantileTransformer()
+    normalizer2 = QuantileTransformer()
+    train_age = normalizer.fit_transform(train_age.reshape(-1, 1))
+    train_time_gap = normalizer2.fit_transform(train_time_gap.reshape(-1, 1))
+    np.save(open(self.sub_dir + &#34;train_user_id.npy&#34;, &#34;wb&#34;), train_uid)
+    np.save(open(self.sub_dir + &#34;train_movie_id.npy&#34;, &#34;wb&#34;), train_iid)
+    np.save(open(self.sub_dir + &#34;train_example_age.npy&#34;, &#34;wb&#34;), train_age)
+    np.save(open(self.sub_dir + &#34;train_time_gap.npy&#34;, &#34;wb&#34;), train_time_gap)
+    np.save(open(self.sub_dir + &#34;train_label.npy&#34;, &#34;wb&#34;), train_label)
+    np.save(open(self.sub_dir + &#34;train_hist_movie_id.npy&#34;, &#34;wb&#34;), train_set[:, 5:])
+
+    test_uid = test_set[:, 0].astype(np.int)
+    test_iid = test_set[:, 1].astype(np.int)
+    test_age = test_set[:, 2].astype(np.int)
+    test_time_gap = test_set[:, 3].astype(np.int)
+    test_age = normalizer.transform(test_age.reshape(-1, 1))
+    test_time_gap = normalizer2.transform(test_time_gap.reshape(-1, 1))
+    np.save(open(self.sub_dir + &#34;test_user_id.npy&#34;, &#34;wb&#34;), test_uid)
+    np.save(open(self.sub_dir + &#34;test_movie_id.npy&#34;, &#34;wb&#34;), test_iid)
+    np.save(open(self.sub_dir + &#34;test_example_age.npy&#34;, &#34;wb&#34;), test_age)
+    np.save(open(self.sub_dir + &#34;test_time_gap.npy&#34;, &#34;wb&#34;), test_time_gap)
+    np.save(open(self.sub_dir + &#34;test_hist_movie_id.npy&#34;, &#34;wb&#34;), test_set[:, 4:])
+
+    del train_set, test_set  # , hist_seq, hist_seq_pad
+    gc.collect()
+
+    for key in tqdm([x for x in user.columns if x in features and x != &#34;user_id&#34;]):
+        train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+        test_tmp_array = np.array(user[key].loc[test_uid].tolist())
+        np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+        np.save(open(self.sub_dir + &#34;test_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), test_tmp_array)
+        del train_tmp_array, test_tmp_array
+        gc.collect()
+
+    del train_uid, user
+    gc.collect()
+
+    for key in tqdm([x for x in item.columns if x in features and x != &#34;movie_id&#34;]):
+        train_tmp_array = np.array(item[key].loc[train_iid].tolist())
+        test_tmp_array = np.array(item[key].loc[test_iid].tolist())
+        np.save(open(self.sub_dir + &#34;train_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), train_tmp_array)
+        np.save(open(self.sub_dir + &#34;test_&#34; + key + &#34;.npy&#34;, &#34;wb&#34;), test_tmp_array)
+        del train_tmp_array, test_tmp_array
+        gc.collect()</code></pre>
+</details>
+</dd>
+<dt id="handyrec.dataset.movielens.MovieRankDataHelper.load_dataset"><code class="name flex">
+<span>def <span class="ident">load_dataset</span></span>(<span>self, user_feats: List[str], movie_feats: List[str]) ‑> Tuple[]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load saved dataset.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>user_feats</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>List of user features to be loaded.</dd>
+<dt><strong><code>movie_feats</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>List of movie features to be loaded.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Tuple</code></dt>
+<dd>[train set, test set].</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_dataset(
+    self,
+    user_feats: List[str],
+    movie_feats: List[str],
+) -&gt; Tuple:
+    &#34;&#34;&#34;Load saved dataset.
+
+    Parameters
+    ----------
+    user_feats : List[str]
+        List of user features to be loaded.
+    movie_feats : List[str]
+        List of movie features to be loaded.
+
+    Returns
+    -------
+    Tuple
+        [train set, test set].
+    &#34;&#34;&#34;
+    train_set = {}
+    test_set = {}
+
+    for feat in tqdm(
+        user_feats + [&#34;hist_movie_id&#34;, &#34;time_gap&#34;, &#34;example_age&#34;],
+        &#34;Load user Features&#34;,
+    ):
+        train_set[feat] = np.load(
+            open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+        test_set[feat] = np.load(
+            open(self.sub_dir + &#34;test_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+
+    for feat in tqdm(movie_feats, &#34;Load movie Features&#34;):
+        train_set[feat] = np.load(
+            open(self.sub_dir + &#34;train_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+        test_set[feat] = np.load(
+            open(self.sub_dir + &#34;test_&#34; + feat + &#34;.npy&#34;, &#34;rb&#34;), allow_pickle=True
+        )
+
+    train_label = np.load(
+        open(self.sub_dir + &#34;train_label.npy&#34;, &#34;rb&#34;), allow_pickle=True
+    )
+
+    return train_set, train_label, test_set</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="handyrec.dataset.movielens.MovielensDataHelper" href="#handyrec.dataset.movielens.MovielensDataHelper">MovielensDataHelper</a></b></code>:
+<ul class="hlist">
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.get_clean_data" href="#handyrec.dataset.movielens.MovielensDataHelper.get_clean_data">get_clean_data</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.get_feature_dim" href="datahelper.html#handyrec.dataset.datahelper.DataHelper.get_feature_dim">get_feature_dim</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.load_data" href="#handyrec.dataset.movielens.MovielensDataHelper.load_data">load_data</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.preprocess_data" href="#handyrec.dataset.movielens.MovielensDataHelper.preprocess_data">preprocess_data</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="handyrec.dataset.movielens.MovielensDataHelper"><code class="flex name class">
+<span>class <span class="ident">MovielensDataHelper</span></span>
+<span>(</span><span>data_dir: str, sub_dir_name: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for DataHelper for movielens dataset.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>data_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Diectory to load raw data and save generated dataset.</dd>
+<dt><strong><code>sub_dir_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Diectory to save and load generated feature values for training.</dd>
+</dl>
+<p>Initialize a <code><a title="handyrec.dataset.movielens.MovielensDataHelper" href="#handyrec.dataset.movielens.MovielensDataHelper">MovielensDataHelper</a></code></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Diectory to load raw data and save generated dataset.</dd>
+<dt><strong><code>sub_dir_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Diectory to save and load generated feature values for training.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MovielensDataHelper(DataHelper):
+    &#34;&#34;&#34;Base class for DataHelper for movielens dataset.
+
+    Attributes
+    ----------
+    data_dir : str
+        Diectory to load raw data and save generated dataset.
+    sub_dir_name : str
+        Diectory to save and load generated feature values for training.
+    &#34;&#34;&#34;
+
+    def __init__(self, data_dir: str, sub_dir_name: str):
+        &#34;&#34;&#34;Initialize a `MovielensDataHelper`
+
+        Parameters
+        ----------
+        data_dir : str
+            Diectory to load raw data and save generated dataset.
+        sub_dir_name : str
+            Diectory to save and load generated feature values for training.
+        &#34;&#34;&#34;
+        super().__init__(data_dir)
+        self.sub_dir = data_dir + sub_dir_name + &#34;/&#34;
+        if not os.path.exists(self.sub_dir):
+            os.makedirs(self.sub_dir)
+
+    def load_data(self) -&gt; Dict:
+        &#34;&#34;&#34;Load original raw data.
+
+        Returns
+        -------
+        Dict
+            Dictionary of raw data with three keys: ``user``, ``item``, and ``interact``.
+        &#34;&#34;&#34;
+        unames = [&#34;user_id&#34;, &#34;gender&#34;, &#34;age&#34;, &#34;occupation&#34;, &#34;zip&#34;]
+        user = pd.read_csv(
+            self.base + &#34;users.dat&#34;,
+            sep=&#34;::&#34;,
+            header=None,
+            names=unames,
+            encoding=&#34;latin-1&#34;,
+            engine=&#34;python&#34;,
+        )
+        rnames = [&#34;user_id&#34;, &#34;movie_id&#34;, &#34;interact&#34;, &#34;timestamp&#34;]
+        ratings = pd.read_csv(
+            self.base + &#34;ratings.dat&#34;,
+            sep=&#34;::&#34;,
+            header=None,
+            names=rnames,
+            encoding=&#34;latin-1&#34;,
+            engine=&#34;python&#34;,
+        )
+        mnames = [&#34;movie_id&#34;, &#34;title&#34;, &#34;genres&#34;]
+        movies = pd.read_csv(
+            self.base + &#34;movies.dat&#34;,
+            sep=&#34;::&#34;,
+            header=None,
+            names=mnames,
+            encoding=&#34;latin-1&#34;,
+            engine=&#34;python&#34;,
+        )
+        movies[&#34;year&#34;] = movies[&#34;title&#34;].str.slice(-5, -1).astype(int)
+        genres = list(movies[&#34;genres&#34;].str.get_dummies(sep=&#34;|&#34;).columns)
+        genre_map = {x: i + 1 for i, x in enumerate(genres)}  # index 0 is for padding
+        movies[&#34;genres&#34;] = movies[&#34;genres&#34;].apply(
+            lambda x: sorted([genre_map[k] for k in x.split(&#34;|&#34;)])
+        )
+        pad_genres = pad_sequences(movies[&#34;genres&#34;], padding=&#34;post&#34;)
+        movies[&#34;genres&#34;] = (
+            movies.reset_index()
+            .pop(&#34;index&#34;)
+            .apply(lambda x: pad_genres[x - 1].tolist())
+        )
+
+        return {&#34;item&#34;: movies, &#34;user&#34;: user, &#34;interact&#34;: ratings}
+
+    def preprocess_data(self, data: dict, sparse_features: List[str]) -&gt; Dict:
+        &#34;&#34;&#34;Preprocess raw data
+
+        Parameters
+        ----------
+        data : dict
+            Dictionary with three keys: ``user``, ``item``, and ``interact``.
+        sparse_features : List[str]
+            List of sparse features to be label encoded.
+
+        Returns
+        -------
+        Dict
+            Dictionary of processed data with three keys: ``user``, ``item``, and ``interact``.
+        &#34;&#34;&#34;
+        user = data[&#34;user&#34;]
+        item = data[&#34;item&#34;]
+
+        # Users
+        for feat in tqdm(
+            [f for f in sparse_features if f in user.columns],
+            &#34;Encode User Sparse Feats&#34;,
+        ):
+            lbe = LabelEncoder()
+            user[feat] = lbe.fit_transform(user[feat].astype(str)) + 1
+            user[feat] = user[feat].astype(&#34;int32&#34;)
+
+        # Movies
+        for feat in tqdm(
+            [f for f in sparse_features if f in item.columns],
+            &#34;Encode Item Sparse Feats&#34;,
+        ):
+            lbe = LabelEncoder()
+            item[feat] = lbe.fit_transform(item[feat].astype(str)) + 1
+            item[feat] = item[feat].astype(&#34;int32&#34;)
+
+        data[&#34;user&#34;] = user
+        data[&#34;item&#34;] = item
+
+        return data
+
+    def get_clean_data(self, sparse_features: List[str]) -&gt; Dict:
+        &#34;&#34;&#34;Wrapper for load and preprocess data.
+
+        Parameters
+        ----------
+        sparse_features : List[str]
+            List of sparse features to be label encoded.
+
+        Returns
+        -------
+        Dict
+            Dictionary of processed data with three keys: ``user``, ``item``, and ``interact``.
+        &#34;&#34;&#34;
+        data = self.load_data()
+        data = self.preprocess_data(data, sparse_features)
+        return data</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="handyrec.dataset.datahelper.DataHelper" href="datahelper.html#handyrec.dataset.datahelper.DataHelper">DataHelper</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="handyrec.dataset.movielens.MovieMatchDataHelper" href="#handyrec.dataset.movielens.MovieMatchDataHelper">MovieMatchDataHelper</a></li>
+<li><a title="handyrec.dataset.movielens.MovieRankDataHelper" href="#handyrec.dataset.movielens.MovieRankDataHelper">MovieRankDataHelper</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="handyrec.dataset.movielens.MovielensDataHelper.get_clean_data"><code class="name flex">
+<span>def <span class="ident">get_clean_data</span></span>(<span>self, sparse_features: List[str]) ‑> Dict[~KT, ~VT]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wrapper for load and preprocess data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sparse_features</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>List of sparse features to be label encoded.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Dict</code></dt>
+<dd>Dictionary of processed data with three keys: <code>user</code>, <code>item</code>, and <code>interact</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_clean_data(self, sparse_features: List[str]) -&gt; Dict:
+    &#34;&#34;&#34;Wrapper for load and preprocess data.
+
+    Parameters
+    ----------
+    sparse_features : List[str]
+        List of sparse features to be label encoded.
+
+    Returns
+    -------
+    Dict
+        Dictionary of processed data with three keys: ``user``, ``item``, and ``interact``.
+    &#34;&#34;&#34;
+    data = self.load_data()
+    data = self.preprocess_data(data, sparse_features)
+    return data</code></pre>
+</details>
+</dd>
+<dt id="handyrec.dataset.movielens.MovielensDataHelper.load_data"><code class="name flex">
+<span>def <span class="ident">load_data</span></span>(<span>self) ‑> Dict[~KT, ~VT]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load original raw data.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Dict</code></dt>
+<dd>Dictionary of raw data with three keys: <code>user</code>, <code>item</code>, and <code>interact</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_data(self) -&gt; Dict:
+    &#34;&#34;&#34;Load original raw data.
+
+    Returns
+    -------
+    Dict
+        Dictionary of raw data with three keys: ``user``, ``item``, and ``interact``.
+    &#34;&#34;&#34;
+    unames = [&#34;user_id&#34;, &#34;gender&#34;, &#34;age&#34;, &#34;occupation&#34;, &#34;zip&#34;]
+    user = pd.read_csv(
+        self.base + &#34;users.dat&#34;,
+        sep=&#34;::&#34;,
+        header=None,
+        names=unames,
+        encoding=&#34;latin-1&#34;,
+        engine=&#34;python&#34;,
+    )
+    rnames = [&#34;user_id&#34;, &#34;movie_id&#34;, &#34;interact&#34;, &#34;timestamp&#34;]
+    ratings = pd.read_csv(
+        self.base + &#34;ratings.dat&#34;,
+        sep=&#34;::&#34;,
+        header=None,
+        names=rnames,
+        encoding=&#34;latin-1&#34;,
+        engine=&#34;python&#34;,
+    )
+    mnames = [&#34;movie_id&#34;, &#34;title&#34;, &#34;genres&#34;]
+    movies = pd.read_csv(
+        self.base + &#34;movies.dat&#34;,
+        sep=&#34;::&#34;,
+        header=None,
+        names=mnames,
+        encoding=&#34;latin-1&#34;,
+        engine=&#34;python&#34;,
+    )
+    movies[&#34;year&#34;] = movies[&#34;title&#34;].str.slice(-5, -1).astype(int)
+    genres = list(movies[&#34;genres&#34;].str.get_dummies(sep=&#34;|&#34;).columns)
+    genre_map = {x: i + 1 for i, x in enumerate(genres)}  # index 0 is for padding
+    movies[&#34;genres&#34;] = movies[&#34;genres&#34;].apply(
+        lambda x: sorted([genre_map[k] for k in x.split(&#34;|&#34;)])
+    )
+    pad_genres = pad_sequences(movies[&#34;genres&#34;], padding=&#34;post&#34;)
+    movies[&#34;genres&#34;] = (
+        movies.reset_index()
+        .pop(&#34;index&#34;)
+        .apply(lambda x: pad_genres[x - 1].tolist())
+    )
+
+    return {&#34;item&#34;: movies, &#34;user&#34;: user, &#34;interact&#34;: ratings}</code></pre>
+</details>
+</dd>
+<dt id="handyrec.dataset.movielens.MovielensDataHelper.preprocess_data"><code class="name flex">
+<span>def <span class="ident">preprocess_data</span></span>(<span>self, data: dict, sparse_features: List[str]) ‑> Dict[~KT, ~VT]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Preprocess raw data</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary with three keys: <code>user</code>, <code>item</code>, and <code>interact</code>.</dd>
+<dt><strong><code>sparse_features</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>List of sparse features to be label encoded.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Dict</code></dt>
+<dd>Dictionary of processed data with three keys: <code>user</code>, <code>item</code>, and <code>interact</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def preprocess_data(self, data: dict, sparse_features: List[str]) -&gt; Dict:
+    &#34;&#34;&#34;Preprocess raw data
+
+    Parameters
+    ----------
+    data : dict
+        Dictionary with three keys: ``user``, ``item``, and ``interact``.
+    sparse_features : List[str]
+        List of sparse features to be label encoded.
+
+    Returns
+    -------
+    Dict
+        Dictionary of processed data with three keys: ``user``, ``item``, and ``interact``.
+    &#34;&#34;&#34;
+    user = data[&#34;user&#34;]
+    item = data[&#34;item&#34;]
+
+    # Users
+    for feat in tqdm(
+        [f for f in sparse_features if f in user.columns],
+        &#34;Encode User Sparse Feats&#34;,
+    ):
+        lbe = LabelEncoder()
+        user[feat] = lbe.fit_transform(user[feat].astype(str)) + 1
+        user[feat] = user[feat].astype(&#34;int32&#34;)
+
+    # Movies
+    for feat in tqdm(
+        [f for f in sparse_features if f in item.columns],
+        &#34;Encode Item Sparse Feats&#34;,
+    ):
+        lbe = LabelEncoder()
+        item[feat] = lbe.fit_transform(item[feat].astype(str)) + 1
+        item[feat] = item[feat].astype(&#34;int32&#34;)
+
+    data[&#34;user&#34;] = user
+    data[&#34;item&#34;] = item
+
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="handyrec.dataset.datahelper.DataHelper" href="datahelper.html#handyrec.dataset.datahelper.DataHelper">DataHelper</a></b></code>:
+<ul class="hlist">
+<li><code><a title="handyrec.dataset.datahelper.DataHelper.gen_dataset" href="datahelper.html#handyrec.dataset.datahelper.DataHelper.gen_dataset">gen_dataset</a></code></li>
+<li><code><a title="handyrec.dataset.datahelper.DataHelper.get_feature_dim" href="datahelper.html#handyrec.dataset.datahelper.DataHelper.get_feature_dim">get_feature_dim</a></code></li>
+<li><code><a title="handyrec.dataset.datahelper.DataHelper.load_dataset" href="datahelper.html#handyrec.dataset.datahelper.DataHelper.load_dataset">load_dataset</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="handyrec.dataset" href="index.html">handyrec.dataset</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="handyrec.dataset.movielens.MovieMatchDataHelper" href="#handyrec.dataset.movielens.MovieMatchDataHelper">MovieMatchDataHelper</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.dataset.movielens.MovieMatchDataHelper.gen_dataset" href="#handyrec.dataset.movielens.MovieMatchDataHelper.gen_dataset">gen_dataset</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovieMatchDataHelper.load_dataset" href="#handyrec.dataset.movielens.MovieMatchDataHelper.load_dataset">load_dataset</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="handyrec.dataset.movielens.MovieRankDataHelper" href="#handyrec.dataset.movielens.MovieRankDataHelper">MovieRankDataHelper</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.dataset.movielens.MovieRankDataHelper.gen_dataset" href="#handyrec.dataset.movielens.MovieRankDataHelper.gen_dataset">gen_dataset</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovieRankDataHelper.load_dataset" href="#handyrec.dataset.movielens.MovieRankDataHelper.load_dataset">load_dataset</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="handyrec.dataset.movielens.MovielensDataHelper" href="#handyrec.dataset.movielens.MovielensDataHelper">MovielensDataHelper</a></code></h4>
+<ul class="">
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.get_clean_data" href="#handyrec.dataset.movielens.MovielensDataHelper.get_clean_data">get_clean_data</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.load_data" href="#handyrec.dataset.movielens.MovielensDataHelper.load_data">load_data</a></code></li>
+<li><code><a title="handyrec.dataset.movielens.MovielensDataHelper.preprocess_data" href="#handyrec.dataset.movielens.MovielensDataHelper.preprocess_data">preprocess_data</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
