@@ -1,3 +1,5 @@
+"""Implementation of YoutubeDNN rank model
+"""
 from typing import Tuple
 from tensorflow.keras import Model
 from handyrec.layers import DNN
@@ -17,19 +19,34 @@ def YouTubeRankDNN(
 ) -> Model:
     """Implementation of YoutubeDNN rank model
 
-    Args:
-        dnn_hidden_units (Tuple[int], optional): DNN structure. Defaults to (64, 32).
-        dnn_activation (str, optional): DNN activation function. Defaults to "relu".
-        dnn_dropout (float, optional): DNN dropout ratio. Defaults to 0.
-        dnn_bn (bool, optional): whether use batch normalization or not. Defaults to False.
-        l2_dnn (float, optional): DNN l2 regularization param. Defaults to 0.
-        seed (int, optional): random seed of dropout. Defaults to 2022.
+    Parameters
+    ----------
+    user_feature_group : FeatureGroup
+        User feature group.
+    item_feature_group : FeatureGroup
+        Item feature group.
+    dnn_hidden_units : Tuple[int], optional
+        DNN structure, by default `(64, 32)`.
+    dnn_activation : str, optional
+        DNN activation function, by default `"relu"`.
+    dnn_dropout : float, optional
+        DNN dropout ratio, by default `0`.
+    dnn_bn : bool, optional
+        Whether use batch normalization or not, by default `False`.
+    l2_dnn : float, optional
+        DNN l2 regularization param, by default `0`.
+    seed : int, optional
+        Random seed of dropout, by default `2022`.
 
-    Raises:
-        ValueError: length of `user_features` should be larger than 0
+    Returns
+    -------
+    Model
+        A YouTubeDNN rank mdoel.
 
-    Returns:
-        Model: YouTubeDNN Match Model
+    References
+    ----------
+    .. [1] Covington, Paul, Jay Adams, and Emre Sargin. "Deep neural networks for youtube
+        recommendations." Proceedings of the 10th ACM conference on recommender systems. 2016.
     """
     user_dense, user_sparse = user_feature_group.embedding_lookup(pool_method="mean")
     item_dense, item_sparse = item_feature_group.embedding_lookup(pool_method="mean")

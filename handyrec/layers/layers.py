@@ -1,3 +1,5 @@
+"""Contains some core layers may be used by different models.
+"""
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Dense, BatchNormalization, Dropout
 from tensorflow.keras import Sequential
@@ -7,17 +9,7 @@ from typing import Tuple
 
 
 class DNN(Layer):
-    """DNN layer
-
-    Args:
-        hidden_units (Tuple[int]): hidden structure
-        activation (str, optional): activation function for each layers except the last one. Defaults to "relu".
-        l2_reg (int, optional): l2 regularization param. Defaults to 0.
-        dropout_rate (float, optional): dropout rate. Defaults to 0.
-        use_bn (bool, optional): whether to use batch normalization. Defaults to False.
-        output_activation (str, optional): activation function for the last layer. Defaults to None.
-        seed (int, optional): random seef for dropout. Defaults to 1024.
-    """
+    """DNN layer"""
 
     def __init__(
         self,
@@ -27,9 +19,27 @@ class DNN(Layer):
         dropout_rate: float = 0,
         use_bn: bool = False,
         output_activation: str = None,
-        seed: int = 1024,
+        seed: int = 2022,
         **kwargs
     ):
+        """
+        Parameters
+        ----------
+        hidden_units : Tuple[int]
+            DNN structure.
+        activation : str, optional
+            Activation function for each layers except the last one, by default `"relu"`.
+        l2_reg : float, optional
+            L2 regularization param, by default `0`.
+        dropout_rate : float, optional
+            Dropout rate, by default `0`.
+        use_bn : bool, optional
+            Whether use batch normalization or not, by default `False`.
+        output_activation : str, optional
+            Activation function for the last layer, by default `None`.
+        seed : int, optional
+            Random seef for dropout, by default `2022`.
+        """
         self.hidden_units = hidden_units
         self.activation = activation
         self.l2_reg = l2_reg
