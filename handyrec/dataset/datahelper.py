@@ -4,33 +4,45 @@ import numpy as np
 
 
 class DataHelper(ABC):
-    """Abstract class for data loading, preprocesing, and dataset generating"""
+    """Abstract class for data loading, preprocesing, and dataset generating
+
+    Attributes
+    ----------
+    base : str
+        Diectory to load raw data and save generated dataset.
+    """
 
     def __init__(self, data_dir: str):
-        self.base = data_dir  # diectory to load raw data and save generated dataset
+        self.base = data_dir
 
     @abstractmethod
     def load_data(self) -> Dict:
-        """Load raw dataset
+        """Load raw dataset into a dictionary.
 
-        Returns:
-            Dict: a data dict with three keys: [`user`, `item`, `interact`]
+        Returns
+        -------
+        Dict
+            A data dict with three keys: ``user``, ``item``, and ``interact``.
         """
 
     @abstractmethod
     def preprocess_data(self) -> Dict:
-        """Preprocess raw data
+        """Preprocess raw data.
 
-        Returns:
-            dict: a data dict with three keys: [`user`, `item`, `interact`]
+        Returns
+        -------
+        Dict
+            A data dict with three keys: ``user``, ``item``, and ``interact``.
         """
 
     @abstractmethod
     def get_clean_data(self) -> Dict:
-        """Load raw data and preprocess
+        """Load raw data and preprocess.
 
-        Returns:
-            dict: a data dict with three keys: [`user`, `item`, `interact`]
+        Returns
+        -------
+        Dict
+            A data dict with three keys: ``user``, ``item``, and ``interact``.
         """
 
     @abstractmethod
@@ -41,46 +53,52 @@ class DataHelper(ABC):
     def load_dataset(self) -> Dict:
         """Load dataset into a dictionary
 
-        Returns:
-            Dict: a data dict with feature names as keys
+        Returns
+        -------
+        Dict
+            A data dict with feature names as keys.
         """
 
+    @classmethod
     def get_feature_dim(
-        self,
+        cls,
         data: Dict,
         user_features: List[str],
         item_features: List[str],
         interact_features: List[str],
-    ) -> Dict:
-        """Generate a dictionary containing feature dimensions
+    ) -> Dict[str, int]:
+        """Generate a dictionary containing feature dimension info.
 
-        Args:
-            data (Dict): dataset dictionary
-            user_features (List[str]): user feature list
-            item_features (List[str]): item feature list
-            interact_features (List[str]): user-item interaction feature list
+        Parameters
+        ----------
+        data : Dict
+            Dataset dictionary.
+        user_features : List[str]
+            User feature list.
+        item_features : List[str]
+            Item feature list.
+        interact_features : List[str]
+            User-item interaction feature list.
 
-        Returns:
-            Dict: feature dimension dict. {feature: dimension}
+        Returns
+        -------
+        Dict[str, int]
+            A dictionary containing feature dimension info, ``{feature: dim}``.
+
+        Raises
+        ------
+        KeyError
+            If ``user``,``item``, or ``interact`` is not in ``data.keys()``
         """
         if len(set(["user", "item", "interact"]) & set(data.keys())) != 3:
             raise KeyError("`user`,`item`, and `interact` should be keys of data")
 
         feature_dim = {}
         for feat in user_features:
-            try:
-                feature_dim[feat] = np.max(data["user"][feat]) + 1
-            except:
-                pass
+            feature_dim[feat] = np.max(data["user"][feat]) + 1
         for feat in item_features:
-            try:
-                feature_dim[feat] = np.max(data["item"][feat]) + 1
-            except:
-                pass
+            feature_dim[feat] = np.max(data["item"][feat]) + 1
         for feat in interact_features:
-            try:
-                feature_dim[feat] = np.max(data["interact"][feat]) + 1
-            except:
-                pass
+            feature_dim[feat] = np.max(data["interact"][feat]) + 1
 
         return feature_dim

@@ -27,7 +27,7 @@ def search_embedding(
     n : int
         Number of candidate items for each user.
     gpu : bool, optional
-        Whether use gpu to search, by default `False`.
+        Whether use gpu to search, by default ``False``.
 
     Returns
     -------

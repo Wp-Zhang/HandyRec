@@ -26,17 +26,17 @@ def YouTubeRankDNN(
     item_feature_group : FeatureGroup
         Item feature group.
     dnn_hidden_units : Tuple[int], optional
-        DNN structure, by default `(64, 32)`.
+        DNN structure, by default ``(64, 32)``.
     dnn_activation : str, optional
-        DNN activation function, by default `"relu"`.
+        DNN activation function, by default ``"relu"``.
     dnn_dropout : float, optional
-        DNN dropout ratio, by default `0`.
+        DNN dropout ratio, by default ``0``.
     dnn_bn : bool, optional
-        Whether use batch normalization or not, by default `False`.
+        Whether use batch normalization or not, by default ``False``.
     l2_dnn : float, optional
-        DNN l2 regularization param, by default `0`.
+        DNN l2 regularization param, by default ``0``.
     seed : int, optional
-        Random seed of dropout, by default `2022`.
+        Random seed of dropout, by default ``2022``.
 
     Returns
     -------

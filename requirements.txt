@@ -1,7 +1,0 @@
-faiss
-faiss_cpu
-numpy
-pandas
-scikit_learn
-tensorflow==2.6.0
-tqdm

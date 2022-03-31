@@ -32,25 +32,25 @@ def DSSM(
     item_feature_group : EmbdFeatureGroup
         Item feature group.
     user_dnn_hidden_units : Tuple[int], optional
-        User DNN structure, by default `(64, 32)`.
+        User DNN structure, by default ``(64, 32)``.
     item_dnn_hidden_units : Tuple[int], optional
-        Item DNN structure, by default `(64, 32)`.
+        Item DNN structure, by default ``(64, 32)``.
     dnn_activation : str, optional
-        DNN activation function, by default `"relu"`.
+        DNN activation function, by default ``"relu"``.
     dnn_dropout : float, optional
-        DNN dropout ratio, by default `0`.
+        DNN dropout ratio, by default ``0``.
     dnn_bn : bool, optional
-        Whether use batch normalization or not, by default `False`.
+        Whether use batch normalization or not, by default ``False``.
     l2_dnn : float, optional
-        DNN l2 regularization param, by default `0`.
+        DNN l2 regularization param, by default ``0``.
     num_sampled : int, optional
-        Number of negative smaples in SampledSoftmax, by default `1`.
+        Number of negative smaples in SampledSoftmax, by default ``1``.
     seed : int, optional
-        Random seed of dropout, by default `2022`.
+        Random seed of dropout, by default ``2022``.
     cos_sim : bool, optional
-        Whether use cosine similarity or not, by default `False`.
+        Whether use cosine similarity or not, by default ``False``.
     gamma : float, optional
-        Smoothing factor for cosine similarity softmax, by default `10`.
+        Smoothing factor for cosine similarity softmax, by default ``10``.
 
     Returns
     -------
@@ -62,7 +62,8 @@ def DSSM(
     ValueError
         If `item_feature_group` is not an instance of `EmbdFeatureGroup`.
 
-    References:
+    References
+    ----------
     .. [1] Huang, Po-Sen, et al. "Learning deep structured semantic models for web search
         using clickthrough data." Proceedings of the 22nd ACM international conference on
         Information & Knowledge Management. 2013.
