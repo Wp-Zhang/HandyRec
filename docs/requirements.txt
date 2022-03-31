@@ -9,4 +9,5 @@ numpy
 pandas
 scikit_learn
 tensorflow==2.6.0
+keras==2.6
 tqdm
