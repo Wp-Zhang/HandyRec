@@ -1,3 +1,11 @@
-from .features import DenseFeature, SparseFeature, SparseSeqFeature
+from .type import DenseFeature, SparseFeature, SparseSeqFeature
+from .group import FeaturePool, FeatureGroup, EmbdFeatureGroup
 
-__all__ = ["DenseFeature", "SparseFeature", "SparseSeqFeature"]
+__all__ = [
+    "DenseFeature",
+    "SparseFeature",
+    "SparseSeqFeature",
+    "FeaturePool",
+    "FeatureGroup",
+    "EmbdFeatureGroup",
+]

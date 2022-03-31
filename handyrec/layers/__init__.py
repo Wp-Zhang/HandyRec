@@ -1,7 +1,7 @@
 from .layers import DNN, FM
 from .tools import (
     SequencePoolingLayer,
-    EmbeddingIndex,
+    ValueTable,
     SampledSoftmaxLayer,
     CustomEmbedding,
 )
@@ -11,8 +11,7 @@ __all__ = [
     "DNN",
     "FM",
     "SequencePoolingLayer",
-    "EmbeddingIndex",
+    "ValueTable",
     "SampledSoftmaxLayer",
-    "RemoveMask",
     "CustomEmbedding",
 ]

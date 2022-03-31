@@ -1,87 +1,75 @@
-from typing import OrderedDict, Tuple, List, Any
+"""Implementation of DeepFM
+"""
+from typing import Tuple
 import warnings
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Activation
-
-from handyrec.features.utils import split_features
-from handyrec.layers import SequencePoolingLayer, DNN, FM
-from handyrec.layers.utils import (
-    construct_input_layers,
-    construct_embedding_layers,
-    concat_inputs,
-)
+from handyrec.features import FeatureGroup
+from handyrec.layers import DNN, FM
+from handyrec.layers.utils import concat
 
 
 def DeepFM(
-    fm_features: List[Any],
-    dnn_features: List[Any],
+    fm_feature_group: FeatureGroup,
+    dnn_feature_group: FeatureGroup,
     dnn_hidden_units: Tuple[int] = (64, 32, 1),
     dnn_activation: str = "relu",
     dnn_dropout: float = 0,
     dnn_bn: bool = False,
     l2_dnn: float = 0,
-    l2_emb: float = 1e-6,
     task: str = "binary",
     seed: int = 2022,
-):
+) -> Model:
     """Implementation of DeepFM
 
-    Args:
-        fm_features (List[Any]): input feature list for FM
-        dnn_features (List[Any]): input feature list for DNN
-        dnn_hidden_units (Tuple[int], optional): DNN structure. Defaults to (64, 32).
-        dnn_activation (str, optional): DNN activation function. Defaults to "relu".
-        dnn_dropout (float, optional): DNN dropout ratio. Defaults to 0.
-        dnn_bn (bool, optional): whether to use batch normalization. Defaults to False.
-        l2_dnn (float, optional): DNN l2 regularization param. Defaults to 0.
-        l2_emb (float, optional): embedding l2 regularization param. Defaults to 1e-6.
-        task (str, optional): model task, should be `binary` or `regression`. Defaults to `binary`
-        seed (int, optional): random seed of dropout. Defaults to 2022.
+    Parameters
+    ----------
+    fm_feature_group : FeatureGroup
+        FM feature group.
+    dnn_feature_group : FeatureGroup
+        DNN feature group.
+    dnn_hidden_units : Tuple[int], optional
+        DNN structure, by default `(64, 32, 1)`.
+    dnn_activation : str, optional
+        DNN activation function, by default `"relu"`.
+    dnn_dropout : float, optional
+        DNN dropout ratio, by default `0`.
+    dnn_bn : bool, optional
+        Whether to use batch normalization, by default `False`.
+    l2_dnn : float, optional
+        DNN l2 regularization param, by default `0`.
+    task : str, optional
+        Model task, should be `"binary"` or `"regression"`, by default `"binary"`.
+    seed : int, optional
+        Random seed of dropout, by default `2022`.
+
+    Returns
+    -------
+    Model
+        A DeepFM model.
+
+    Raises
+    ------
+    ValueError
+        If the size of DNN's last layer is not 1.
+
+    References:
+    .. [1] Guo, Huifeng, et al. "DeepFM: a factorization-machine based neural network
+        for CTR prediction." arXiv preprint arXiv:1703.04247 (2017).
     """
-    if len(fm_features) < 1:
-        raise ValueError("Should have at least one feature for FM")
-    if len(dnn_features) < 1:
-        raise ValueError("Should have at least one feature for DNN")
     if dnn_hidden_units[-1] != 1:
         raise ValueError("Output size of dnn should be 1")
 
-    # * Group features by their types
-    fm_dense_f, fm_sparse_f, fm_sparse_seq_f = split_features(fm_features)
-    dnn_dense_f, dnn_sparse_f, dnn_sparse_seq_f = split_features(dnn_features)
-    _, sparse_f, sparse_seq_f = split_features(fm_features + dnn_features)
+    fm_dense, fm_sparse = fm_feature_group.embedding_lookup(pool_method="mean")
+    dnn_dense, dnn_sparse = dnn_feature_group.embedding_lookup(pool_method="mean")
 
-    # * Get input and embedding layers
-    input_layers = construct_input_layers(fm_features + dnn_features)
-    embd_layers = construct_embedding_layers(fm_features + dnn_features, l2_emb)
-
-    # * Embedding output: input layer -> embedding layer (-> pooling layer)
-    embd_outputs = OrderedDict()
-    for feat in sparse_f.keys():
-        embd_outputs[feat] = embd_layers[feat](input_layers[feat])
-    for feat in sparse_seq_f.values():
-        sparse_emb = embd_layers[feat.sparse_feat.name]
-        seq_input = input_layers[feat.name]
-        embd_outputs[feat.name] = SequencePoolingLayer("mean")(sparse_emb(seq_input))
-
-    # * Concat input layers -> DNN, FM
-    dnn_input = concat_inputs(
-        [input_layers[k] for k in dnn_dense_f.keys()],
-        [embd_outputs[k] for k in list(dnn_sparse_f.keys())]
-        + [embd_outputs[k] for k in list(dnn_sparse_seq_f.keys())],
-    )
-
-    if len(fm_dense_f) > 0:
+    if len(fm_dense) > 0:
         warnings.warn(
-            "FM part doesn't support dense featrue now, dense features will be ignored"
+            "FM currently doesn't support dense featrue, they will be ignored"
         )
-
-    fm_input = concat_inputs(
-        [],  # [input_layers[k] for k in fm_dense_f.keys()],
-        [embd_outputs[k] for k in list(fm_sparse_f.keys())]
-        + [embd_outputs[k] for k in list(fm_sparse_seq_f.keys())],
-        axis=1,
-        keepdims=True,
-    )
+    # * Concat input layers -> DNN, FM
+    dnn_input = concat(fm_dense + dnn_dense, fm_sparse + dnn_sparse)
+    fm_input = concat([], fm_sparse + dnn_sparse, axis=1, keepdims=True)
 
     dnn_output = DNN(
         hidden_units=dnn_hidden_units,
@@ -91,8 +79,9 @@ def DeepFM(
         use_bn=dnn_bn,
         output_activation="linear",
         seed=seed,
+        name="Deep_Part",
     )(dnn_input)
-    fm_output = FM()(fm_input)
+    fm_output = FM(name="FM_Part")(fm_input)
 
     # * Output
     output = dnn_output + fm_output
@@ -100,6 +89,7 @@ def DeepFM(
         output = Activation("sigmoid")(output)
 
     # * Construct model
-    model = Model(inputs=list(input_layers.values()), outputs=output)
+    inputs = list(fm_feature_group.feat_pool.input_layers.values())
+    model = Model(inputs=inputs, outputs=output)
 
     return model

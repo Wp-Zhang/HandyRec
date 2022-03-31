@@ -52,8 +52,18 @@ class MovielensDataHelper(DataHelper):
             encoding="latin-1",
             engine="python",
         )
-        genres = movies["genres"].str.get_dummies(sep="|")
-        movies = pd.concat([movies[["movie_id", "title"]], genres], axis=1)
+        movies["year"] = movies["title"].str.slice(-5, -1).astype(int)
+        genres = list(movies["genres"].str.get_dummies(sep="|").columns)
+        genre_map = {x: i + 1 for i, x in enumerate(genres)}  # index 0 is for padding
+        movies["genres"] = movies["genres"].apply(
+            lambda x: sorted([genre_map[k] for k in x.split("|")])
+        )
+        pad_genres = pad_sequences(movies["genres"], padding="post")
+        movies["genres"] = (
+            movies.reset_index()
+            .pop("index")
+            .apply(lambda x: pad_genres[x - 1].tolist())
+        )
 
         return {"item": movies, "user": user, "interact": ratings}
 
@@ -116,6 +126,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
         features: List[str],
         data: dict,
         seq_max_len: int = 20,
+        negnum: int = 0,
         min_rating: float = 0.35,
         n: int = 10,
     ):
@@ -125,6 +136,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
             features (List[str]): feature list
             data (dict): data dictionary, keys: 'user', 'item', 'interact'
             seq_max_len (int, optional): maximum history sequence length. Defaults to 20.
+            negnum (int, optional): number of negative samples. Defaults to 0.
             min_rating (float, optional): minimum interact for positive smaples. Defaults to 0.35.
             n (int, optional): use the last n samples for each user to be the test set. Defaults to 10.
 
@@ -132,37 +144,62 @@ class MovieMatchDataHelper(MovielensDataHelper):
 
         data["interact"].sort_values("timestamp", inplace=True)
         df = data["interact"]
+        item_ids = set(data["item"]["movie_id"].values)
 
         # * Calculate number of rows of dataset to fasten the dataset generating process
         df = df[df["interact"] >= min_rating]
         counter = df[["user_id", "movie_id"]].groupby("user_id", as_index=False).count()
         counter = counter[counter["movie_id"] > n]
         df = df[df["user_id"].isin(counter["user_id"].values)]
-        train_rows = (counter["movie_id"] - n).sum()
+        train_rows = ((counter["movie_id"] - n) * (negnum + 1)).sum()
         test_rows = counter.shape[0]
 
         # * Generate rows
         # * train_set format: [uid, moiveID, sample_age, label, history_seq]
-        # * test_set format: [uid, moiveIDs, sample_age(0), history_seq]
-        train_set = np.zeros((train_rows, 5), dtype=object)
-        test_set = np.zeros((test_rows, 4), dtype=object)
+        # * test_set format: [uid, sample_age(0), moiveIDs, history_seq]
+        train_set = np.zeros((train_rows, 4 + seq_max_len), dtype=int)
+        test_set = np.zeros((test_rows, 2 + n + seq_max_len), dtype=int)
 
         p, q = 0, 0
         for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
             pos_list = hist["movie_id"].tolist()
-            for i in range(len(pos_list) - n):
-                seq = pos_list[:i]
+            if negnum > 0:
+                candidate_set = list(item_ids - set(pos_list))  # Negative samples
+                negs = np.random.choice(
+                    candidate_set, size=(len(pos_list) - n) * negnum, replace=True
+                )
+            train_pos_list = pos_list[:-n]
+            for i in range(len(train_pos_list)):
+                seq = train_pos_list[:i]
                 # Positive sample
-                train_set[p] = [
-                    uid,
-                    pos_list[i],
-                    len(pos_list) - n - 1 - i,
-                    1,
-                    seq[::-1],
-                ]
+                tmp_seq = seq[-seq_max_len:][::-1]
+                train_set[p] = (
+                    [
+                        uid,
+                        train_pos_list[i],
+                        len(train_pos_list) - 1 - i,
+                        1,
+                    ]
+                    + tmp_seq
+                    + [0] * (seq_max_len - len(tmp_seq))
+                )
                 p += 1
-            i = len(pos_list) - n
-            test_set[q] = [uid, pos_list[i:], 0, pos_list[:i][::-1]]
+                # Negative smaples
+                for j in range(negnum):
+                    train_set[p] = (
+                        [
+                            uid,
+                            negs[i * negnum + j],
+                            len(pos_list) - 1 - i,
+                            0,
+                        ]
+                        + tmp_seq
+                        + [0] * (seq_max_len - len(tmp_seq))
+                    )
+                    p += 1
+            test_pos_list = pos_list[-seq_max_len - n : -n][::-1]
+            test_pos_list += [0] * (seq_max_len - len(test_pos_list))
+            test_set[q] = [uid, 0] + pos_list[-n:] + test_pos_list
             q += 1
 
         np.random.seed(2022)
@@ -178,37 +215,30 @@ class MovieMatchDataHelper(MovielensDataHelper):
         train_iid = train_set[:, 1].astype(np.int)
         train_age = train_set[:, 2].astype(np.int)
         train_label = train_set[:, 3].astype(np.int)
-        hist_seq = train_set[:, 4].tolist()
-        hist_seq_pad = pad_sequences(
-            hist_seq, maxlen=seq_max_len, padding="post", truncating="post", value=0
-        )
         normalizer = QuantileTransformer()
         train_age = normalizer.fit_transform(train_age.reshape(-1, 1))
         np.save(open(self.sub_dir + "train_user_id.npy", "wb"), train_uid)
         np.save(open(self.sub_dir + "train_movie_id.npy", "wb"), train_iid)
         np.save(open(self.sub_dir + "train_example_age.npy", "wb"), train_age)
         np.save(open(self.sub_dir + "train_label.npy", "wb"), train_label)
-        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), hist_seq_pad)
+        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_set[:, 4:])
 
         test_uid = test_set[:, 0].astype(np.int)
-        test_label = np.array(test_set[:, 1].tolist()).astype(np.int)
-        test_age = test_set[:, 2].astype(np.int)
-        hist_seq = test_set[:, 3].tolist()
-        hist_seq_pad = pad_sequences(
-            hist_seq, maxlen=seq_max_len, padding="post", truncating="post", value=0
-        )
+        test_age = test_set[:, 1].astype(np.int)
         test_age = normalizer.transform(test_age.reshape(-1, 1))
         np.save(open(self.sub_dir + "test_user_id.npy", "wb"), test_uid)
         np.save(open(self.sub_dir + "test_example_age.npy", "wb"), test_age)
-        np.save(open(self.sub_dir + "test_label.npy", "wb"), test_label)
-        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), hist_seq_pad)
+        np.save(open(self.sub_dir + "test_label.npy", "wb"), test_set[:, 2 : 2 + n])
+        np.save(
+            open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_set[:, 2 + n :]
+        )
 
-        del train_set, test_set, hist_seq, hist_seq_pad
+        del train_set, test_set
         gc.collect()
 
         for key in tqdm([x for x in user.columns if x in features and x != "user_id"]):
-            train_tmp_array = user[key].loc[train_uid].values
-            test_tmp_array = user[key].loc[test_uid].values
+            train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+            test_tmp_array = np.array(user[key].loc[test_uid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
             np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
@@ -218,7 +248,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
         gc.collect()
 
         for key in tqdm([x for x in item.columns if x in features and x != "movie_id"]):
-            train_tmp_array = item[key].loc[train_iid].values
+            train_tmp_array = np.array(item[key].loc[train_iid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
             del train_tmp_array
             gc.collect()
@@ -323,7 +353,7 @@ class MovieRankDataHelper(MovielensDataHelper):
             if negnum > 0:
                 candidate_set = list(item_ids - set(pos_list))  # Negative samples
                 negs = np.random.choice(
-                    candidate_set, size=len(pos_list) * negnum, replace=True
+                    candidate_set, size=(len(pos_list) - n) * negnum, replace=True
                 )
             pos_list = pos_list[:-n]
             for i in range(len(pos_list)):
@@ -334,7 +364,7 @@ class MovieRankDataHelper(MovielensDataHelper):
                     [
                         uid,
                         pos_list[i],
-                        len(pos_list) - n - 1 - i,
+                        len(pos_list) - 1 - i,
                         time_diff_list[i],
                         1,
                     ]
@@ -347,8 +377,8 @@ class MovieRankDataHelper(MovielensDataHelper):
                     train_set[p] = (
                         [
                             uid,
-                            negs[j],
-                            len(pos_list) - n - 1 - i,
+                            negs[i * negnum + j],
+                            len(pos_list) - 1 - i,
                             time_diff_list[i],
                             0,
                         ]
@@ -407,8 +437,8 @@ class MovieRankDataHelper(MovielensDataHelper):
         gc.collect()
 
         for key in tqdm([x for x in user.columns if x in features and x != "user_id"]):
-            train_tmp_array = user[key].loc[train_uid].values
-            test_tmp_array = user[key].loc[test_uid].values
+            train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+            test_tmp_array = np.array(user[key].loc[test_uid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
             np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
@@ -418,8 +448,8 @@ class MovieRankDataHelper(MovielensDataHelper):
         gc.collect()
 
         for key in tqdm([x for x in item.columns if x in features and x != "movie_id"]):
-            train_tmp_array = item[key].loc[train_iid].values
-            test_tmp_array = item[key].loc[test_iid].values
+            train_tmp_array = np.array(item[key].loc[train_iid].tolist())
+            test_tmp_array = np.array(item[key].loc[test_iid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
             np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
