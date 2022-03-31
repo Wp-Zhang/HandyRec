@@ -1,8 +1,8 @@
-from typing import OrderedDict, Tuple
+from typing import Tuple
 from tensorflow.keras import Model
-from handyrec.layers import SequencePoolingLayer, DNN
+from handyrec.layers import DNN
 from handyrec.layers.utils import concat
-from handyrec.features import FeatureGroup, EmbdFeatureGroup
+from handyrec.features import FeatureGroup
 
 
 def YouTubeRankDNN(
