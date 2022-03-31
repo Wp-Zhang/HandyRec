@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>handyrec.dataset package &mdash; HandyRec 0.0.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> HandyRec
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">handyrec.dataset package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-handyrec.dataset.datahelper">handyrec.dataset.datahelper module</a></li>
+<li><a class="reference internal" href="#module-handyrec.dataset.metrics">handyrec.dataset.metrics module</a></li>
+<li><a class="reference internal" href="#module-handyrec.dataset.movielens">handyrec.dataset.movielens module</a></li>
+<li><a class="reference internal" href="#module-handyrec.dataset">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HandyRec</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>handyrec.dataset package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/handyrec.dataset.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="handyrec-dataset-package">
+<h1>handyrec.dataset package<a class="headerlink" href="#handyrec-dataset-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-handyrec.dataset.datahelper">
+<span id="handyrec-dataset-datahelper-module"></span><h2>handyrec.dataset.datahelper module<a class="headerlink" href="#module-handyrec.dataset.datahelper" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="handyrec.dataset.datahelper.DataHelper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">handyrec.dataset.datahelper.</span></span><span class="sig-name descname"><span class="pre">DataHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.datahelper.DataHelper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract class for data loading, preprocesing, and dataset generating</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.datahelper.DataHelper.gen_dataset">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.datahelper.DataHelper.gen_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Generate and save dataset</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.datahelper.DataHelper.get_clean_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_clean_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.datahelper.DataHelper.get_clean_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load raw data and preprocess</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a data dict with three keys: [<cite>user</cite>, <cite>item</cite>, <cite>interact</cite>]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.datahelper.DataHelper.get_feature_dim">
+<span class="sig-name descname"><span class="pre">get_feature_dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interact_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.datahelper.DataHelper.get_feature_dim" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a dictionary containing feature dimensions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Dict</em>) – dataset dictionary</p></li>
+<li><p><strong>user_features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – user feature list</p></li>
+<li><p><strong>item_features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – item feature list</p></li>
+<li><p><strong>interact_features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – user-item interaction feature list</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>feature dimension dict. {feature: dimension}</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.datahelper.DataHelper.load_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.datahelper.DataHelper.load_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load raw dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a data dict with three keys: [<cite>user</cite>, <cite>item</cite>, <cite>interact</cite>]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.datahelper.DataHelper.load_dataset">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.datahelper.DataHelper.load_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Load dataset into a dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a data dict with feature names as keys</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.datahelper.DataHelper.preprocess_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.datahelper.DataHelper.preprocess_data" title="Permalink to this definition"></a></dt>
+<dd><p>Preprocess raw data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a data dict with three keys: [<cite>user</cite>, <cite>item</cite>, <cite>interact</cite>]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-handyrec.dataset.metrics">
+<span id="handyrec-dataset-metrics-module"></span><h2>handyrec.dataset.metrics module<a class="headerlink" href="#module-handyrec.dataset.metrics" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="handyrec.dataset.metrics.hr_at_k">
+<span class="sig-prename descclassname"><span class="pre">handyrec.dataset.metrics.</span></span><span class="sig-name descname"><span class="pre">hr_at_k</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.metrics.hr_at_k" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="handyrec.dataset.metrics.map_at_k">
+<span class="sig-prename descclassname"><span class="pre">handyrec.dataset.metrics.</span></span><span class="sig-name descname"><span class="pre">map_at_k</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.metrics.map_at_k" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="handyrec.dataset.metrics.recall_at_k">
+<span class="sig-prename descclassname"><span class="pre">handyrec.dataset.metrics.</span></span><span class="sig-name descname"><span class="pre">recall_at_k</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.metrics.recall_at_k" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-handyrec.dataset.movielens">
+<span id="handyrec-dataset-movielens-module"></span><h2>handyrec.dataset.movielens module<a class="headerlink" href="#module-handyrec.dataset.movielens" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovieMatchDataHelper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">handyrec.dataset.movielens.</span></span><span class="sig-name descname"><span class="pre">MovieMatchDataHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.movielens.MovieMatchDataHelper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#handyrec.dataset.movielens.MovielensDataHelper" title="handyrec.dataset.movielens.MovielensDataHelper"><code class="xref py py-class docutils literal notranslate"><span class="pre">handyrec.dataset.movielens.MovielensDataHelper</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovieMatchDataHelper.gen_dataset">
+<span class="sig-name descname"><span class="pre">gen_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negnum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.movielens.MovieMatchDataHelper.gen_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Generate train set and test set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – feature list</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – data dictionary, keys: ‘user’, ‘item’, ‘interact’</p></li>
+<li><p><strong>seq_max_len</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum history sequence length. Defaults to 20.</p></li>
+<li><p><strong>negnum</strong> (<em>int</em><em>, </em><em>optional</em>) – number of negative samples. Defaults to 0.</p></li>
+<li><p><strong>min_rating</strong> (<em>float</em><em>, </em><em>optional</em>) – minimum interact for positive smaples. Defaults to 0.35.</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – use the last n samples for each user to be the test set. Defaults to 10.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovieMatchDataHelper.load_dataset">
+<span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_feats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">movie_feats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span></span></span><a class="headerlink" href="#handyrec.dataset.movielens.MovieMatchDataHelper.load_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Load saved dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_name</strong> (<em>str</em>) – version name of data used to generate dataset</p></li>
+<li><p><strong>dataset_name</strong> (<em>str</em>) – version name of dataset</p></li>
+<li><p><strong>user_feats</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of user features to be loaded</p></li>
+<li><p><strong>movie_feats</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of movie features to be loaded</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[train set, test set]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovieRankDataHelper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">handyrec.dataset.movielens.</span></span><span class="sig-name descname"><span class="pre">MovieRankDataHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.movielens.MovieRankDataHelper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#handyrec.dataset.movielens.MovielensDataHelper" title="handyrec.dataset.movielens.MovielensDataHelper"><code class="xref py py-class docutils literal notranslate"><span class="pre">handyrec.dataset.movielens.MovielensDataHelper</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovieRankDataHelper.gen_dataset">
+<span class="sig-name descname"><span class="pre">gen_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negnum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.movielens.MovieRankDataHelper.gen_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Generate train set and test set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – feature list</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – data dictionary, keys: ‘user’, ‘item’, ‘interact’</p></li>
+<li><p><strong>test_id</strong> (<em>dict</em>) – test id dictionary, {user_id: movie_id}. Note: each user should have the same number of movie_ids</p></li>
+<li><p><strong>seq_max_len</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum history sequence length. Defaults to 20.</p></li>
+<li><p><strong>negnum</strong> (<em>int</em><em>, </em><em>optional</em>) – number of negative samples. Defaults to 0.</p></li>
+<li><p><strong>min_rating</strong> (<em>float</em><em>, </em><em>optional</em>) – minimum interact for positive smaples. Defaults to 0.35.</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – use the last n samples for each user to be the test set. Defaults to 10.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovieRankDataHelper.load_dataset">
+<span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_feats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">movie_feats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span></span></span><a class="headerlink" href="#handyrec.dataset.movielens.MovieRankDataHelper.load_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Load saved dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_name</strong> (<em>str</em>) – version name of data used to generate dataset</p></li>
+<li><p><strong>dataset_name</strong> (<em>str</em>) – version name of dataset</p></li>
+<li><p><strong>user_feats</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of user features to be loaded</p></li>
+<li><p><strong>movie_feats</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of movie features to be loaded</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[train set, test set]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovielensDataHelper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">handyrec.dataset.movielens.</span></span><span class="sig-name descname"><span class="pre">MovielensDataHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_dir_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.movielens.MovielensDataHelper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#handyrec.dataset.datahelper.DataHelper" title="handyrec.dataset.datahelper.DataHelper"><code class="xref py py-class docutils literal notranslate"><span class="pre">handyrec.dataset.datahelper.DataHelper</span></code></a></p>
+<p>base class for DataHelper for movielens dataset</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovielensDataHelper.get_clean_data">
+<span class="sig-name descname"><span class="pre">get_clean_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.movielens.MovielensDataHelper.get_clean_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load raw data and preprocess</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sparse_features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – sparse feature list to be label encoded</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dictionary of preprocessed data with three keys: [<cite>user</cite>, <cite>item</cite>, <cite>interact</cite>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovielensDataHelper.load_data">
+<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.movielens.MovielensDataHelper.load_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load original raw data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>raw data dictionary</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.movielens.MovielensDataHelper.preprocess_data">
+<span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#handyrec.dataset.movielens.MovielensDataHelper.preprocess_data" title="Permalink to this definition"></a></dt>
+<dd><p>Preprocess raw data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – data dictionary, keys: ‘item’, ‘user’, ‘interact’</p></li>
+<li><p><strong>sparse_features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – sparse feature list to be label encoded</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>data dictionary</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-handyrec.dataset">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-handyrec.dataset" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="handyrec.dataset.DataHelper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">handyrec.dataset.</span></span><span class="sig-name descname"><span class="pre">DataHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.DataHelper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract class for data loading, preprocesing, and dataset generating</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.DataHelper.gen_dataset">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#handyrec.dataset.DataHelper.gen_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Generate and save dataset</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.DataHelper.get_clean_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_clean_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.DataHelper.get_clean_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load raw data and preprocess</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a data dict with three keys: [<cite>user</cite>, <cite>item</cite>, <cite>interact</cite>]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.DataHelper.get_feature_dim">
+<span class="sig-name descname"><span class="pre">get_feature_dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interact_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.DataHelper.get_feature_dim" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a dictionary containing feature dimensions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Dict</em>) – dataset dictionary</p></li>
+<li><p><strong>user_features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – user feature list</p></li>
+<li><p><strong>item_features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – item feature list</p></li>
+<li><p><strong>interact_features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – user-item interaction feature list</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>feature dimension dict. {feature: dimension}</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.DataHelper.load_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.DataHelper.load_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load raw dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a data dict with three keys: [<cite>user</cite>, <cite>item</cite>, <cite>interact</cite>]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.DataHelper.load_dataset">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.DataHelper.load_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Load dataset into a dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a data dict with feature names as keys</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="handyrec.dataset.DataHelper.preprocess_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#handyrec.dataset.DataHelper.preprocess_data" title="Permalink to this definition"></a></dt>
+<dd><p>Preprocess raw data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a data dict with three keys: [<cite>user</cite>, <cite>item</cite>, <cite>interact</cite>]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Weipeng Zhang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
