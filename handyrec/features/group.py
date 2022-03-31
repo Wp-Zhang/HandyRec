@@ -1,7 +1,7 @@
 from typing import List, Union, OrderedDict, Dict, Tuple
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras.regularizers import l2
 from handyrec.layers import CustomEmbedding, SequencePoolingLayer, ValueTable
 from handyrec.layers.utils import concat
@@ -18,41 +18,17 @@ class FeaturePool:
         Dictionary of inpute layers shared by groups of features.
     embd_layers : OrderedDict[str, CustomEmbedding]
         Dictionary of embedding layers shared by groups of features.
+    pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
+        Dictionary of pretrained embeddings, {feature_name:embd}
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self, pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None
+    ) -> None:
         self.input_layers = OrderedDict()
         self.embd_layers = OrderedDict()
 
-    def check_input(self, feat_name: str) -> bool:
-        """Check if the input layer of a feature is already created.
-
-        Parameters
-        ----------
-        feat_name : str
-            Name of feature.
-
-        Returns
-        -------
-        bool
-            Whether the input layer of the feature is created or not.
-        """
-        return feat_name in self.input_layers.keys()
-
-    def check_embd(self, feat_name: str) -> bool:
-        """Check if the embedding layer of a feature is already created.
-
-        Parameters
-        ----------
-        feat_name : str
-            Name of feature.
-
-        Returns
-        -------
-        bool
-            Whether the embedding layer of the feature is created or not.
-        """
-        return feat_name in self.embd_layers.keys()
+        self.pre_embd = pre_embd
 
     def init_input(self, name: str, params: Dict) -> Input:
         """Get an existed or construct a new shared input layer by name.
@@ -76,10 +52,17 @@ class FeaturePool:
         """
         if name in self.input_layers.keys():
             layer = self.input_layers[name]
-            if (
-                layer.shape[-1] != params["shape"] or layer.dtype != params["dtype"]
-            ):  # TODO real check
-                raise AttributeError("Params conflict with an existed input layer!")
+
+            curr_dim = layer.shape[-1]
+            curr_dtype = layer.dtype.name
+            new_dim = params["shape"][0]
+            new_dtype = params["dtype"]
+            if curr_dim != new_dim or curr_dtype != new_dtype:
+                raise AttributeError(
+                    f"Params of {name} conflict with an existed input layer!\n"
+                    + f"\t existed shape:{curr_dim}, new shape:{new_dim}\n"
+                    + f"\t existed dtype:{curr_dtype}, new dtype:{new_dtype}"
+                )
         else:
             layer = Input(**params)
             self.input_layers[name] = layer
@@ -107,17 +90,23 @@ class FeaturePool:
         """
         if name in self.embd_layers.keys():
             layer = self.embd_layers[name]
-            if params["mask_zero"]:
+
+            old_in_dim = layer.input_dim
+            old_out_dim = layer.output_dim
+            new_in_dim = params["input_dim"]
+            new_out_dim = params["output_dim"]
+            if old_in_dim != new_in_dim or old_out_dim != new_out_dim:
+                raise AttributeError(
+                    f"Params of {name} conflict with an existed embedding layer!\n"
+                    + f"\t existed input_dim:{old_in_dim}, new input_dim:{new_in_dim}\n"
+                    + f"\t existed dtype:{old_out_dim}, new dtype:{new_out_dim}"
+                )
+            if params["mask_zero"] and not layer.mask_zero:
                 # * always set as `True` when there is a conflict on `mask_zero`
-                layer.mask_zero = True
-            if (
-                layer.input_dim != params["input_dim"]
-                or layer.output_dim != params["output_dim"]
-            ):
-                raise AttributeError("Params conflict with an existed embedding layer!")
+                layer = CustomEmbedding(**params)
         else:
             layer = CustomEmbedding(**params)
-            self.embd_layers[name] = layer
+        self.embd_layers[name] = layer
         return layer
 
     def add_input(self, input_layer: Input) -> None:
@@ -171,7 +160,6 @@ class FeatureGroup:
         features: List[Feature],
         feature_pool: FeaturePool,
         l2_embd: float = 1e-6,
-        pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
     ):
         """Initialize a `FeatureGroup`
 
@@ -185,8 +173,6 @@ class FeatureGroup:
             The `FeaturePool` instance that this `FeatureGroup` belongs to.
         l2_embd : float
             L2 regularization parameter for embeddings, by default `1e-6`
-        pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
-            Dictionary of pretrained embeddings, {feature_name:embd}, by default `None`
 
         Raises
         ------
@@ -211,9 +197,7 @@ class FeatureGroup:
 
         # * construct input and embedding layers, generate output
         self.input_layers = self.construct_inputs(features, feature_pool)
-        self.embd_layers = self.construct_embds(
-            features, feature_pool, l2_embd, pre_embd
-        )
+        self.embd_layers = self.construct_embds(features, feature_pool, l2_embd)
 
     @classmethod
     def construct_inputs(
@@ -245,11 +229,7 @@ class FeatureGroup:
 
     @classmethod
     def construct_embds(
-        cls,
-        features: List[Feature],
-        feature_pool: FeaturePool,
-        l2_reg: float,
-        pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
+        cls, features: List[Feature], feature_pool: FeaturePool, l2_reg: float
     ) -> OrderedDict[str, CustomEmbedding]:
         """Construct embedding layers of sparse features
 
@@ -261,8 +241,6 @@ class FeatureGroup:
             The `FeaturePool` instance that this `FeatureGroup` belongs to.
         l2_reg : float
             L2 regularization parameter for embeddings.
-        pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
-            Dictionary of pretrained embeddings, {feature_name:embd}, by default `None`
 
         Returns
         -------
@@ -286,8 +264,8 @@ class FeatureGroup:
 
         for feat in feats_to_construct:
             weights = None
-            if pre_embd and feat.name in pre_embd.keys():
-                weights = pre_embd[feat.name]
+            if feature_pool.pre_embd and feat.name in feature_pool.pre_embd.keys():
+                weights = feature_pool.pre_embd[feat.name]
             params = {
                 "name": "embd_" + feat.name,
                 "input_dim": feat.vocab_size,
@@ -351,6 +329,8 @@ class EmbdFeatureGroup:
         Name of this `EmbdFeatureGroup`, should be unique.
     feature_pool : FeaturePool
         The `FeaturePool` instance that this `FeatureGroup` belongs to.
+    embd_dim : int
+        Output dimension of embedding, use a `Dense` layer to compress.
     id_name: str
         Name of the id featrue, e.g. `item_id`, `movie_id`
     id_input : Input
@@ -368,8 +348,8 @@ class EmbdFeatureGroup:
         features: List[Feature],
         feature_pool: FeaturePool,
         value_dict: Dict[str, np.ndarray],
+        embd_dim: int,
         l2_embd: float = 1e-6,
-        pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None,
         pool_method: str = "mean",
     ):
         """Initialize a `EmbdFeatureGroup`
@@ -386,10 +366,10 @@ class EmbdFeatureGroup:
             The `FeaturePool` instance that this `FeatureGroup` belongs to.
         value_dict : Dict[str, np.ndarray]
             Dictionary contains full fature values of all ids, {feature_name: values of all ids}.
+        embd_dim : int
+            Output dimension of embedding, use a `Dense` layer to compress.
         l2_embd : float
             L2 regularization parameter for embeddings, by default `1e-6`.
-        pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
-            Dictionary of pretrained embeddings, {feature_name:embd}, by default `None`.
         pool_method : str
             Pooling method for `SparseSeqFeature`s, by default `"mean"`.
 
@@ -416,6 +396,7 @@ class EmbdFeatureGroup:
         self.name = name
         self.id_name = id_name
         self.feat_pool = feature_pool
+        self.embd_dim = embd_dim
 
         # * init input layer of id feature for embedding lookup in the future
         id_feat = {x.name: x for x in features}[id_name]
@@ -423,9 +404,7 @@ class EmbdFeatureGroup:
         self.id_input = feature_pool.init_input(id_name, params)
 
         # * construct embedding layers
-        self.embd_layers = FeatureGroup.construct_embds(
-            features, feature_pool, l2_embd, pre_embd
-        )
+        self.embd_layers = FeatureGroup.construct_embds(features, feature_pool, l2_embd)
 
         self._features = features
         self._value_dict = value_dict
@@ -438,6 +417,7 @@ class EmbdFeatureGroup:
                 self._layers[feat.name + "_pool"] = SequencePoolingLayer(
                     pool_method, name=feat.name + "_" + pool_method
                 )
+        self._output_layer = Dense(embd_dim)
 
     def get_embd(self, index: Input) -> tf.Tensor:
         """Concatenate all features in this group and output a tensor that is ready for lookup.
@@ -485,7 +465,7 @@ class EmbdFeatureGroup:
             embd_outputs[name] = tf.squeeze(embd_outputs[name])  # * (n,d)
 
         output = concat([], list(embd_outputs.values()))  # * (n, 2d+k)
-
+        output = self._output_layer(output)  # * (n, embd_dim)
         return output
 
     def lookup(self, index: Input) -> tf.Tensor:
@@ -502,10 +482,10 @@ class EmbdFeatureGroup:
             Concatenated feature values of given ids.
         """
         embedding = self.get_embd(index)
-        output = tf.nn.embedding_lookup(embedding, index)  # * (batch, seq, 2d+k)
+        output = tf.nn.embedding_lookup(embedding, index)  # * (batch, seq, embd_dim)
         if index.shape[-1] == 1:
             # * index is not sequence
-            output = tf.squeeze(output, axis=1)  # * (batch, 2d+k)
+            output = tf.squeeze(output, axis=1)  # * (batch, embd_dim)
         return output
 
     def __call__(self, seq_input: Input) -> Tuple[tf.Tensor]:
@@ -548,7 +528,10 @@ if __name__ == "__main__":
 
     user_features = (
         [DenseFeature("age"), DenseFeature("height")]
-        + [SparseFeature("user_id", 5500, MATCH_EMBEDDING_DIM)]
+        + [
+            SparseFeature("user_id", 5500, MATCH_EMBEDDING_DIM),
+            SparseFeature("movie_id", 6, MATCH_EMBEDDING_DIM),
+        ]
         + [
             SparseSeqFeature(
                 SparseFeature("movie_id", 6, MATCH_EMBEDDING_DIM),

@@ -1,7 +1,7 @@
 from typing import Tuple
 import tensorflow as tf
 from tensorflow.keras import Model
-
+from tensorflow.keras.layers import Dense
 from handyrec.features import FeatureGroup, EmbdFeatureGroup
 from handyrec.layers import DNN, SampledSoftmaxLayer
 from handyrec.layers.utils import concat
@@ -23,9 +23,9 @@ def YouTubeMatchDNN(
     Parameters
     ----------
     user_feature_group : FeatureGroup
-        User feature group
+        User feature group.
     item_feature_group : EmbdFeatureGroup
-        Item feature group
+        Item feature group.
     num_sampled : int, optional
         Number of negative smaples in SampledSoftmax, by default `1`.
     dnn_hidden_units : Tuple[int], optional
@@ -48,7 +48,7 @@ def YouTubeMatchDNN(
     Returns
     -------
     Model
-        YouTubeDNN Match Model.
+        A YouTubeDNN Match Model.
 
     Raises
     ------
@@ -66,7 +66,6 @@ def YouTubeMatchDNN(
     item_id = item_feature_group.id_input
     full_item_embd = item_feature_group.get_embd(item_id)
 
-    dnn_hidden_units = list(dnn_hidden_units) + [full_item_embd.shape[-1]]
     user_dnn_output = DNN(
         hidden_units=dnn_hidden_units,
         activation=dnn_activation,
@@ -83,12 +82,14 @@ def YouTubeMatchDNN(
     )
 
     # * Construct model
-    user_input = list(user_feature_group.input_layers.values())
+    user_inputs = list(user_feature_group.input_layers.values())
+    item_embedding = tf.nn.embedding_lookup(full_item_embd, item_id)
+    item_embedding = tf.squeeze(item_embedding, axis=1)
 
-    model = Model(inputs=user_input + [item_id], outputs=output)
-    model.__setattr__("user_input", user_input)
+    model = Model(inputs=user_inputs + [item_id], outputs=output)
+    model.__setattr__("user_input", user_inputs)
     model.__setattr__("user_embedding", user_dnn_output)
     model.__setattr__("item_input", item_id)
-    model.__setattr__("item_embedding", item_feature_group.lookup(item_id))
+    model.__setattr__("item_embedding", item_embedding)
 
     return model
