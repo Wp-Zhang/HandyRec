@@ -1,18 +1,24 @@
+"""Contains layer-related utility functions.
+"""
 import tensorflow as tf
 from tensorflow.keras.layers import Concatenate, Flatten
-from typing import List
+from typing import List, Any
 
 
-def _concat(inputs, axis: int = -1):
-    """Concatenate list of input, handle the case when len(inputs)=1
+def _concat(inputs: List, axis: int = -1) -> tf.Tensor:
+    """Concatenate list of input, handle the case when `len(inputs) = 1`.
 
-    Args:
-        inputs : list of input
-        axis (int, optional): concatenate axis. Defaults to -1.
-        # mask (bool, optional): whether to keep masks of input tensors. Defaults to Ture.
+    Parameters
+    ----------
+    inputs : List
+        List of input
+    axis : int, optional
+        Concatenate axis, by default `-1`.
 
-    Returns:
-        _type_: concatenated input
+    Returns
+    -------
+    tf.Tensor
+        Concatenated input.
     """
     if len(inputs) == 1:
         return inputs[0]
@@ -22,16 +28,31 @@ def _concat(inputs, axis: int = -1):
 
 def concat(
     dense_inputs: List, embd_inputs: List, axis: int = -1, keepdims: bool = False
-):
-    """Concatenate dense features and embedding of sparse features together
+) -> tf.Tensor:
+    """Concatenate dense features and embedding of sparse features together.
 
-    Args:
-        dense_inputs (List): dense features
-        embd_inputs (List): embedding of sparse features
-        axis (int, optional): concatenate axis. Deafults to `-1`
-        keepdims (bool, optional): whether to flatten all inputs before concatenating. Defaults to `False`
-        # mask (bool, optional): whether to keep masks of input tensors. Defaults to Ture.
+    Parameters
+    ----------
+    dense_inputs : List
+        Dense features.
+    embd_inputs : List
+        Embedding of sparse features.
+    axis : int, optional
+        Concatenate axis, by default `-1`.
+    keepdims : bool, optional
+        Whether flatten all inputs before concatenating or not, by default `False`.
+
+    Returns
+    -------
+    tf.Tensor
+        Concatenated input.
+
+    Raises
+    ------
+    ValueError
+        If no tensor is provided.
     """
+
     if len(dense_inputs) + len(embd_inputs) == 0:
         raise ValueError("Number of inputs should be larger than 0")
 
@@ -64,14 +85,19 @@ def concat(
         return output
 
 
-def sampledsoftmaxloss(y_true, y_pred):
-    """Helper function for calculating sampled softmax loss
+def sampledsoftmaxloss(y_true, y_pred) -> Any:
+    """Helper function for calculating sampled softmax loss.
 
-    Args:
-        y_true : label
-        y_pred : prediction
+    Parameters
+    ----------
+    y_true
+        Label.
+    y_pred
+        Prediction.
 
-    Returns:
-        _type_: loss
+    Returns
+    -------
+    Any
+        Sampled softmax loss.
     """
     return tf.reduce_mean(y_pred)

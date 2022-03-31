@@ -1,3 +1,5 @@
+"""Definition of feature wrappers.
+"""
 from typing import List, Union, OrderedDict, Dict, Tuple
 import tensorflow as tf
 import numpy as np
@@ -5,12 +7,12 @@ from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras.regularizers import l2
 from handyrec.layers import CustomEmbedding, SequencePoolingLayer, ValueTable
 from handyrec.layers.utils import concat
-from handyrec.features.utils import split_features
-from handyrec.features.type import Feature, SparseFeature, SparseSeqFeature
+from .utils import split_features
+from .type import Feature, SparseFeature, SparseSeqFeature
 
 
 class FeaturePool:
-    """A container to store input layers and embedding layers for groups of features.
+    """A container that stores input layers and embedding layers for groups of features.
 
     Attributes
     ----------
@@ -25,6 +27,12 @@ class FeaturePool:
     def __init__(
         self, pre_embd: Dict[str, Union[np.ndarray, tf.Tensor]] = None
     ) -> None:
+        """
+        Parameters
+        ----------
+        pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
+            Pretrained embedding dictionary, by default `None`.
+        """
         self.input_layers = OrderedDict()
         self.embd_layers = OrderedDict()
 
@@ -161,8 +169,7 @@ class FeatureGroup:
         feature_pool: FeaturePool,
         l2_embd: float = 1e-6,
     ):
-        """Initialize a `FeatureGroup`
-
+        """
         Parameters
         ----------
         name : str
@@ -352,8 +359,7 @@ class EmbdFeatureGroup:
         l2_embd: float = 1e-6,
         pool_method: str = "mean",
     ):
-        """Initialize a `EmbdFeatureGroup`
-
+        """
         Parameters
         ----------
         name : str
@@ -377,6 +383,7 @@ class EmbdFeatureGroup:
         ------
         ValueError
             If `id_name` is not the name of the feature in `features`.
+        ValueError
             If the unit of a `SparseSeqFeature` is not `SparseFeature` nor `EmbdFeatureGroup`
         """
         # * check validity
@@ -417,17 +424,17 @@ class EmbdFeatureGroup:
                 self._layers[feat.name + "_pool"] = SequencePoolingLayer(
                     pool_method, name=feat.name + "_" + pool_method
                 )
-        self._output_layer = Dense(embd_dim)
+        self._output_layer = Dense(embd_dim, name="reduce_dim")
 
-    def get_embd(self, index: Input) -> tf.Tensor:
+    def get_embd(self, index: Input, compress: bool = True) -> tf.Tensor:
         """Concatenate all features in this group and output a tensor that is ready for lookup.
 
         Parameters
         ----------
         index : Input
             Lookup index.
-        pool_method : str, optional
-            Pooling method for `SparseSeqFeature`s, by default `"mean"`.
+        compress : bool
+            Whether compress the output into a size of `self.embd_dim`.
 
         Note
         ----
@@ -465,7 +472,8 @@ class EmbdFeatureGroup:
             embd_outputs[name] = tf.squeeze(embd_outputs[name])  # * (n,d)
 
         output = concat([], list(embd_outputs.values()))  # * (n, 2d+k)
-        output = self._output_layer(output)  # * (n, embd_dim)
+        if compress:
+            output = self._output_layer(output)  # * (n, embd_dim)
         return output
 
     def lookup(self, index: Input) -> tf.Tensor:
@@ -497,52 +505,3 @@ class EmbdFeatureGroup:
         mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
 
         return output, mask
-
-
-if __name__ == "__main__":
-    from handyrec.features.type import DenseFeature, SparseFeature, SparseSeqFeature
-
-    feat_pool = FeaturePool()
-    all_item_model_input = {
-        "movie_id": [1, 2, 3, 4, 5, 6],
-        "genres": [
-            [1, 3, 0],
-            [2, 4, 9],
-            [11, 0, 0],
-            [5, 7, 0],
-            [13, 14, 15],
-            [16, 17, 18],
-        ],
-    }
-
-    MATCH_EMBEDDING_DIM = 64
-    item_features = [
-        SparseFeature("movie_id", 6, MATCH_EMBEDDING_DIM),
-        SparseSeqFeature(
-            SparseFeature("genre_id", 19, MATCH_EMBEDDING_DIM), "genres", 3
-        ),
-    ]
-    item_feature_group = EmbdFeatureGroup(
-        "item", "movie_id", item_features, feat_pool, all_item_model_input
-    )
-
-    user_features = (
-        [DenseFeature("age"), DenseFeature("height")]
-        + [
-            SparseFeature("user_id", 5500, MATCH_EMBEDDING_DIM),
-            SparseFeature("movie_id", 6, MATCH_EMBEDDING_DIM),
-        ]
-        + [
-            SparseSeqFeature(
-                SparseFeature("movie_id", 6, MATCH_EMBEDDING_DIM),
-                "hist_movie_seq",
-                40,
-            )
-        ]
-    )
-    user_feature_group = FeatureGroup("user", user_features, feat_pool)
-    dense_output, sparse_output = user_feature_group.embedding_lookup()
-    print(user_feature_group.input_layers)
-    print(user_feature_group.embd_layers)
-
-    print(item_feature_group.embd_layers)

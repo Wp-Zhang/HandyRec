@@ -1,7 +1,8 @@
+"""Implementation of YoutubeDNN match model
+"""
 from typing import Tuple
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense
 from handyrec.features import FeatureGroup, EmbdFeatureGroup
 from handyrec.layers import DNN, SampledSoftmaxLayer
 from handyrec.layers.utils import concat
@@ -48,12 +49,17 @@ def YouTubeMatchDNN(
     Returns
     -------
     Model
-        A YouTubeDNN Match Model.
+        A YouTubeDNN match model.
 
     Raises
     ------
     ValueError
         If `item_feature_group` is not an instance of `EmbdFeatureGroup`.
+
+    References
+    ----------
+    .. [1] Covington, Paul, Jay Adams, and Emre Sargin. "Deep neural networks for youtube
+        recommendations." Proceedings of the 10th ACM conference on recommender systems. 2016.
     """
     if not isinstance(item_feature_group, EmbdFeatureGroup):
         raise ValueError(
@@ -74,6 +80,7 @@ def YouTubeMatchDNN(
         use_bn=dnn_bn,
         dropout_rate=dnn_dropout,
         seed=seed,
+        name="User_DNN",
     )(user_dnn_input)
 
     # * Sampled softmax output

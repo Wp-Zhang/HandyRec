@@ -1,3 +1,5 @@
+"""Contains feature-related utility functions.
+"""
 from typing import Union, List, Tuple, OrderedDict
 from .type import DenseFeature, SparseFeature, SparseSeqFeature
 
@@ -9,13 +11,17 @@ def split_features(
     OrderedDict[str, SparseFeature],
     OrderedDict[str, SparseSeqFeature],
 ]:
-    """Group feature list into different types of feature lists
+    """Group a list of feature into three dictionaries by feature type.
 
-    Args:
-        features (Union[List[DenseFeature], List[SparseFeature], List[SparseSeqFeature]]): feature list
+    Parameters
+    ----------
+    features : Union[List[DenseFeature], List[SparseFeature], List[SparseSeqFeature]]
+        List of features.
 
-    Returns:
-        Tuple[OrderedDict[str,DenseFeature], OrderedDict[str,SparseFeature], OrderedDict[str,SparseSeqFeature]]: three types of feature list
+    Returns
+    -------
+    Tuple[ OrderedDict[str, DenseFeature], OrderedDict[str, SparseFeature], OrderedDict[str, SparseSeqFeature], ]
+        Three dictionaries that contain different types of features.
     """
     dense_feats = OrderedDict()
     sparse_feats = OrderedDict()

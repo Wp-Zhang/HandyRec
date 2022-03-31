@@ -1,14 +1,21 @@
+"""Contains some tool layers.
+"""
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Embedding
-from tensorflow.keras.initializers import Zeros, Constant
+from tensorflow.keras.initializers import Zeros
 from typing import List
-import numpy as np
 
 
 class SequencePoolingLayer(Layer):
     """Pooling layer for sequence feature"""
 
     def __init__(self, method: str, **kwargs):
+        """
+        Parameters
+        ----------
+        method : str
+            Pooling method.
+        """
         super().__init__(**kwargs)
 
         assert method in [
@@ -53,6 +60,11 @@ class ValueTable(Layer):
     """Output a full list of values of a feature to be the input of embedding layer"""
 
     def __init__(self, value_list: List, **kwargs):
+        """Parameters
+        ----------
+        value_list : List
+            Feature values of all items.
+        """
         self.value = tf.constant(value_list)
         super().__init__(**kwargs)
 
@@ -64,7 +76,14 @@ class ValueTable(Layer):
 
 
 class SampledSoftmaxLayer(Layer):
+    """Sampled softmax"""
+
     def __init__(self, num_sampled=5, **kwargs):
+        """Parameters
+        ----------
+        num_sampled : int, optional
+            Number of sampled negative samples, by default `5`.
+        """
         self.num_sampled = num_sampled
         self.size = None
         self.zero_bias = None
@@ -83,6 +102,8 @@ class SampledSoftmaxLayer(Layer):
 
     def call(self, inputs, **kwargs):
         """
+        Note
+        ----
         `inputs` is a tuple with length as 3.
             inputs[0] is embedding of all items
             inputs[1] is user embedding
@@ -111,8 +132,8 @@ class SampledSoftmaxLayer(Layer):
 
 class CustomEmbedding(Embedding):
     """
-    Rewrite official embedding layer so that masked and
-        un-masked embeddings can be concatenated together.
+    Rewrite official embedding layer so that masked and un-masked
+        embeddings can be concatenated together.
     """
 
     def compute_mask(self, inputs, mask=None):

@@ -1,3 +1,5 @@
+"""Implemetation of the classic two-tower model originated from DSSM.
+"""
 from typing import Tuple
 import tensorflow as tf
 from tensorflow.keras import Model
@@ -21,7 +23,7 @@ def DSSM(
     cos_sim: bool = False,
     gamma: float = 10,
 ) -> Model:
-    """Implemetation of the classic two tower model originated from DSSM.
+    """Implemetation of the classic two-tower model originated from DSSM.
 
     Parameters
     ----------
@@ -59,6 +61,11 @@ def DSSM(
     ------
     ValueError
         If `item_feature_group` is not an instance of `EmbdFeatureGroup`.
+
+    References:
+    .. [1] Huang, Po-Sen, et al. "Learning deep structured semantic models for web search
+        using clickthrough data." Proceedings of the 22nd ACM international conference on
+        Information & Knowledge Management. 2013.
     """
     if not isinstance(item_feature_group, EmbdFeatureGroup):
         raise ValueError(
@@ -69,7 +76,7 @@ def DSSM(
     user_dnn_input = concat(user_dense, user_sparse)
 
     item_id = item_feature_group.id_input
-    full_item_embd = item_feature_group.get_embd(item_id)
+    full_item_embd = item_feature_group.get_embd(item_id, compress=False)
 
     user_embedding = DNN(
         hidden_units=user_dnn_hidden_units,
@@ -79,6 +86,7 @@ def DSSM(
         use_bn=dnn_bn,
         output_activation="linear",
         seed=seed,
+        name="User_Embedding_DNN",
     )(user_dnn_input)
 
     item_embedding = DNN(
@@ -89,6 +97,7 @@ def DSSM(
         use_bn=dnn_bn,
         output_activation="linear",
         seed=seed,
+        name="Item_Embedding_DNN",
     )(full_item_embd)
 
     # * Sampled cosine similarity softmax output
