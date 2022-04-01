@@ -1,5 +1,3 @@
-"""Implementation of DeepFM
-"""
 from typing import Tuple
 import warnings
 from tensorflow.keras import Model
@@ -29,19 +27,19 @@ def DeepFM(
     dnn_feature_group : FeatureGroup
         DNN feature group.
     dnn_hidden_units : Tuple[int], optional
-        DNN structure, by default `(64, 32, 1)`.
+        DNN structure, by default ``(64, 32, 1)``.
     dnn_activation : str, optional
-        DNN activation function, by default `"relu"`.
+        DNN activation function, by default ``"relu"``.
     dnn_dropout : float, optional
-        DNN dropout ratio, by default `0`.
+        DNN dropout ratio, by default ``0``.
     dnn_bn : bool, optional
-        Whether to use batch normalization, by default `False`.
+        Whether to use batch normalization, by default ``False``.
     l2_dnn : float, optional
-        DNN l2 regularization param, by default `0`.
+        DNN l2 regularization param, by default ``0``.
     task : str, optional
-        Model task, should be `"binary"` or `"regression"`, by default `"binary"`.
+        Model task, should be ``"binary"`` or ``"regression"``, by default ``"binary"``.
     seed : int, optional
-        Random seed of dropout, by default `2022`.
+        Random seed of dropout, by default ``2022``.
 
     Returns
     -------
@@ -53,7 +51,8 @@ def DeepFM(
     ValueError
         If the size of DNN's last layer is not 1.
 
-    References:
+    References
+    ----------
     .. [1] Guo, Huifeng, et al. "DeepFM: a factorization-machine based neural network
         for CTR prediction." arXiv preprint arXiv:1703.04247 (2017).
     """

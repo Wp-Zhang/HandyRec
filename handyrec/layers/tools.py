@@ -82,7 +82,7 @@ class SampledSoftmaxLayer(Layer):
         """Parameters
         ----------
         num_sampled : int, optional
-            Number of sampled negative samples, by default `5`.
+            Number of sampled negative samples, by default ``5``.
         """
         self.num_sampled = num_sampled
         self.size = None
@@ -104,7 +104,7 @@ class SampledSoftmaxLayer(Layer):
         """
         Note
         ----
-        `inputs` is a tuple with length as 3.
+        `inputs` is a tuple with length of 3.
             inputs[0] is embedding of all items
             inputs[1] is user embedding
             inputs[2] is the index of label items for each user

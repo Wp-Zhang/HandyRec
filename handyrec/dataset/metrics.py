@@ -1,3 +1,4 @@
+from typing import Any
 import numpy as np
 
 
@@ -15,7 +16,23 @@ def _apk(actual, predicted, k=10):
     return score / min(len(actual), k)
 
 
-def map_at_k(actual, predicted, k=12):
+def map_at_k(actual: Any, predicted: Any, k: int = 12) -> float:
+    """Compute mean average precision, map@k.
+
+    Parameters
+    ----------
+    actual : Any
+        Label.
+    predicted : Any
+        Predictions.
+    k : int, optional
+        k, by default ``12``.
+
+    Returns
+    -------
+    float
+        map@k.
+    """
     return np.mean([_apk(a, p, k) for a, p in zip(actual, predicted)])
 
 
@@ -28,15 +45,47 @@ def _rk(actual, predicted, k=10):
     return score
 
 
-def recall_at_k(actual, predicted, k=12):
+def recall_at_k(actual: Any, predicted: Any, k: int = 12) -> float:
+    """Compute recall@k.
+
+    Parameters
+    ----------
+    actual : Any
+        Label.
+    predicted : Any
+        Predictions.
+    k : int, optional
+        k, by default ``12``.
+
+    Returns
+    -------
+    float
+        recall@k.
+    """
     return np.mean([_rk(a, p, k) for a, p in zip(actual, predicted)])
 
 
-def hr_at_k(label, pred, k=10):
+def hr_at_k(actual: Any, predicted: Any, k: int = 10) -> float:
+    """Compute hit rate, hr@k.
+
+    Parameters
+    ----------
+    actual : Any
+        Label.
+    predicted : Any
+        Predictions.
+    k : int, optional
+        k, by default ``12``.
+
+    Returns
+    -------
+    float
+        hr@k.
+    """
     count = 0
-    for i in range(len(label)):
-        for p in pred[i][:k]:
-            if p in label[i]:
+    for i in range(len(actual)):
+        for p in predicted[i][:k]:
+            if p in actual[i]:
                 count += 1
                 break
-    return count / len(label)
+    return count / len(actual)

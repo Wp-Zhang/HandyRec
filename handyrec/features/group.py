@@ -31,7 +31,7 @@ class FeaturePool:
         Parameters
         ----------
         pre_embd : Dict[str, Union[np.ndarray, tf.Tensor]], optional
-            Pretrained embedding dictionary, by default `None`.
+            Pretrained embedding dictionary, by default ``None``.
         """
         self.input_layers = OrderedDict()
         self.embd_layers = OrderedDict()
@@ -51,7 +51,7 @@ class FeaturePool:
         Returns
         -------
         Input
-            Input layer named as `feat_name`.
+            Input layer named as ``feat_name``.
 
         Raises
         ------
@@ -89,7 +89,7 @@ class FeaturePool:
         Returns
         -------
         CustomEmbedding
-            Embedding layer named as `feat_name`.
+            Embedding layer named as ``feat_name``.
 
         Raises
         ------
@@ -179,7 +179,7 @@ class FeatureGroup:
         feature_pool : FeaturePool
             The `FeaturePool` instance that this `FeatureGroup` belongs to.
         l2_embd : float
-            L2 regularization parameter for embeddings, by default `1e-6`
+            L2 regularization parameter for embeddings, by default ``1e-6``
 
         Raises
         ------
@@ -296,7 +296,7 @@ class FeatureGroup:
         Parameters
         ----------
         pool_method : str, optional
-            Pooling method for `SparseSeqFeature`s, by default `"mean"`.
+            Pooling method for `SparseSeqFeature`s, by default ``"mean"``.
 
         Returns
         -------
@@ -339,7 +339,7 @@ class EmbdFeatureGroup:
     embd_dim : int
         Output dimension of embedding, use a `Dense` layer to compress.
     id_name: str
-        Name of the id featrue, e.g. `item_id`, `movie_id`
+        Name of the id featrue, e.g. ``item_id``, ``movie_id``
     id_input : Input
         An input layer of the id feature.
     embd_layers : OrderedDict[str, CustomEmbedding]
@@ -375,9 +375,9 @@ class EmbdFeatureGroup:
         embd_dim : int
             Output dimension of embedding, use a `Dense` layer to compress.
         l2_embd : float
-            L2 regularization parameter for embeddings, by default `1e-6`.
+            L2 regularization parameter for embeddings, by default ``1e-6``.
         pool_method : str
-            Pooling method for `SparseSeqFeature`s, by default `"mean"`.
+            Pooling method for `SparseSeqFeature`s, by default ``"mean"``.
 
         Raises
         ------
@@ -434,12 +434,12 @@ class EmbdFeatureGroup:
         index : Input
             Lookup index.
         compress : bool
-            Whether compress the output into a size of `self.embd_dim`.
+            Whether compress the output into a size of ``self.embd_dim``.
 
         Note
         ----
-            The code will run successfully after replacing `index` with `[]`, but there will be a
-                huge decrease in performance and converge speed, WHY? **TO BE SOLVED**
+        The code will run successfully after replacing ``index`` with ``[]``, but there will be a
+            huge decrease in performance and converge speed, WHY? **TO BE SOLVED**
 
         Returns
         -------

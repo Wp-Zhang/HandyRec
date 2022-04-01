@@ -13,7 +13,7 @@ def _concat(inputs: List, axis: int = -1) -> tf.Tensor:
     inputs : List
         List of input
     axis : int, optional
-        Concatenate axis, by default `-1`.
+        Concatenate axis, by default ``-1``.
 
     Returns
     -------
@@ -38,9 +38,9 @@ def concat(
     embd_inputs : List
         Embedding of sparse features.
     axis : int, optional
-        Concatenate axis, by default `-1`.
+        Concatenate axis, by default ``-1``.
     keepdims : bool, optional
-        Whether flatten all inputs before concatenating or not, by default `False`.
+        Whether flatten all inputs before concatenating or not, by default ``False``.
 
     Returns
     -------

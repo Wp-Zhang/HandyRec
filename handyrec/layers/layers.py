@@ -28,17 +28,17 @@ class DNN(Layer):
         hidden_units : Tuple[int]
             DNN structure.
         activation : str, optional
-            Activation function for each layers except the last one, by default `"relu"`.
+            Activation function for each layers except the last one, by default ``"relu"``.
         l2_reg : float, optional
-            L2 regularization param, by default `0`.
+            L2 regularization param, by default ``0``.
         dropout_rate : float, optional
-            Dropout rate, by default `0`.
+            Dropout rate, by default ``0``.
         use_bn : bool, optional
-            Whether use batch normalization or not, by default `False`.
+            Whether use batch normalization or not, by default ``False``.
         output_activation : str, optional
-            Activation function for the last layer, by default `None`.
+            Activation function for the last layer, by default ``None``.
         seed : int, optional
-            Random seef for dropout, by default `2022`.
+            Random seef for dropout, by default ``2022``.
         """
         self.hidden_units = hidden_units
         self.activation = activation

@@ -1,29 +1,47 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, QuantileTransformer
 from tqdm import tqdm
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 import numpy as np
 import gc
 import os
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from .datahelper import DataHelper
-from typing import Dict
 
 
 class MovielensDataHelper(DataHelper):
-    """base class for DataHelper for movielens dataset"""
+    """Base class for DataHelper for movielens dataset.
+
+    Attributes
+    ----------
+    data_dir : str
+        Diectory to load raw data and save generated dataset.
+    sub_dir_name : str
+        Diectory to save and load generated feature values for training.
+    """
 
     def __init__(self, data_dir: str, sub_dir_name: str):
-        super(MovielensDataHelper, self).__init__(data_dir)
+        """Initialize a `MovielensDataHelper`
+
+        Parameters
+        ----------
+        data_dir : str
+            Diectory to load raw data and save generated dataset.
+        sub_dir_name : str
+            Diectory to save and load generated feature values for training.
+        """
+        super().__init__(data_dir)
         self.sub_dir = data_dir + sub_dir_name + "/"
         if not os.path.exists(self.sub_dir):
             os.makedirs(self.sub_dir)
 
     def load_data(self) -> Dict:
-        """Load original raw data
+        """Load original raw data.
 
-        Returns:
-            dict: raw data dictionary
+        Returns
+        -------
+        Dict
+            Dictionary of raw data with three keys: ``user``, ``item``, and ``interact``.
         """
         unames = ["user_id", "gender", "age", "occupation", "zip"]
         user = pd.read_csv(
@@ -67,15 +85,20 @@ class MovielensDataHelper(DataHelper):
 
         return {"item": movies, "user": user, "interact": ratings}
 
-    def preprocess_data(self, data: dict, sparse_features: List[str]) -> dict:
+    def preprocess_data(self, data: dict, sparse_features: List[str]) -> Dict:
         """Preprocess raw data
 
-        Args:
-            data (dict): data dictionary, keys: 'item', 'user', 'interact'
-            sparse_features (List[str]): sparse feature list to be label encoded
+        Parameters
+        ----------
+        data : dict
+            Dictionary with three keys: ``user``, ``item``, and ``interact``.
+        sparse_features : List[str]
+            List of sparse features to be label encoded.
 
-        Returns:
-            dict: data dictionary
+        Returns
+        -------
+        Dict
+            Dictionary of processed data with three keys: ``user``, ``item``, and ``interact``.
         """
         user = data["user"]
         item = data["item"]
@@ -104,13 +127,17 @@ class MovielensDataHelper(DataHelper):
         return data
 
     def get_clean_data(self, sparse_features: List[str]) -> Dict:
-        """Load raw data and preprocess
+        """Wrapper for load and preprocess data.
 
-        Args:
-            sparse_features (List[str]): sparse feature list to be label encoded
+        Parameters
+        ----------
+        sparse_features : List[str]
+            List of sparse features to be label encoded.
 
-        Returns:
-            Dict: a dictionary of preprocessed data with three keys: [`user`, `item`, `interact`]
+        Returns
+        -------
+        Dict
+            Dictionary of processed data with three keys: ``user``, ``item``, and ``interact``.
         """
         data = self.load_data()
         data = self.preprocess_data(data, sparse_features)
@@ -118,8 +145,17 @@ class MovielensDataHelper(DataHelper):
 
 
 class MovieMatchDataHelper(MovielensDataHelper):
+    """DataHelper for generating movielens dataset for matching models."""
+
     def __init__(self, data_dir: str):
-        super(MovieMatchDataHelper, self).__init__(data_dir, "match")
+        """Initialize a ``MovieMatchDataHelper``.
+
+        Parameters
+        ----------
+        data_dir : str
+            Diectory to load raw data and save generated dataset.
+        """
+        super().__init__(data_dir, "match")
 
     def gen_dataset(
         self,
@@ -130,18 +166,23 @@ class MovieMatchDataHelper(MovielensDataHelper):
         min_rating: float = 0.35,
         n: int = 10,
     ):
-        """Generate train set and test set
+        """Generate and save train set and test set.
 
-        Args:
-            features (List[str]): feature list
-            data (dict): data dictionary, keys: 'user', 'item', 'interact'
-            seq_max_len (int, optional): maximum history sequence length. Defaults to 20.
-            negnum (int, optional): number of negative samples. Defaults to 0.
-            min_rating (float, optional): minimum interact for positive smaples. Defaults to 0.35.
-            n (int, optional): use the last n samples for each user to be the test set. Defaults to 10.
-
+        Parameters
+        ----------
+        features : List[str]
+            List of features to be contained in the dataset.
+        data : dict
+            Data dictionary with three keys: ``user``, ``item``, and ``interact``.
+        seq_max_len : int, optional
+            Maximum history sequence length, by default ``20``.
+        negnum : int, optional
+            Number of negative samples, by default ``0``.
+        min_rating : float, optional
+            Minimum rating for positive smaples, by default ``0.35``.
+        n : int, optional
+            Hold out the last n samples for each user for testing, by default ``10``.
         """
-
         data["interact"].sort_values("timestamp", inplace=True)
         df = data["interact"]
         item_ids = set(data["item"]["movie_id"].values)
@@ -258,17 +299,21 @@ class MovieMatchDataHelper(MovielensDataHelper):
         user_feats: List[str],
         movie_feats: List[str],
     ) -> Tuple:
-        """Load saved dataset
+        """Load saved dataset.
 
-        Args:
-            data_name (str): version name of data used to generate dataset
-            dataset_name (str): version name of dataset
-            user_feats (List[str]): list of user features to be loaded
-            movie_feats (List[str]): list of movie features to be loaded
+        Parameters
+        ----------
+        user_feats : List[str]
+            List of user features to be loaded.
+        movie_feats : List[str]
+            List of movie features to be loaded.
 
-        Returns:
-            Tuple: [train set, test set]
+        Returns
+        -------
+        Tuple
+            [train set, test set].
         """
+
         train_set = {}
         test_set = {}
 
@@ -312,17 +357,28 @@ class MovieRankDataHelper(MovielensDataHelper):
         min_rating: float = 0.35,
         n: int = 10,
     ):
-        """Generate train set and test set
+        """Generate and save train set and test set.
 
-        Args:
-            features (List[str]): feature list
-            data (dict): data dictionary, keys: 'user', 'item', 'interact'
-            test_id (dict): test id dictionary, {user_id: movie_id}. Note: each user should have the same number of movie_ids
-            seq_max_len (int, optional): maximum history sequence length. Defaults to 20.
-            negnum (int, optional): number of negative samples. Defaults to 0.
-            min_rating (float, optional): minimum interact for positive smaples. Defaults to 0.35.
-            n (int, optional): use the last n samples for each user to be the test set. Defaults to 10.
+        Parameters
+        ----------
+        features : List[str]
+            List of features to be contained in the dataset.
+        data : dict
+            Data dictionary with three keys: ``user``, ``item``, and ``interact``.
+        test_id : dict
+            Test id dictionary, {user_id: movie_id}.
+        seq_max_len : int, optional
+            Maximum history sequence length, by default ``20``.
+        negnum : int, optional
+            Number of negative samples, by default ``0``.
+        min_rating : float, optional
+            Minimum rating for positive smaples, by default ``0.35``.
+        n : int, optional
+            Hold out the last n samples for each user for testing, by default ``10``.
 
+        Notes
+        -----
+        In ``test_id``, each user should have the same number of movie_ids.
         """
 
         data["interact"].sort_values(by="timestamp", ascending=True, inplace=True)
@@ -460,16 +516,19 @@ class MovieRankDataHelper(MovielensDataHelper):
         user_feats: List[str],
         movie_feats: List[str],
     ) -> Tuple:
-        """Load saved dataset
+        """Load saved dataset.
 
-        Args:
-            data_name (str): version name of data used to generate dataset
-            dataset_name (str): version name of dataset
-            user_feats (List[str]): list of user features to be loaded
-            movie_feats (List[str]): list of movie features to be loaded
+        Parameters
+        ----------
+        user_feats : List[str]
+            List of user features to be loaded.
+        movie_feats : List[str]
+            List of movie features to be loaded.
 
-        Returns:
-            Tuple: [train set, test set]
+        Returns
+        -------
+        Tuple
+            [train set, test set].
         """
         train_set = {}
         test_set = {}
