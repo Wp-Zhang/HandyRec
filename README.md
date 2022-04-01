@@ -33,9 +33,9 @@ It is currently a personal project for learning purposes. I recently started to 
 The main usage flow is shown below:
 ![diagram](./imgs/usage_flow.svg)
 
-Fro more details, examples can be found [here](https://github.com/Wp-Zhang/HandyRec/tree/master/examples) and the table above.
+For more details, examples can be found [here](https://github.com/Wp-Zhang/HandyRec/tree/master/examples) and the table above. Documentation can be found [here](handyrec.readthedocs.io/).
 
-This project is under development and has not been packaged yet😣. Please download the source code and import it as a local module.
+> NOTE: This project is under development and has not been packaged yet😣. Please download the source code and import it as a local module.
 
 ## 🗺️ TODO List
 
