@@ -1,4 +1,4 @@
-![Logo](https://github.com/Wp-Zhang/HandyRec/blob/master/logo.png)
+![Logo](./imgs/logo.png)
 
 ![TF Depend](https://img.shields.io/badge/TensorFlow-2.1+-orange)
 ![License Badge](https://img.shields.io/badge/license-Apache%202-green)
@@ -30,7 +30,10 @@ It is currently a personal project for learning purposes. I recently started to 
 
 ## ℹ️ Usage
 
-Examples can be found [here](https://github.com/Wp-Zhang/HandyRec/tree/master/examples) and the table above.
+The main usage flow is shown below:
+![diagram](./imgs/usage_flow.svg)
+
+Fro more details, examples can be found [here](https://github.com/Wp-Zhang/HandyRec/tree/master/examples) and the table above.
 
 This project is under development and has not been packaged yet😣. Please download the source code and import it as a local module.
 
