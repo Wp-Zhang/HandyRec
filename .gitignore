@@ -1,37 +1,13 @@
 **/__pycache__
-**/.lh
-test.ipynb
-**/ml-1m
-*.h5
+
+# docs
+**/build/
+**/.vscode/
+
+# test
 coverage.xml
 codacy_coverage.sh
 HandyRec.egg-info
-
-# docs
-*~
-~*
-*.diff
-*.patch
-*.bak
-.DS_Store
-*.swp
-*.swo
-*.log
-*.log.*
-
-**/.vscode/
-
-**/node_modules/
-**/.sass-cache/
-
-**/.bundle/
-**/vendor/bundle
-*.gem
-
-**/yarn.lock
-**/package-lock.json
-**/Gemfile.lock
-
-**/_site/
-**/.jekyll-metadata
-**/.jekyll-cache/
+**/*checkpoint/
+**/ml-1m
+*.h5

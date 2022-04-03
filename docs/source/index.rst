@@ -6,19 +6,21 @@
 Welcome to HandyRec's documentation!
 ====================================
 
+.. image:: imgs/logo.svg
+
+.. toctree:: 
+   :maxdepth: 2
+   :caption: Home
+
+   Introduction
+   Quick Start<Quickstart>
+
+
 .. toctree::
    :maxdepth: 2
-   :caption: Documentation:
+   :caption: API
 
-   Dataset<Dataset>
+   Dataset<Dataset
    Features<Features>
    Layers<Layers>
    Models<Models>
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
