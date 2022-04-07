@@ -6,6 +6,7 @@ from tensorflow.keras import Sequential
 from tensorflow.keras.initializers import Zeros
 from tensorflow.keras.regularizers import l2
 from typing import Tuple
+from .utils import get_activation_layer
 
 
 class DNN(Layer):
@@ -59,33 +60,24 @@ class DNN(Layer):
 
         self.layers = []
         for i, unit in enumerate(hidden_units):
-            if i + 1 != len(hidden_units):
-                dense_layer = Dense(
-                    unit,
-                    activation=self.activation,
-                    kernel_regularizer=l2(self.l2_reg),
-                )
-            else:
-                dense_layer = Dense(
-                    unit,
-                    activation=self.output_activation,
-                    kernel_regularizer=l2(self.l2_reg),
-                )
+            dense_layer = Dense(
+                unit,
+                kernel_regularizer=l2(self.l2_reg),
+            )
+            self.layers.append(dense_layer)
+            if i + 1 != len(hidden_units) and self.activation:
+                self.layers.append(get_activation_layer(self.activation))
+            elif self.output_activation:
+                self.layers.append(get_activation_layer(self.output_activation))
+
             if self.use_bn:
-                self.layers += [
-                    dense_layer,
-                    BatchNormalization(),
-                    Dropout(self.dropout_rate, seed=self.seed + i),
-                ]
-            else:
-                self.layers += [
-                    dense_layer,
-                    Dropout(self.dropout_rate, seed=self.seed + i),
-                ]
+                self.layers.append(BatchNormalization())
+            self.layers.append(Dropout(self.dropout_rate, seed=self.seed + i))
+
         self.layers = Sequential(self.layers)
 
-    def call(self, inputs, training=None, **kwargs):
-        return self.layers(inputs, training)
+    def call(self, inputs, **kwargs):
+        return self.layers(inputs, **kwargs)
 
     def compute_output_shape(self, input_shape):
         if len(self.hidden_units) > 0:

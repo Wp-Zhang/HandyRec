@@ -184,13 +184,13 @@ class LocalActivationUnit(Layer):
 
         super().build(input_shape)
 
-    def call(self, inputs, training=None, **kwargs):
+    def call(self, inputs, **kwargs):
         query, keys = inputs  # * (?, 1, embedding_size) and (?, T, embedding_size)
         keys_len = keys.get_shape()[1]  # * T
         queries = tf.repeat(query, keys_len, 1)  # * (?, T, embedding_size)
         att_input = tf.concat([queries, keys, queries - keys, queries * keys], axis=-1)
         # * att_input: (?, T, embedding_size * 4), att_output: (?, T, 1)
-        att_out = self.dnn(att_input, training=training)
+        att_out = self.dnn(att_input)
         att_out = tf.transpose(att_out, [0, 2, 1])  # * (?, 1, T)
 
         return att_out
