@@ -149,16 +149,8 @@ class CustomEmbedding(Embedding):
         return mask
 
 
-# ================================================
 class LocalActivationUnit(Layer):
-    """The LocalActivationUnit used in DIN
-
-    Input shape
-      - A list of two 3D tensor with shape:  ``(batch_size, 1, embedding_size)`` and ``(batch_size, T, embedding_size)``
-
-    Output shape
-      - 3D tensor with shape: ``(batch_size, T, 1)``.
-    """
+    """The LocalActivationUnit used in DIN"""
 
     def __init__(
         self,
@@ -193,7 +185,6 @@ class LocalActivationUnit(Layer):
         super().build(input_shape)
 
     def call(self, inputs, training=None, **kwargs):
-
         query, keys = inputs  # * (?, 1, embedding_size) and (?, T, embedding_size)
         keys_len = keys.get_shape()[1]  # * T
         queries = tf.repeat(query, keys_len, 1)  # * (?, T, embedding_size)
