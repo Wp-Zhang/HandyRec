@@ -314,7 +314,7 @@ class FeatureGroup:
         for feat in sparse_seq.values():
             sparse_embd = self.embd_layers[feat.unit.name]
             seq_input = self.input_layers[feat.name]
-            pool_layer = SequencePoolingLayer(pool_method)
+            pool_layer = SequencePoolingLayer(pool_method, name=feat.name + "_POOL")
             if feat.is_group:
                 embd_seq, mask = sparse_embd(seq_input)
                 embd_outputs[feat.name] = pool_layer(embd_seq, mask)
@@ -413,7 +413,7 @@ class EmbdFeatureGroup:
         # * construct embedding layers
         self.embd_layers = FeatureGroup.construct_embds(features, feature_pool, l2_embd)
 
-        self._features = features
+        self.features = features
         self._value_dict = value_dict
         self._layers = {}
         for feat in features:
@@ -448,7 +448,7 @@ class EmbdFeatureGroup:
         """
         # * Embedding output: input layer -> embedding layer (-> pooling layer)
         embd_outputs = OrderedDict()
-        dense, sparse, sparse_seq = split_features(self._features)
+        dense, sparse, sparse_seq = split_features(self.features)
 
         # * a dense feature needs to be treated as an 1-d embedding
         for name in dense.keys():

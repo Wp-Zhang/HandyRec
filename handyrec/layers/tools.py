@@ -1,9 +1,11 @@
 """Contains some tool layers.
+
 """
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Embedding
 from tensorflow.keras.initializers import Zeros
 from typing import List
+from .layers import DNN
 
 
 class SequencePoolingLayer(Layer):
@@ -145,6 +147,102 @@ class CustomEmbedding(Embedding):
         tile_shape = [1] * (len(mask.shape) - 1) + [self.output_dim]
         mask = tf.tile(mask, tile_shape)  # (?, n, output_dim)
         return mask
+
+
+# ================================================
+class LocalActivationUnit(Layer):
+    """The LocalActivationUnit used in DIN
+
+    Input shape
+      - A list of two 3D tensor with shape:  ``(batch_size, 1, embedding_size)`` and ``(batch_size, T, embedding_size)``
+
+    Output shape
+      - 3D tensor with shape: ``(batch_size, T, 1)``.
+    """
+
+    def __init__(
+        self,
+        hidden_units=(64, 32, 1),
+        activation="sigmoid",
+        l2_reg=0,
+        dropout_rate=0,
+        use_bn=False,
+        seed=1024,
+        **kwargs
+    ):
+        self.hidden_units = hidden_units
+        self.activation = activation
+        self.l2_reg = l2_reg
+        self.dropout_rate = dropout_rate
+        self.use_bn = use_bn
+        self.seed = seed
+        self.dnn = None
+        super().__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.input_check(input_shape)
+        self.dnn = DNN(
+            self.hidden_units,
+            self.activation,
+            self.l2_reg,
+            self.dropout_rate,
+            self.use_bn,
+            seed=self.seed,
+        )
+
+        super().build(input_shape)
+
+    def call(self, inputs, training=None, **kwargs):
+
+        query, keys = inputs  # * (?, 1, embedding_size) and (?, T, embedding_size)
+        keys_len = keys.get_shape()[1]  # * T
+        queries = tf.repeat(query, keys_len, 1)  # * (?, T, embedding_size)
+        att_input = tf.concat([queries, keys, queries - keys, queries * keys], axis=-1)
+        # * att_input: (?, T, embedding_size * 4), att_output: (?, T, 1)
+        att_out = self.dnn(att_input, training=training)
+        att_out = tf.transpose(att_out, [0, 2, 1])  # * (?, 1, T)
+
+        return att_out
+
+    def compute_output_shape(self, input_shape):
+        return input_shape[1][:2] + (1,)
+
+    def compute_mask(self, inputs, mask):
+        return mask
+
+    def get_config(
+        self,
+    ):
+        config = {
+            "activation": self.activation,
+            "hidden_units": self.hidden_units,
+            "l2_reg": self.l2_reg,
+            "dropout_rate": self.dropout_rate,
+            "use_bn": self.use_bn,
+            "seed": self.seed,
+        }
+        base_config = super(LocalActivationUnit, self).get_config()
+        return {**config, **base_config}
+
+    def input_check(self, input_shape):
+        if not isinstance(input_shape, list) or len(input_shape) != 2:
+            raise ValueError(
+                "A `LocalActivationUnit` layer should be called "
+                "on a list of 2 inputs"
+            )
+
+        if len(input_shape[0]) != 3 or len(input_shape[1]) != 3:
+            raise ValueError(
+                "Unexpected inputs dimensions %d and %d, expect to be 3 dimensions"
+                % (len(input_shape[0]), len(input_shape[1]))
+            )
+
+        if input_shape[0][-1] != input_shape[1][-1] or input_shape[0][1] != 1:
+            raise ValueError(
+                "A `LocalActivationUnit` layer requires "
+                "inputs of a two inputs with shape (None,1,embedding_size) and (None,T,embedding_size)"
+                "Got different shapes: %s,%s" % (input_shape[0], input_shape[1])
+            )
 
 
 # class Similarity(Layer):
