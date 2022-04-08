@@ -7,3 +7,4 @@ HandyRec Rank Models API
    
    YouTubeRankDNN<rank/handyrec.models.rank.YouTubeRankDNN>
    DeepFM<rank/handyrec.models.rank.DeepFM>
+   DIN<rank/handyrec.models.rank.DIN>
