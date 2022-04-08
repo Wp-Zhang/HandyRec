@@ -8,7 +8,10 @@ class Dice(Layer):
 
     References
     ----------
-    .. [1] Weichen Shen. (2017). DeepCTR: Easy-to-use, Modular and Extendible package of
+    .. [1] Zhou, Guorui, et al. "Deep interest network for click-through rate prediction."
+        Proceedings of the 24th ACM SIGKDD international conference on knowledge discovery
+        & data mining. 2018.
+    .. [2] Weichen Shen. (2017). DeepCTR: Easy-to-use, Modular and Extendible package of
         deep-learning based CTR models. https://github.com/shenweichen/deepctr.
     """
 

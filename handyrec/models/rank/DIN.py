@@ -23,7 +23,7 @@ def DIN(
     lau_l2_dnn: float = 0,
     seed: int = 2022,
 ) -> Model:
-    """Implementation of YoutubeDNN rank model
+    """Implementation of Deep Interest Network (DIN) model
 
     Parameters
     ----------
@@ -61,8 +61,9 @@ def DIN(
 
     References
     ----------
-    .. [1] Covington, Paul, Jay Adams, and Emre Sargin. "Deep neural networks for youtube
-        recommendations." Proceedings of the 10th ACM conference on recommender systems. 2016.
+    .. [1] Zhou, Guorui, et al. "Deep interest network for click-through rate prediction."
+        Proceedings of the 24th ACM SIGKDD international conference on knowledge discovery
+        & data mining. 2018.
     """
     other_dense, other_sparse = other_feature_group.embedding_lookup(pool_method="mean")
 
@@ -102,8 +103,6 @@ def DIN(
 
     # * Construct model
     feature_pool = item_seq_feat_group.feat_pool
-    # other_input = list(other_feature_group.input_layers.values())
-    # item_seq_input = list(item_seq_feat_group.input_layers.values())
     model = Model(inputs=list(feature_pool.input_layers.values()), outputs=dnn_output)
 
     return model

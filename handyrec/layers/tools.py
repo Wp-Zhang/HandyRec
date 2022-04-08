@@ -62,7 +62,8 @@ class ValueTable(Layer):
     """Output a full list of values of a feature to be the input of embedding layer"""
 
     def __init__(self, value_list: List, **kwargs):
-        """Parameters
+        """
+        Parameters
         ----------
         value_list : List
             Feature values of all items.
