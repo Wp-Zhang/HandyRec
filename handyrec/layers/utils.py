@@ -1,8 +1,9 @@
 """Contains layer-related utility functions.
 """
 import tensorflow as tf
-from tensorflow.keras.layers import Concatenate, Flatten
+from tensorflow.keras.layers import Concatenate, Flatten, Layer, Activation
 from typing import List, Any
+from .activation import Dice
 
 
 def _concat(inputs: List, axis: int = -1) -> tf.Tensor:
@@ -101,3 +102,22 @@ def sampledsoftmaxloss(y_true, y_pred) -> Any:
         Sampled softmax loss.
     """
     return tf.reduce_mean(y_pred)
+
+
+def get_activation_layer(activation: str) -> Layer:
+    """Return a activation layer by input activation function.
+
+    Parameters
+    ----------
+    activation : str
+        Activation function name.
+
+    Returns
+    -------
+    Layer
+        An activation layer.
+    """
+    if activation == "dice":
+        return Dice()
+    else:
+        return Activation(activation)

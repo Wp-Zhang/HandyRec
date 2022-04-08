@@ -4,6 +4,7 @@ from .tools import (
     ValueTable,
     SampledSoftmaxLayer,
     CustomEmbedding,
+    LocalActivationUnit,
 )
 
 
@@ -14,4 +15,5 @@ __all__ = [
     "ValueTable",
     "SampledSoftmaxLayer",
     "CustomEmbedding",
+    "LocalActivationUnit",
 ]
