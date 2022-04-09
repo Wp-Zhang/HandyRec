@@ -1,10 +1,8 @@
 from typing import Tuple, OrderedDict
-import warnings
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Activation
 from handyrec.features import FeatureGroup, EmbdFeatureGroup
-from handyrec.layers import DNN, FM, LocalActivationUnit
+from handyrec.layers import DNN, LocalActivationUnit
 from handyrec.layers.utils import concat
 
 
@@ -71,7 +69,7 @@ def DIN(
     for feat in item_seq_feat_group.features:
         sparse_embd = item_seq_feat_group.embd_layers[feat.unit.name]
         seq_input = item_seq_feat_group.input_layers[feat.name]
-        local_activate = LocalActivationUnit(
+        lau = LocalActivationUnit(
             lau_dnn_hidden_units,
             lau_dnn_activation,
             lau_l2_dnn,
@@ -82,7 +80,7 @@ def DIN(
         embd_seq, mask = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
         # * att_score: (batch_size, 1, seq_len)
         query = tf.expand_dims(feat.unit.lookup(feat.unit.id_input), axis=1)
-        att_score = local_activate([query, embd_seq])
+        att_score = lau([query, embd_seq])
         mask = tf.cast(tf.expand_dims(mask[:, :, 0], axis=1), dtype=tf.float32)
         att_score *= mask
         # * (batch_size, 1, embd_dim)
