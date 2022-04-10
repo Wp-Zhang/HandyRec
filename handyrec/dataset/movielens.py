@@ -6,7 +6,6 @@ from typing import Tuple, List, Dict
 import numpy as np
 import gc
 import os
-from box import Box
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from .datahelper import DataHelper
 
