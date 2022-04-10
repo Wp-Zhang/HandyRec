@@ -394,8 +394,8 @@ class MovieRankDataHelper(MovielensDataHelper):
             Whether to generate negative sample sequences, by default ``False``.
             Set to ``True`` if you want to train `DIEN`.
 
-        Notes
-        -----
+        Note
+        ----
         In ``test_id``, each user should have the same number of movie_ids.
         """
 
@@ -484,11 +484,12 @@ class MovieRankDataHelper(MovielensDataHelper):
         test_iid = test_set[:, 1]
         test_age = age_normalizer.transform(test_set[:, 2].reshape(-1, 1))
         test_time_gap = gap_normalizer.transform(test_set[:, 3].reshape(-1, 1))
+        test_hist_seq = test_set[:, 4 : 4 + seq_max_len]
         np.save(open(self.sub_dir + "test_user_id.npy", "wb"), test_uid)
         np.save(open(self.sub_dir + "test_movie_id.npy", "wb"), test_iid)
         np.save(open(self.sub_dir + "test_example_age.npy", "wb"), test_age)
         np.save(open(self.sub_dir + "test_time_gap.npy", "wb"), test_time_gap)
-        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_set[:, 4:])
+        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_hist_seq)
         if neg_seq:
             test_neg_hist_seq = test_set[:, 4 + seq_max_len :]
             np.save(
