@@ -5,6 +5,7 @@ from .tools import (
     SampledSoftmaxLayer,
     CustomEmbedding,
     LocalActivationUnit,
+    AUGRUCell,
 )
 
 
@@ -16,4 +17,5 @@ __all__ = [
     "SampledSoftmaxLayer",
     "CustomEmbedding",
     "LocalActivationUnit",
+    "AUGRUCell",
 ]
