@@ -1,33 +1,34 @@
 from typing import Tuple, OrderedDict
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import GRU, Concatenate, RNN
+from tensorflow.keras.layers import GRU, Concatenate, RNN, Layer
 from handyrec.features import FeatureGroup, EmbdFeatureGroup
 from handyrec.layers import DNN, LocalActivationUnit, AUGRUCell
 from handyrec.layers.utils import concat
 
 
 def _auxiliary_loss(embd_seq, neg_embd_seq, hidden_seq, mask):
-    mask = tf.cast(mask, tf.float32)
-    embd_seq = embd_seq[:, 1:, :]
-    neg_embd_seq = neg_embd_seq[:, 1:, :]
-    hidden_seq = hidden_seq[:, :-1, :]
+    # * embd_seq: [batch_size, T, embd_size]
+    # * neg_embd_seq: [batch_size, T, embd_size]
+    # * hidden_seq: [batch_size, T, hidden_size]
+    # * mask: [batch_size, T]
+    mask = tf.cast(mask, tf.float32)[:, 1:]  # * [batch_size, T-1]
+    embd_seq = embd_seq[:, 1:, :]  # * [batch_size, T-1, embd_size]
+    neg_embd_seq = neg_embd_seq[:, 1:, :]  # * [batch_size, T-1, embd_size]
+    hidden_seq = hidden_seq[:, :-1, :]  # * [batch_size, T-1, hidden_size]
     concat_seq1 = Concatenate(axis=-1)([hidden_seq, neg_embd_seq])
     concat_seq2 = Concatenate(axis=-1)([hidden_seq, embd_seq])
 
-    dnn = DNN(
-        hidden_units=(100, 50, 1),
-        activation="sigmoid",
-        use_bn=True,
-        output_activation="sigmoid",
-    )
-    click_p = tf.squeeze(dnn(concat_seq1))  # * (batch_size, seq_len-1)
-    nonclick_p = tf.squeeze(dnn(concat_seq2))  # * (batch_size, seq_len-1)
+    dnn = DNN(hidden_units=(100, 50, 1), activation="sigmoid")
+    click_p = tf.squeeze(dnn(concat_seq1), axis=2)  # * (batch_size, T-1)
+    nonclick_p = tf.squeeze(dnn(concat_seq2), axis=2)  # * (batch_size, T-1)
+    click_p = tf.clip_by_value(tf.sigmoid(click_p), 1e-8, 1 - 1e-8)
+    nonclick_p = tf.clip_by_value(tf.sigmoid(nonclick_p), 1e-8, 1 - 1e-8)
     click_loss = tf.math.log(click_p) * mask
-    nonclick_loss = tf.math.log(nonclick_p) * mask
+    nonclick_loss = tf.math.log(1 - nonclick_p) * mask
 
     loss = tf.reduce_sum(click_loss + nonclick_loss, axis=1)
-    loss = -tf.reduce_mean(loss)
+    loss = -tf.reduce_mean(loss, axis=0)
 
     return loss
 
@@ -51,7 +52,6 @@ def DIEN(
     augru_units: int = 8,
     augru_activation: str = "tanh",
     augru_recurrent_activation: str = "sigmoid",
-    augru_dropout: float = 0,
     alpha: float = 0.5,
     # * =================================================
     dnn_hidden_units: Tuple[int] = (64, 32, 1),
@@ -83,8 +83,6 @@ def DIEN(
         DNN structure in local activation unit, by default ``(32, 1)``.
     lau_dnn_activation : str, optional
         DNN activation function in local activation unit, by default ``"dice"``.
-    lau_dnn_dropout : float, optional
-        DNN dropout ratio in local activation unit, by default ``0``.
     lau_dnn_bn : bool, optional
         Whether use batch normalization or not in local activation unit, by default ``False``.
     lau_l2_dnn : float, optional
@@ -95,7 +93,7 @@ def DIEN(
         AUGRU activation function in second layer, by default ``"tanh"``.
     augru_recurrent_activation: str
         AUGRU recurrent activation function in second layer, by default ``"sigmoid"``.
-    augru_dropout: float
+    augru_dropout: floa
         AUGRU dropout ratio in second layer, by default ``0``.
     alpha : float, optional
         Weight of auxiliary loss, by default ``0.5``.
@@ -115,29 +113,46 @@ def DIEN(
     Returns
     -------
     Model
-        A YouTubeDNN rank mdoel.
+        A DIEN mdoel.
+
+    Note
+    ----
+    `item_seq_feat_group` and `neg_item_seq_feat_group` should have the same features, i.e. the same
+        sequence length and featue name. Name of eatures in `neg_item_seq_feat_group` should be
+        prefixed with ``neg_``.
+
+    Raises
+    ------
+    ValueError
+        If features in `neg_item_seq_feat_group` don't match with `item_seq_feat_group`.
 
     References
     ----------
-    .. [1] Zhou, Guorui, et al. "Deep interest network for click-through rate prediction."
-        Proceedings of the 24th ACM SIGKDD international conference on knowledge discovery
-        & data mining. 2018.
+    .. [1] Zhou, Guorui, et al. "Deep interest evolution network for click-through rate prediction."
+        Proceedings of the AAAI conference on artificial intelligence. Vol. 33. No. 01. 2019.
     """
-    item_seq_feat_names = sorted([x.name for x in item_seq_feat_group.features])
-    neg_item_seq_feat_names = sorted([x.name for x in neg_item_seq_feat_group.features])
-    if ["neg_" + x for x in item_seq_feat_names] != neg_item_seq_feat_names:
-        raise ValueError(
-            """`item_seq_feat_group` and `neg_item_seq_feat_group` should have """
-            """the same features. Features in `neg_item_seq_feat_group` should """
-            """be prefixed with `neg_`."""
-        )
-    # TODO check seq length equality
+    seq_feat_dict = {x.name: x for x in item_seq_feat_group.features}
+    neg_seq_feat_dict = {x.name: x for x in neg_item_seq_feat_group.features}
+    for feat in seq_feat_dict.keys():
+        neg_feat = neg_seq_feat_dict.get("neg_" + feat, None)
+        if neg_feat is None or neg_feat.seq_len != seq_feat_dict[feat].seq_len:
+            raise ValueError(
+                "`item_seq_feat_group` and `neg_item_seq_feat_group` should have the same"
+                " features, i.e. the same sequence length and featue name. Name of features"
+                " in `neg_item_seq_feat_group` should be prefixed with `neg_`."
+            )
+    # TODO support for setting SparseFeat as unit of feature in `item_seq_feat_group`
 
     other_dense, other_sparse = other_feature_group.embedding_lookup(pool_method="mean")
 
     embd_outputs = OrderedDict()
     for feat in item_seq_feat_group.features:
+        # * Due to the feature of `FeaturePool`, `item_seq_feat_group` and
+        # *     `neg_item_seq_feat_group` actually share the same embedding
+        # *     layers, so we can use embedding layer dict in `item_seq_feat_group`
+        # *     to lookup embedding of unit features in `neg_item_seq_feat_group`.
         sparse_embd = item_seq_feat_group.embd_layers[feat.unit.name]
+
         seq_input = item_seq_feat_group.input_layers[feat.name]
         neg_seq_input = neg_item_seq_feat_group.input_layers["neg_" + feat.name]
         # * the input sequence is in descending order, so we need to reverse it
@@ -145,7 +160,6 @@ def DIEN(
         neg_seq_input = neg_seq_input[:, ::-1]
 
         # * ========================== Embedding Lookup ==========================
-
         embd_seq, mask = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
         neg_embd_seq, _ = sparse_embd(neg_seq_input)
         mask = mask[:, :, 0]  # * (batch_size, seq_len)
@@ -174,8 +188,9 @@ def DIEN(
             seed,
         )
         att_score = lau([query, hidden_seq1])  # * att_score: (batch_size, 1, seq_len)
-        att_score = att_score * tf.cast(mask, dtype=tf.float32)
+        att_score = att_score * tf.cast(tf.expand_dims(mask, axis=1), dtype=tf.float32)
         att_score = tf.transpose(att_score, [0, 2, 1])  # * (batch_size, seq_len, 1)
+
         # * ======================== SECOND LAYER: AUGRU ========================
         augru_cell = AUGRUCell(
             augru_units,
