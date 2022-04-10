@@ -18,7 +18,7 @@ def _auxiliary_loss(embd_seq, neg_embd_seq, hidden_seq, mask):
     dnn = DNN(
         hidden_units=(100, 50, 1),
         activation="sigmoid",
-        user_bn=True,
+        use_bn=True,
         output_activation="sigmoid",
     )
     click_p = tf.squeeze(dnn(concat_seq1))  # * (batch_size, seq_len-1)
@@ -33,28 +33,32 @@ def _auxiliary_loss(embd_seq, neg_embd_seq, hidden_seq, mask):
 
 
 def DIEN(
-    item_seq_feat_group: EmbdFeatureGroup,
-    neg_item_seq_feat_group: EmbdFeatureGroup,
+    item_seq_feat_group: FeatureGroup,
+    neg_item_seq_feat_group: FeatureGroup,
     other_feature_group: FeatureGroup,
-    gru1_units: int = 64,
-    gru1_activation: str = "tanh",
-    gru1_recurrent_activation: str = "sigmoid",
-    gru1_dropout: float = 0,
-    gru2_units: int = 32,
-    gru2_activation: str = "tanh",
-    gru2_recurrent_activation: str = "sigmoid",
-    gru2_dropout: float = 0,
-    alpha: float = 0.5,
-    dnn_hidden_units: Tuple[int] = (64, 32, 1),
-    dnn_activation: str = "dice",
-    dnn_dropout: float = 0,
-    dnn_bn: bool = False,
-    l2_dnn: float = 0,
+    # * =================================================
+    gru_units: int = 8,
+    gru_activation: str = "tanh",
+    gru_recurrent_activation: str = "sigmoid",
+    gru_dropout: float = 0,
+    # * =================================================
     lau_dnn_hidden_units: Tuple[int] = (32, 1),
     lau_dnn_activation: str = "dice",
     lau_dnn_dropout: float = 0,
     lau_dnn_bn: bool = False,
     lau_l2_dnn: float = 0,
+    # * =================================================
+    augru_units: int = 8,
+    augru_activation: str = "tanh",
+    augru_recurrent_activation: str = "sigmoid",
+    augru_dropout: float = 0,
+    alpha: float = 0.5,
+    # * =================================================
+    dnn_hidden_units: Tuple[int] = (64, 32, 1),
+    dnn_activation: str = "dice",
+    dnn_dropout: float = 0,
+    dnn_bn: bool = False,
+    l2_dnn: float = 0,
     seed: int = 2022,
 ) -> Model:
     """Implementation of Deep Interest Evolution Network (DIEN) model
@@ -67,22 +71,32 @@ def DIEN(
         Negative item sequence feature group corresponding to `item_seq_feat_group`.
     other_feature_group : FeatureGroup
         Feature group for other features.
-    gru1_units: int
+    gru_units: int
         GRU units in first layer, by default ``64``.
-    gru1_activation: str
+    gru_activation: str
         GRU activation function in first layer, by default ``"tanh"``.
-    gru1_recurrent_activation: str
+    gru_recurrent_activation: str
         GRU recurrent activation function in first layer, by default ``"sigmoid"``.
-    gru1_dropout: float
+    gru_dropout: float
         GRU dropout ratio in first layer, by default ``0``.
-    gru2_units: int
-        GRU units in second layer, by default ``32``.
-    gru2_activation: str
-        GRU activation function in second layer, by default ``"tanh"``.
-    gru2_recurrent_activation: str
-        GRU recurrent activation function in second layer, by default ``"sigmoid"``.
-    gru2_dropout: float
-        GRU dropout ratio in second layer, by default ``0``.
+    lau_dnn_hidden_units : Tuple[int], optional
+        DNN structure in local activation unit, by default ``(32, 1)``.
+    lau_dnn_activation : str, optional
+        DNN activation function in local activation unit, by default ``"dice"``.
+    lau_dnn_dropout : float, optional
+        DNN dropout ratio in local activation unit, by default ``0``.
+    lau_dnn_bn : bool, optional
+        Whether use batch normalization or not in local activation unit, by default ``False``.
+    lau_l2_dnn : float, optional
+        DNN l2 regularization param in local activation unit, by default ``0``.
+    augru_units: int
+        AUGRU units in second layer, by default ``32``.
+    augru_activation: str
+        AUGRU activation function in second layer, by default ``"tanh"``.
+    augru_recurrent_activation: str
+        AUGRU recurrent activation function in second layer, by default ``"sigmoid"``.
+    augru_dropout: float
+        AUGRU dropout ratio in second layer, by default ``0``.
     alpha : float, optional
         Weight of auxiliary loss, by default ``0.5``.
     dnn_hidden_units : Tuple[int], optional
@@ -95,16 +109,6 @@ def DIEN(
         Whether use batch normalization or not, by default ``False``.
     l2_dnn : float, optional
         DNN l2 regularization param, by default ``0``.
-    lau_dnn_hidden_units : Tuple[int], optional
-        DNN structure in local activation unit, by default ``(32, 1)``.
-    lau_dnn_activation : str, optional
-        DNN activation function in local activation unit, by default ``"dice"``.
-    lau_dnn_dropout : float, optional
-        DNN dropout ratio in local activation unit, by default ``0``.
-    lau_dnn_bn : bool, optional
-        Whether use batch normalization or not in local activation unit, by default ``False``.
-    l2_dnn : float, optional
-        DNN l2 regularization param in local activation unit, by default ``0``.
     seed : int, optional
         Random seed of dropout in local activation unit, by default ``2022``.
 
@@ -140,24 +144,26 @@ def DIEN(
         seq_input = seq_input[:, ::-1]
         neg_seq_input = neg_seq_input[:, ::-1]
 
+        # * ========================== Embedding Lookup ==========================
+
         embd_seq, mask = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
         neg_embd_seq, _ = sparse_embd(neg_seq_input)
         mask = mask[:, :, 0]  # * (batch_size, seq_len)
 
-        gru1 = GRU(
-            gru1_units,
-            activation=gru1_activation,
-            recurrent_activation=gru1_recurrent_activation,
-            dropout=gru1_dropout,
+        # * ========================== FIRST LAYER: GRU ==========================
+        gru = GRU(
+            gru_units,
+            activation=gru_activation,
+            recurrent_activation=gru_recurrent_activation,
+            dropout=gru_dropout,
             return_sequences=True,
             return_state=False,
-            name="gru1",
+            name="gru",
         )
-
-        # * (batch_size, seq_len, gru1_units)
-        hidden_seq1 = gru1(embd_seq, mask=mask)
+        hidden_seq1 = gru(embd_seq, mask=mask)  # * (batch_size, seq_len, gru_units)
         auxiliary_loss = _auxiliary_loss(embd_seq, neg_embd_seq, hidden_seq1, mask)
 
+        # * ======================= LOCAL ACTIVATION UNIT =======================
         query = tf.expand_dims(feat.unit.lookup(feat.unit.id_input), axis=1)
         lau = LocalActivationUnit(
             lau_dnn_hidden_units,
@@ -168,23 +174,24 @@ def DIEN(
             seed,
         )
         att_score = lau([query, hidden_seq1])  # * att_score: (batch_size, 1, seq_len)
-        att_score = tf.squeeze(att_score, axis=1) * tf.cast(mask, dtype=tf.float32)
-
+        att_score = att_score * tf.cast(mask, dtype=tf.float32)
+        att_score = tf.transpose(att_score, [0, 2, 1])  # * (batch_size, seq_len, 1)
+        # * ======================== SECOND LAYER: AUGRU ========================
         augru_cell = AUGRUCell(
-            gru2_units,
-            activation=gru2_activation,
-            recurrent_activation=gru2_recurrent_activation,
-            dropout=gru2_dropout,
+            augru_units,
+            activation=augru_activation,
+            recurrent_activation=augru_recurrent_activation,
         )
-        augru = RNN(cell=augru_cell, return_sequences=False, return_state=True)
-        # * (batch_size, gru2_units)
-        final_state = augru([hidden_seq1, att_score], mask=mask)
+        augru = RNN(cell=augru_cell, return_sequences=True, return_state=True)
+        # * (batch_size, augru_units)
+        _, final_state = augru((hidden_seq1, att_score), mask=mask)
 
-        embd_outputs[feat.name] = final_state
-
-    lau_pooled = list(embd_outputs.values())
+        # * =====================================================================
+        # * shape: (batch_size, 1, augru_units)
+        embd_outputs[feat.name] = tf.expand_dims(final_state, axis=1)
 
     # * concat input layers -> DNN
+    lau_pooled = list(embd_outputs.values())
     dnn_input = concat(other_dense, other_sparse + lau_pooled)
     dnn_output = DNN(
         hidden_units=tuple(list(dnn_hidden_units) + [1]),

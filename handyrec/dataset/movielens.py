@@ -1,3 +1,4 @@
+from cgi import test
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, QuantileTransformer
 from tqdm import tqdm
@@ -5,6 +6,7 @@ from typing import Tuple, List, Dict
 import numpy as np
 import gc
 import os
+from box import Box
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from .datahelper import DataHelper
 
@@ -204,40 +206,17 @@ class MovieMatchDataHelper(MovielensDataHelper):
         p, q = 0, 0
         for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
             pos_list = hist["movie_id"].tolist()
+            negs = []
             if negnum > 0:
-                candidate_set = list(item_ids - set(pos_list))  # Negative samples
+                candidate_set = list(item_ids - set(pos_list))  # * negative samples
                 negs = np.random.choice(
                     candidate_set, size=(len(pos_list) - n) * negnum, replace=True
                 )
             train_pos_list = pos_list[:-n]
-            for i in range(len(train_pos_list)):
-                seq = train_pos_list[:i]
-                # Positive sample
-                tmp_seq = seq[-seq_max_len:][::-1]
-                train_set[p] = (
-                    [
-                        uid,
-                        train_pos_list[i],
-                        len(train_pos_list) - 1 - i,
-                        1,
-                    ]
-                    + tmp_seq
-                    + [0] * (seq_max_len - len(tmp_seq))
-                )
-                p += 1
-                # Negative smaples
-                for j in range(negnum):
-                    train_set[p] = (
-                        [
-                            uid,
-                            negs[i * negnum + j],
-                            len(pos_list) - 1 - i,
-                            0,
-                        ]
-                        + tmp_seq
-                        + [0] * (seq_max_len - len(tmp_seq))
-                    )
-                    p += 1
+            train_chunk = self._gen_smaple_chunk(uid, seq_max_len, train_pos_list, negs)
+            train_set[p : p + train_chunk.shape[0]] = train_chunk
+            p += train_chunk.shape[0]
+
             test_pos_list = pos_list[-seq_max_len - n : -n][::-1]
             test_pos_list += [0] * (seq_max_len - len(test_pos_list))
             test_set[q] = [uid, 0] + pos_list[-n:] + test_pos_list
@@ -277,7 +256,8 @@ class MovieMatchDataHelper(MovielensDataHelper):
         del train_set, test_set
         gc.collect()
 
-        for key in tqdm([x for x in user.columns if x in features and x != "user_id"]):
+        user_feats = [x for x in user.columns if x in features and x != "user_id"]
+        for key in tqdm(user_feats, "Save user features"):
             train_tmp_array = np.array(user[key].loc[train_uid].tolist())
             test_tmp_array = np.array(user[key].loc[test_uid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
@@ -288,17 +268,59 @@ class MovieMatchDataHelper(MovielensDataHelper):
         del train_uid, user
         gc.collect()
 
-        for key in tqdm([x for x in item.columns if x in features and x != "movie_id"]):
+        item_feats = [x for x in item.columns if x in features and x != "movie_id"]
+        for key in tqdm(item_feats, "Save item features"):
             train_tmp_array = np.array(item[key].loc[train_iid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
             del train_tmp_array
             gc.collect()
 
-    def load_dataset(
-        self,
-        user_feats: List[str],
-        movie_feats: List[str],
-    ) -> Tuple:
+    @staticmethod
+    def _gen_smaple_chunk(uid, seq_len, pos_list, neg_list):
+        """Generate a chunk of train set.
+
+        Parameters
+        ----------
+        uid : int
+            user_id
+        seq_len : int
+            movie history sequence length
+        pos_list : List[int]
+            positive movie ids
+        neg_list : List[int]
+            sampled negative movie ids
+
+        Returns
+        -------
+        np.ndarray
+            chunk of train set
+        """
+
+        def fill_n(x, i):
+            top_n_seq = pos_list[:i][::-1][:seq_len]
+            x[: len(top_n_seq)] = top_n_seq
+            return x
+
+        # * Trainset format: [uid, moiveID, sample_age, label, history_seq]
+        # * Positive smaples
+        len_pos = len(pos_list)
+        chunk = np.zeros((len_pos, 4 + seq_len), dtype=int)
+        chunk[:, 0] = uid  # * uid
+        chunk[:, 1] = pos_list  # * movie_id
+        chunk[:, 2] = len_pos - 1 - np.arange(len_pos)  # * sample age
+        chunk[:, 3] = 1  # * label
+        chunk[:, 4:] = np.array([fill_n(chunk[i, 4:], i) for i in range(len_pos)])
+
+        # * Negative smaples
+        if len(neg_list) > 0:
+            neg_chunk = np.repeat(chunk, len(neg_list) // len_pos, axis=0)
+            neg_chunk[:, 1] = neg_list  # * negative movie_id
+            neg_chunk[:, 3] = 0  # * label
+            chunk = np.concatenate((chunk, neg_chunk), axis=0)
+
+        return chunk
+
+    def load_dataset(self, user_feats: List[str], movie_feats: List[str]) -> Tuple:
         """Load saved dataset.
 
         Parameters
@@ -317,28 +339,21 @@ class MovieMatchDataHelper(MovielensDataHelper):
         train_set = {}
         test_set = {}
 
-        for feat in tqdm(
-            user_feats + ["hist_movie_id", "example_age"],
-            "Load user Features",
-        ):
-            train_set[feat] = np.load(
-                open(self.sub_dir + "train_" + feat + ".npy", "rb"), allow_pickle=True
-            )
-            test_set[feat] = np.load(
-                open(self.sub_dir + "test_" + feat + ".npy", "rb"), allow_pickle=True
-            )
+        user_feats += ["hist_movie_id", "example_age"]
+        for feat in tqdm(user_feats, "Load user features"):
+            train_path = self.sub_dir + "train_" + feat + ".npy"
+            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
+            test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
 
-        for feat in tqdm(movie_feats, "Load movie Features"):
-            train_set[feat] = np.load(
-                open(self.sub_dir + "train_" + feat + ".npy", "rb"), allow_pickle=True
-            )
+        for feat in tqdm(movie_feats, "Load movie features"):
+            train_path = self.sub_dir + "train_" + feat + ".npy"
+            train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
 
-        train_label = np.load(
-            open(self.sub_dir + "train_label.npy", "rb"), allow_pickle=True
-        )
-        test_label = np.load(
-            open(self.sub_dir + "test_label.npy", "rb"), allow_pickle=True
-        )
+        train_label_path = self.sub_dir + "train_label.npy"
+        test_label_path = self.sub_dir + "test_label.npy"
+        train_label = np.load(open(train_label_path, "rb"), allow_pickle=True)
+        test_label = np.load(open(test_label_path, "rb"), allow_pickle=True)
 
         return train_set, train_label, test_set, test_label
 
@@ -356,6 +371,7 @@ class MovieRankDataHelper(MovielensDataHelper):
         negnum: int = 0,
         min_rating: float = 0.35,
         n: int = 10,
+        neg_seq: bool = False,
     ):
         """Generate and save train set and test set.
 
@@ -375,6 +391,9 @@ class MovieRankDataHelper(MovielensDataHelper):
             Minimum rating for positive smaples, by default ``0.35``.
         n : int, optional
             Hold out the last n samples for each user for testing, by default ``10``.
+        neg_seq : bool, optional
+            Whether to generate negative sample sequences, by default ``False``.
+            Set to ``True`` if you want to train `DIEN`.
 
         Notes
         -----
@@ -385,9 +404,9 @@ class MovieRankDataHelper(MovielensDataHelper):
         df = data["interact"]
         df["time_diff"] = df.groupby(["user_id"])["timestamp"].diff().fillna(0)
 
-        # * Split train set and test set
         item_ids = set(data["item"]["movie_id"].values)
 
+        # * Split train and test set
         # * Calculate number of rows of dataset to fasten the dataset generating process
         df = df[df["interact"] >= min_rating]
         counter = df[["user_id", "movie_id"]].groupby("user_id", as_index=False).count()
@@ -399,58 +418,38 @@ class MovieRankDataHelper(MovielensDataHelper):
         # * Generate rows
         # * train_set format: [uid, moiveID, sample_age, time_since_last_movie, label, history_seq]
         # * test_set format: [uid, moiveID, sample_age(0), time_since_last_movie, history_seq]
-        train_set = np.zeros((train_rows, 5 + seq_max_len), dtype=int)
-        test_set = np.zeros((test_rows, 4 + seq_max_len), dtype=int)
+
+        train_dim = 5 + seq_max_len if not neg_seq else 5 + 2 * seq_max_len
+        train_set = np.zeros((train_rows, train_dim), dtype=int)
+        test_set = np.zeros((test_rows, train_dim - 1), dtype=int)
 
         p, q = 0, 0
         for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
             pos_list = hist["movie_id"].tolist()
-            time_diff_list = hist["time_diff"].tolist()
+            time_diff = hist["time_diff"].tolist()
+            negs = []
             if negnum > 0:
-                candidate_set = list(item_ids - set(pos_list))  # Negative samples
-                negs = np.random.choice(
-                    candidate_set, size=(len(pos_list) - n) * negnum, replace=True
-                )
+                candidate_set = list(item_ids - set(pos_list))  # * negative samples
+                if not neg_seq:
+                    neg_size = (len(pos_list) - n) * negnum
+                else:
+                    neg_size = (len(pos_list) - n) * (negnum + seq_max_len)
+                negs = np.random.choice(candidate_set, size=neg_size, replace=True)
+
             pos_list = pos_list[:-n]
-            for i in range(len(pos_list)):
-                seq = pos_list[:i]
-                # Positive sample
-                tmp_seq = seq[-seq_max_len:][::-1]
-                train_set[p] = (
-                    [
-                        uid,
-                        pos_list[i],
-                        len(pos_list) - 1 - i,
-                        time_diff_list[i],
-                        1,
-                    ]
-                    + tmp_seq
-                    + [0] * (seq_max_len - len(tmp_seq))
+            time_diff = time_diff[:-n]
+            test_list = test_id.get(uid, None)
+            train_chunk = self._gen_train_chunk(
+                uid, seq_max_len, pos_list, negs, time_diff, negnum, neg_seq
+            )
+            train_set[p : p + len(train_chunk)] = train_chunk
+            p += len(train_chunk)
+            if test_list is not None:  # * this uid needs to be tested
+                test_chunk = self._gen_test_chunk(
+                    uid, seq_max_len, pos_list, negs, test_list, time_diff, neg_seq
                 )
-                p += 1
-                # Negative smaples
-                for j in range(negnum):
-                    train_set[p] = (
-                        [
-                            uid,
-                            negs[i * negnum + j],
-                            len(pos_list) - 1 - i,
-                            time_diff_list[i],
-                            0,
-                        ]
-                        + tmp_seq
-                        + [0] * (seq_max_len - len(tmp_seq))
-                    )
-                    p += 1
-            if uid in test_id.keys():
-                for mid in test_id[uid]:
-                    tmp_pos_list = pos_list[-seq_max_len:][::-1]
-                    test_set[q] = (
-                        [uid, mid, 0, time_diff_list[-1]]
-                        + tmp_pos_list
-                        + [0] * (seq_max_len - len(tmp_pos_list))
-                    )
-                    q += 1
+                test_set[q : q + len(test_chunk)] = test_chunk
+                q += len(test_chunk)
 
         np.random.seed(2022)
         np.random.shuffle(train_set)
@@ -461,38 +460,48 @@ class MovieRankDataHelper(MovielensDataHelper):
         user = user.set_index("user_id")
         item = item.set_index("movie_id")
 
-        train_uid = train_set[:, 0].astype(np.int)
-        train_iid = train_set[:, 1].astype(np.int)
-        train_age = train_set[:, 2].astype(np.int)
-        train_time_gap = train_set[:, 3].astype(np.int)
-        train_label = train_set[:, 4].astype(np.int)
-        normalizer = QuantileTransformer()
-        normalizer2 = QuantileTransformer()
-        train_age = normalizer.fit_transform(train_age.reshape(-1, 1))
-        train_time_gap = normalizer2.fit_transform(train_time_gap.reshape(-1, 1))
+        age_normalizer = QuantileTransformer()
+        gap_normalizer = QuantileTransformer()
+
+        train_uid = train_set[:, 0]
+        train_iid = train_set[:, 1]
+        train_age = age_normalizer.fit_transform(train_set[:, 2].reshape(-1, 1))
+        train_time_gap = gap_normalizer.fit_transform(train_set[:, 3].reshape(-1, 1))
+        train_hist_seq = train_set[:, 5 : 5 + seq_max_len]
         np.save(open(self.sub_dir + "train_user_id.npy", "wb"), train_uid)
         np.save(open(self.sub_dir + "train_movie_id.npy", "wb"), train_iid)
         np.save(open(self.sub_dir + "train_example_age.npy", "wb"), train_age)
         np.save(open(self.sub_dir + "train_time_gap.npy", "wb"), train_time_gap)
-        np.save(open(self.sub_dir + "train_label.npy", "wb"), train_label)
-        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_set[:, 5:])
+        np.save(open(self.sub_dir + "train_label.npy", "wb"), train_set[:, 4])
+        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_hist_seq)
+        if neg_seq:
+            train_neg_hist_seq = train_set[:, 5 + seq_max_len :]
+            np.save(
+                open(self.sub_dir + "train_neg_hist_movie_id.npy", "wb"),
+                train_neg_hist_seq,
+            )
 
-        test_uid = test_set[:, 0].astype(np.int)
-        test_iid = test_set[:, 1].astype(np.int)
-        test_age = test_set[:, 2].astype(np.int)
-        test_time_gap = test_set[:, 3].astype(np.int)
-        test_age = normalizer.transform(test_age.reshape(-1, 1))
-        test_time_gap = normalizer2.transform(test_time_gap.reshape(-1, 1))
+        test_uid = test_set[:, 0]
+        test_iid = test_set[:, 1]
+        test_age = age_normalizer.transform(test_set[:, 2].reshape(-1, 1))
+        test_time_gap = gap_normalizer.transform(test_set[:, 3].reshape(-1, 1))
         np.save(open(self.sub_dir + "test_user_id.npy", "wb"), test_uid)
         np.save(open(self.sub_dir + "test_movie_id.npy", "wb"), test_iid)
         np.save(open(self.sub_dir + "test_example_age.npy", "wb"), test_age)
         np.save(open(self.sub_dir + "test_time_gap.npy", "wb"), test_time_gap)
         np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_set[:, 4:])
+        if neg_seq:
+            test_neg_hist_seq = test_set[:, 4 + seq_max_len :]
+            np.save(
+                open(self.sub_dir + "test_neg_hist_movie_id.npy", "wb"),
+                test_neg_hist_seq,
+            )
 
         del train_set, test_set  # , hist_seq, hist_seq_pad
         gc.collect()
 
-        for key in tqdm([x for x in user.columns if x in features and x != "user_id"]):
+        user_feats = [x for x in user.columns if x in features and x != "user_id"]
+        for key in tqdm(user_feats, "Save user features"):
             train_tmp_array = np.array(user[key].loc[train_uid].tolist())
             test_tmp_array = np.array(user[key].loc[test_uid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
@@ -503,7 +512,8 @@ class MovieRankDataHelper(MovielensDataHelper):
         del train_uid, user
         gc.collect()
 
-        for key in tqdm([x for x in item.columns if x in features and x != "movie_id"]):
+        item_feats = [x for x in item.columns if x in features and x != "movie_id"]
+        for key in tqdm(item_feats, "Save item features"):
             train_tmp_array = np.array(item[key].loc[train_iid].tolist())
             test_tmp_array = np.array(item[key].loc[test_iid].tolist())
             np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
@@ -511,10 +521,108 @@ class MovieRankDataHelper(MovielensDataHelper):
             del train_tmp_array, test_tmp_array
             gc.collect()
 
+    @staticmethod
+    def _gen_train_chunk(
+        uid, seq_len, pos_list, neg_list, time_diff_list, negnum, neg_seq
+    ):
+        """Generate train set of a single uid.
+
+        Parameters
+        ----------
+        uid : int
+            user_id
+        seq_len : int
+            movie history sequence length
+        pos_list : List[int]
+            positive movie ids
+        neg_list : np.ndarray
+            sampled negative movie ids
+        time_diff_list : List[int]
+            time gap since the last time to rate a movie
+        neg_seq : bool
+            whether to generate negative sample sequence
+
+        Returns
+        -------
+        np.ndarray
+            chunk of train set
+        """
+
+        def fill_n(x, i):
+            top_n_seq = pos_list[:i][::-1][:seq_len]
+            x[: len(top_n_seq)] = top_n_seq
+            return x
+
+        # * Trainset format: [uid, moiveID, sample_age, time_since_last_movie, label, history_seq]
+        # * Positive smaples
+        len_pos = len(pos_list)
+        chunk_size = 5 + seq_len if not neg_seq else 5 + 2 * seq_len
+        chunk = np.zeros((len_pos, chunk_size), dtype=int)
+        chunk[:, 0] = uid  # * uid
+        chunk[:, 1] = pos_list  # * movieID
+        chunk[:, 2] = len_pos - 1 - np.arange(len_pos)  # * sample_age
+        chunk[:, 2] = len_pos - 1 - np.arange(len_pos)  # * sample age
+        chunk[:, 3] = time_diff_list  # * time since last watched movie
+        chunk[:, 4] = 1  # * label
+        chunk[:, 5 : 5 + seq_len] = np.array(
+            [fill_n(chunk[i, 5 : 5 + seq_len], i) for i in range(len_pos)]
+        )
+        if neg_seq:
+            chunk[:, 5 + seq_len :] = neg_list[: len_pos * seq_len].reshape(len_pos, -1)
+
+        # * Negative smaples
+        if len(neg_list) > 0:
+            neg_chunk = np.repeat(chunk, negnum, axis=0)
+            neg_chunk[:, 1] = neg_list[-negnum * len_pos :]  # * negative movie_id
+            neg_chunk[:, 4] = 0  # * label
+            chunk = np.concatenate((chunk, neg_chunk), axis=0)
+
+        return chunk
+
+    @staticmethod
+    def _gen_test_chunk(uid, seq_len, pos_list, negs, test_list, time_diff, neg_seq):
+        """Generate test set of a single uid.
+
+        Parameters
+        ----------
+        uid : int
+            user_id
+        seq_len : int
+            movie history sequence length
+        pos_list : List[int]
+            positive movie ids
+        test_list : List[int]
+            test movie ids
+        time_diff : List[int]
+            time gap since the last time to rate a movie
+
+        Returns
+        -------
+        np.ndarray
+            chunk of test set
+        """
+        # * Testset format: [uid, moiveID, sample_age(0), time_since_last_movie, history_seq]
+        # * Test smaples
+        hist_seq = np.array(pos_list[-seq_len:][::-1])
+        hist_seq_len = len(hist_seq)
+        test_len = len(test_list)
+        chunk_size = 4 + seq_len if not neg_seq else 4 + 2 * seq_len
+        test_chunk = np.zeros((test_len, chunk_size), dtype=int)
+        test_chunk[:, 0] = uid  # * uid
+        test_chunk[:, 1] = test_list  # * movie_id
+        test_chunk[:, 3] = time_diff[-1]  # * time since last watched movie
+        test_chunk[:, 4 : 4 + hist_seq_len] = hist_seq  # * history_seq
+        if neg_seq:
+            neg_hist_seq = negs[:seq_len]
+            test_chunk[:, 4 + seq_len :] = neg_hist_seq
+
+        return test_chunk
+
     def load_dataset(
         self,
         user_feats: List[str],
         movie_feats: List[str],
+        neg_seq: bool = False,
     ) -> Tuple:
         """Load saved dataset.
 
@@ -533,27 +641,22 @@ class MovieRankDataHelper(MovielensDataHelper):
         train_set = {}
         test_set = {}
 
-        for feat in tqdm(
-            user_feats + ["hist_movie_id", "time_gap", "example_age"],
-            "Load user Features",
-        ):
-            train_set[feat] = np.load(
-                open(self.sub_dir + "train_" + feat + ".npy", "rb"), allow_pickle=True
-            )
-            test_set[feat] = np.load(
-                open(self.sub_dir + "test_" + feat + ".npy", "rb"), allow_pickle=True
-            )
+        if neg_seq:
+            user_feats += ["neg_hist_movie_id"]
+        user_feats += ["hist_movie_id", "time_gap", "example_age"]
+        for feat in tqdm(user_feats, "Load user features"):
+            train_path = self.sub_dir + "train_" + feat + ".npy"
+            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
+            test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
 
-        for feat in tqdm(movie_feats, "Load movie Features"):
-            train_set[feat] = np.load(
-                open(self.sub_dir + "train_" + feat + ".npy", "rb"), allow_pickle=True
-            )
-            test_set[feat] = np.load(
-                open(self.sub_dir + "test_" + feat + ".npy", "rb"), allow_pickle=True
-            )
+        for feat in tqdm(movie_feats, "Load movie features"):
+            train_path = self.sub_dir + "train_" + feat + ".npy"
+            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
+            test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
 
-        train_label = np.load(
-            open(self.sub_dir + "train_label.npy", "rb"), allow_pickle=True
-        )
+        train_label_path = self.sub_dir + "train_label.npy"
+        train_label = np.load(open(train_label_path, "rb"), allow_pickle=True)
 
         return train_set, train_label, test_set
