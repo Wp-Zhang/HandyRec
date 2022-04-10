@@ -3,7 +3,7 @@
 """
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Layer, Embedding, GRUCell, RNN
+from tensorflow.keras.layers import Layer, Embedding, GRUCell, RNN, Dense, Activation
 from tensorflow.keras.initializers import Zeros
 from typing import List
 from .layers import DNN
@@ -238,141 +238,229 @@ class LocalActivationUnit(Layer):
             )
 
 
-class AUGRUCell(GRUCell):
-    """Implementation of AUGRUCell in DIEN.
-    All code is copied from the source code of GRUCell except for one added line.
-    """
+# class AUGRUCell(GRUCell):
+#     """Implementation of AUGRUCell in DIEN.
+#     All code is copied from the source code of GRUCell except for one added line.
+#     """
 
-    def call(self, inputs, states, training=None):
-        # * ============================ modyfied ============================
-        inputs, att_score = inputs
-        # * ============================ modyfied ============================
+#     def call(self, inputs, states, training=None):
+#         # * ============================ modyfied ============================
+#         inputs, att_score = inputs
+#         # * ============================ modyfied ============================
 
-        h_tm1 = states[0] if tf.nest.is_nested(states) else states  # previous memory
+#         h_tm1 = states[0] if tf.nest.is_nested(states) else states  # previous memory
 
-        dp_mask = self.get_dropout_mask_for_cell(inputs, training, count=3)
-        rec_dp_mask = self.get_recurrent_dropout_mask_for_cell(h_tm1, training, count=3)
+#         dp_mask = self.get_dropout_mask_for_cell(inputs, training, count=3)
+#         rec_dp_mask = self.get_recurrent_dropout_mask_for_cell(h_tm1, training, count=3)
 
-        if self.use_bias:
-            if not self.reset_after:
-                input_bias, recurrent_bias = self.bias, None
-            else:
-                input_bias, recurrent_bias = tf.unstack(self.bias)
+#         if self.use_bias:
+#             if not self.reset_after:
+#                 input_bias, recurrent_bias = self.bias, None
+#             else:
+#                 input_bias, recurrent_bias = tf.unstack(self.bias)
 
-        if self.implementation == 1:
-            if 0.0 < self.dropout < 1.0:
-                inputs_z = inputs * dp_mask[0]
-                inputs_r = inputs * dp_mask[1]
-                inputs_h = inputs * dp_mask[2]
-            else:
-                inputs_z = inputs
-                inputs_r = inputs
-                inputs_h = inputs
+#         if self.implementation == 1:
+#             if 0.0 < self.dropout < 1.0:
+#                 inputs_z = inputs * dp_mask[0]
+#                 inputs_r = inputs * dp_mask[1]
+#                 inputs_h = inputs * dp_mask[2]
+#             else:
+#                 inputs_z = inputs
+#                 inputs_r = inputs
+#                 inputs_h = inputs
 
-            x_z = tf.keras.backend.dot(inputs_z, self.kernel[:, : self.units])
-            x_r = tf.keras.backend.dot(
-                inputs_r, self.kernel[:, self.units : self.units * 2]
-            )
-            x_h = tf.keras.backend.dot(inputs_h, self.kernel[:, self.units * 2 :])
+#             x_z = tf.keras.backend.dot(inputs_z, self.kernel[:, : self.units])
+#             x_r = tf.keras.backend.dot(
+#                 inputs_r, self.kernel[:, self.units : self.units * 2]
+#             )
+#             x_h = tf.keras.backend.dot(inputs_h, self.kernel[:, self.units * 2 :])
 
-            if self.use_bias:
-                x_z = tf.keras.backend.bias_add(x_z, input_bias[: self.units])
-                x_r = tf.keras.backend.bias_add(
-                    x_r, input_bias[self.units : self.units * 2]
-                )
-                x_h = tf.keras.backend.bias_add(x_h, input_bias[self.units * 2 :])
+#             if self.use_bias:
+#                 x_z = tf.keras.backend.bias_add(x_z, input_bias[: self.units])
+#                 x_r = tf.keras.backend.bias_add(
+#                     x_r, input_bias[self.units : self.units * 2]
+#                 )
+#                 x_h = tf.keras.backend.bias_add(x_h, input_bias[self.units * 2 :])
 
-            if 0.0 < self.recurrent_dropout < 1.0:
-                h_tm1_z = h_tm1 * rec_dp_mask[0]
-                h_tm1_r = h_tm1 * rec_dp_mask[1]
-                h_tm1_h = h_tm1 * rec_dp_mask[2]
-            else:
-                h_tm1_z = h_tm1
-                h_tm1_r = h_tm1
-                h_tm1_h = h_tm1
+#             if 0.0 < self.recurrent_dropout < 1.0:
+#                 h_tm1_z = h_tm1 * rec_dp_mask[0]
+#                 h_tm1_r = h_tm1 * rec_dp_mask[1]
+#                 h_tm1_h = h_tm1 * rec_dp_mask[2]
+#             else:
+#                 h_tm1_z = h_tm1
+#                 h_tm1_r = h_tm1
+#                 h_tm1_h = h_tm1
 
-            recurrent_z = tf.keras.backend.dot(
-                h_tm1_z, self.recurrent_kernel[:, : self.units]
-            )
-            recurrent_r = tf.keras.backend.dot(
-                h_tm1_r, self.recurrent_kernel[:, self.units : self.units * 2]
-            )
-            if self.reset_after and self.use_bias:
-                recurrent_z = tf.keras.backend.bias_add(
-                    recurrent_z, recurrent_bias[: self.units]
-                )
-                recurrent_r = tf.keras.backend.bias_add(
-                    recurrent_r, recurrent_bias[self.units : self.units * 2]
-                )
+#             recurrent_z = tf.keras.backend.dot(
+#                 h_tm1_z, self.recurrent_kernel[:, : self.units]
+#             )
+#             recurrent_r = tf.keras.backend.dot(
+#                 h_tm1_r, self.recurrent_kernel[:, self.units : self.units * 2]
+#             )
+#             if self.reset_after and self.use_bias:
+#                 recurrent_z = tf.keras.backend.bias_add(
+#                     recurrent_z, recurrent_bias[: self.units]
+#                 )
+#                 recurrent_r = tf.keras.backend.bias_add(
+#                     recurrent_r, recurrent_bias[self.units : self.units * 2]
+#                 )
 
-            z = self.recurrent_activation(x_z + recurrent_z)
-            r = self.recurrent_activation(x_r + recurrent_r)
+#             z = self.recurrent_activation(x_z + recurrent_z)
+#             r = self.recurrent_activation(x_r + recurrent_r)
 
-            # reset gate applied after/before matrix multiplication
-            if self.reset_after:
-                recurrent_h = tf.keras.backend.dot(
-                    h_tm1_h, self.recurrent_kernel[:, self.units * 2 :]
-                )
-                if self.use_bias:
-                    recurrent_h = tf.keras.backend.bias_add(
-                        recurrent_h, recurrent_bias[self.units * 2 :]
-                    )
-                recurrent_h = r * recurrent_h
-            else:
-                recurrent_h = tf.keras.backend.dot(
-                    r * h_tm1_h, self.recurrent_kernel[:, self.units * 2 :]
-                )
+#             # reset gate applied after/before matrix multiplication
+#             if self.reset_after:
+#                 recurrent_h = tf.keras.backend.dot(
+#                     h_tm1_h, self.recurrent_kernel[:, self.units * 2 :]
+#                 )
+#                 if self.use_bias:
+#                     recurrent_h = tf.keras.backend.bias_add(
+#                         recurrent_h, recurrent_bias[self.units * 2 :]
+#                     )
+#                 recurrent_h = r * recurrent_h
+#             else:
+#                 recurrent_h = tf.keras.backend.dot(
+#                     r * h_tm1_h, self.recurrent_kernel[:, self.units * 2 :]
+#                 )
 
-            hh = self.activation(x_h + recurrent_h)
-        else:
-            if 0.0 < self.dropout < 1.0:
-                inputs = inputs * dp_mask[0]
+#             hh = self.activation(x_h + recurrent_h)
+#         else:
+#             if 0.0 < self.dropout < 1.0:
+#                 inputs = inputs * dp_mask[0]
 
-            # inputs projected by all gate matrices at once
-            matrix_x = tf.keras.backend.dot(inputs, self.kernel)
-            if self.use_bias:
-                # biases: bias_z_i, bias_r_i, bias_h_i
-                matrix_x = tf.keras.backend.bias_add(matrix_x, input_bias)
+#             # inputs projected by all gate matrices at once
+#             matrix_x = tf.keras.backend.dot(inputs, self.kernel)
+#             if self.use_bias:
+#                 # biases: bias_z_i, bias_r_i, bias_h_i
+#                 matrix_x = tf.keras.backend.bias_add(matrix_x, input_bias)
 
-            x_z, x_r, x_h = tf.split(matrix_x, 3, axis=-1)
+#             x_z, x_r, x_h = tf.split(matrix_x, 3, axis=-1)
 
-            if self.reset_after:
-                # hidden state projected by all gate matrices at once
-                matrix_inner = tf.keras.backend.dot(h_tm1, self.recurrent_kernel)
-                if self.use_bias:
-                    matrix_inner = tf.keras.backend.bias_add(
-                        matrix_inner, recurrent_bias
-                    )
-            else:
-                # hidden state projected separately for update/reset and new
-                matrix_inner = tf.keras.backend.dot(
-                    h_tm1, self.recurrent_kernel[:, : 2 * self.units]
-                )
+#             if self.reset_after:
+#                 # hidden state projected by all gate matrices at once
+#                 matrix_inner = tf.keras.backend.dot(h_tm1, self.recurrent_kernel)
+#                 if self.use_bias:
+#                     matrix_inner = tf.keras.backend.bias_add(
+#                         matrix_inner, recurrent_bias
+#                     )
+#             else:
+#                 # hidden state projected separately for update/reset and new
+#                 matrix_inner = tf.keras.backend.dot(
+#                     h_tm1, self.recurrent_kernel[:, : 2 * self.units]
+#                 )
 
-            recurrent_z, recurrent_r, recurrent_h = tf.split(
-                matrix_inner, [self.units, self.units, -1], axis=-1
-            )
+#             recurrent_z, recurrent_r, recurrent_h = tf.split(
+#                 matrix_inner, [self.units, self.units, -1], axis=-1
+#             )
 
-            z = self.recurrent_activation(x_z + recurrent_z)
-            r = self.recurrent_activation(x_r + recurrent_r)
+#             z = self.recurrent_activation(x_z + recurrent_z)
+#             r = self.recurrent_activation(x_r + recurrent_r)
 
-            if self.reset_after:
-                recurrent_h = r * recurrent_h
-            else:
-                recurrent_h = tf.keras.backend.dot(
-                    r * h_tm1, self.recurrent_kernel[:, 2 * self.units :]
-                )
+#             if self.reset_after:
+#                 recurrent_h = r * recurrent_h
+#             else:
+#                 recurrent_h = tf.keras.backend.dot(
+#                     r * h_tm1, self.recurrent_kernel[:, 2 * self.units :]
+#                 )
 
-            hh = self.activation(x_h + recurrent_h)
-        # previous and candidate state mixed by update gate
+#             hh = self.activation(x_h + recurrent_h)
+#         # previous and candidate state mixed by update gate
 
-        # * ============================ modyfied ============================
-        z = z * att_score  # * change this line
-        # * ============================ modyfied ============================
+#         # * ============================ modyfied ============================
+#         z = z * att_score  # * change this line
+#         # * ============================ modyfied ============================
 
-        h = z * h_tm1 + (1 - z) * hh
-        new_state = [h] if tf.tf.nest.is_tf.nested(states) else h
-        return h, new_state
+#         h = z * h_tm1 + (1 - z) * hh
+#         new_state = [h] if tf.tf.nest.is_tf.nested(states) else h
+#         return h, new_state
+
+
+class AUGRUCell(Layer):
+    def __init__(
+        self,
+        units: int,
+        activation: str = "tanh",
+        recurrent_activation: str = "sigmoid",
+        **kwargs
+    ):
+        self.units = units
+        self.activation = activation
+        self.recurrent_activation = recurrent_activation
+
+        self.state_size = [self.units]
+        self.output_size = [self.units]
+
+        self.W_u = None
+        self.U_u = None
+        self.b_u = None
+        self.W_r = None
+        self.U_r = None
+        self.b_r = None
+        self.W_h = None
+        self.U_h = None
+        self.b_h = None
+        super().__init__(**kwargs)
+
+    def build(self, input_shape):
+        input_size = input_shape[0][-1]
+
+        self.W_u, self.U_u, self.b_u = self._gen_weights("u", input_size)
+        self.W_r, self.U_r, self.b_r = self._gen_weights("r", input_size)
+        self.W_h, self.U_h, self.b_h = self._gen_weights("h", input_size)
+        self.activation_u = Activation(self.recurrent_activation)
+        self.activation_r = Activation(self.recurrent_activation)
+        self.activation_h = Activation(self.activation)
+
+        return super().build(input_shape)
+
+    def _gen_weights(self, name, input_size):
+        W = self.add_weight(
+            "W_" + name,
+            shape=(input_size, self.units),
+            dtype=tf.float32,
+            initializer="glorot_uniform",
+            trainable=True,
+        )
+        U = self.add_weight(
+            "U_" + name,
+            shape=(self.units, self.units),
+            dtype=tf.float32,
+            initializer="glorot_uniform",
+            trainable=True,
+        )
+        b = self.add_weight(
+            "b_" + name,
+            shape=(self.units,),
+            dtype=tf.float32,
+            initializer=Zeros,
+            trainable=True,
+        )
+        return W, U, b
+
+    def call(self, inputs, hidden):
+        x, att_score = inputs
+        hidden = hidden[0]
+
+        u = tf.matmul(x, self.W_u) + tf.matmul(hidden, self.U_u) + self.b_u
+        u = att_score * self.activation_u(u)
+
+        r = tf.matmul(x, self.W_r) + tf.matmul(hidden, self.U_r) + self.b_r
+        r = self.activation_r(r)
+
+        h_hat = tf.matmul(x, self.W_h) + r * tf.matmul(hidden, self.U_h) + self.b_h
+        h_hat = self.activation_h(h_hat)
+
+        output = (1 - u) * hidden + u * h_hat
+        return output, [output]
+
+    def get_config(self):
+        config = {
+            "units": self.units,
+            "activation": self.activation,
+            "recurrent_actvation": self.recurrent_activation,
+        }
+        base_config = super().get_config()
+        return {**config, **base_config}
 
 
 # class AUGRU(RNN):
