@@ -1,5 +1,5 @@
 HandyRec Match Models API
-======================
+=========================
 
 .. toctree::
    :maxdepth: 3

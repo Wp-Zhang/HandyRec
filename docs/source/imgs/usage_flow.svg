@@ -3,62 +3,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1151px"
     height="396px" viewBox="-0.5 -0.5 1151 396">
     <defs>
-        <style type="text/css">
-            @media (prefers-color-scheme: dark) {
-                :root {
-                    --light-color: #c9d1d9;
-                    --dark-color: #0d1117;
-                }
-
-                svg[style^="background-color:"] {
-                    background-color: var(--dark-color) !important;
-                }
-
-                g[filter="url(#dropShadow)"] {
-                    filter: none !important;
-                }
-
-                [stroke="rgb(0, 0, 0)"] {
-                    stroke: var(--light-color);
-                }
-
-                [stroke="rgb(255, 255, 255)"] {
-                    stroke: var(--dark-color);
-                }
-
-                [fill="rgb(0, 0, 0)"] {
-                    fill: var(--light-color);
-                }
-
-                [fill="rgb(255, 255, 255)"] {
-                    fill: var(--dark-color);
-                }
-
-                g[fill="rgb(0, 0, 0)"] text {
-                    fill: var(--light-color);
-                }
-
-                div[data-drawio-colors*="color: rgb(0, 0, 0)"] div {
-                    color: var(--light-color) !important;
-                }
-
-                div[data-drawio-colors*="border-color: rgb(0, 0, 0)"] {
-                    border-color: var(--light-color) !important;
-                }
-
-                div[data-drawio-colors*="border-color: rgb(0, 0, 0)"] div {
-                    border-color: var(--light-color) !important;
-                }
-
-                div[data-drawio-colors*="background-color: rgb(255, 255, 255)"] {
-                    background-color: var(--dark-color) !important;
-                }
-
-                div[data-drawio-colors*="background-color: rgb(255, 255, 255)"] div {
-                    background-color: var(--dark-color) !important;
-                }
-            }
-        </style>
     </defs>
     <g>
         <rect x="15" y="165" width="520" height="190" rx="5.7" ry="5.7" fill="none" stroke="rgb(0, 0, 0)"
