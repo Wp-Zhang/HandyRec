@@ -1,26 +1,6 @@
 <svg width="3658" height="1224" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
     overflow="hidden">
     <defs>
-        <style type="text/css">
-            @media (prefers-color-scheme: dark) {
-                :root {
-                    --light-color: #c9d1d9;
-                    --dark-color: #3D4041;
-                }
-
-                svg[style^="background-color:"] {
-                    background-color: var(--dark-color) !important;
-                }
-
-                [stroke="#3D4041"] {
-                    stroke: var(--light-color);
-                }
-
-                [fill="#3D4041"] {
-                    fill: var(--light-color);
-                }
-            }
-        </style>
         <clipPath id="clip0">
             <rect x="-9" y="727" width="3658" height="1224" />
         </clipPath>
