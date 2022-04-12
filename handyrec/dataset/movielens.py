@@ -660,3 +660,245 @@ class MovieRankDataHelper(MovielensDataHelper):
         train_label = np.load(open(train_label_path, "rb"), allow_pickle=True)
 
         return train_set, train_label, test_set
+
+
+class MovieRankSeqDataHelper(MovielensDataHelper):
+    def __init__(self, data_dir: str):
+        super().__init__(data_dir, "rank")
+
+    def gen_dataset(
+        self,
+        features: List[str],
+        data: dict,
+        test_id: dict,
+        seq_max_len: int = 20,
+        negnum: int = 0,
+        min_rating: float = 0.35,
+        n: int = 10,
+    ):
+        """Generate and save train set and test set.
+
+        Parameters
+        ----------
+        features : List[str]
+            List of features to be contained in the dataset.
+        data : dict
+            Data dictionary with three keys: ``user``, ``item``, and ``interact``.
+        test_id : dict
+            Test id dictionary, {user_id: movie_id}.
+        seq_max_len : int, optional
+            Maximum history sequence length, by default ``20``.
+        negnum : int, optional
+            Number of negative samples, by default ``0``.
+        min_rating : float, optional
+            Minimum rating for positive smaples, by default ``0.35``.
+        n : int, optional
+            Hold out the last n samples for each user for testing, by default ``10``.
+
+        Note
+        ----
+        In ``test_id``, each user should have the same number of movie_ids.
+        """
+
+        data["interact"].sort_values(by="timestamp", ascending=True, inplace=True)
+        df = data["interact"]
+
+        item_ids = set(data["item"]["movie_id"].values)
+
+        # * Split train and test set
+        # * Calculate number of rows of dataset to fasten the dataset generating process
+        df = df[df["interact"] >= min_rating]
+        counter = df[["user_id", "movie_id"]].groupby("user_id", as_index=False).count()
+        counter = counter[counter["movie_id"] > n]
+        df = df[df["user_id"].isin(counter["user_id"].values)]
+        train_rows = ((counter["movie_id"] - n) * negnum).sum()
+        test_rows = len(test_id.keys()) * len(list(test_id.values())[0])
+
+        # * Generate rows
+        # * train_set format: [uid, movie_id, neg_movie_id, history_seq]
+        # * test_set format: [uid, moiveID, history_seq]
+
+        train_set = np.zeros((train_rows, 3 + seq_max_len), dtype=int)
+        test_set = np.zeros((test_rows, 2 + seq_max_len), dtype=int)
+
+        p, q = 0, 0
+        for uid, hist in tqdm(df.groupby("user_id"), "Generate train set"):
+            pos_list = hist["movie_id"].tolist()
+            negs = []
+            if negnum > 0:
+                candidate_set = list(item_ids - set(pos_list))  # * negative samples
+                neg_size = (len(pos_list) - n) * negnum
+                negs = np.random.choice(candidate_set, size=neg_size, replace=True)
+
+            pos_list = pos_list[:-n]
+            test_list = test_id.get(uid, None)
+            train_chunk = self._gen_train_chunk(
+                uid, seq_max_len, pos_list, negs, negnum
+            )
+            train_set[p : p + len(train_chunk), :] = train_chunk
+            p += len(train_chunk)
+            if test_list is not None:  # * this uid needs to be tested
+                test_chunk = self._gen_test_chunk(uid, seq_max_len, pos_list, test_list)
+                test_set[q : q + len(test_chunk), :] = test_chunk
+                q += len(test_chunk)
+
+        np.random.seed(2022)
+        np.random.shuffle(train_set)
+        # np.random.shuffle(test_set)
+
+        user = data["user"]
+        item = data["item"]
+        user = user.set_index("user_id")
+        item = item.set_index("movie_id")
+
+        train_uid = train_set[:, 0]
+        train_iid = train_set[:, 1]
+        train_hist_seq = train_set[:, 3 : 3 + seq_max_len]
+        np.save(open(self.sub_dir + "train_user_id.npy", "wb"), train_uid)
+        np.save(open(self.sub_dir + "train_movie_id.npy", "wb"), train_iid)
+        np.save(open(self.sub_dir + "train_neg_movie_id.npy", "wb"), train_set[:, 2])
+        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_hist_seq)
+
+        test_uid = test_set[:, 0]
+        test_iid = test_set[:, 1]
+        test_hist_seq = test_set[:, 2 : 2 + seq_max_len]
+        np.save(open(self.sub_dir + "test_user_id.npy", "wb"), test_uid)
+        np.save(open(self.sub_dir + "test_movie_id.npy", "wb"), test_iid)
+        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_hist_seq)
+
+        del train_set, test_set  # , hist_seq, hist_seq_pad
+        gc.collect()
+
+        user_feats = [x for x in user.columns if x in features and x != "user_id"]
+        for key in tqdm(user_feats, "Save user features"):
+            train_tmp_array = np.array(user[key].loc[train_uid].tolist())
+            test_tmp_array = np.array(user[key].loc[test_uid].tolist())
+            np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
+            np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
+            del train_tmp_array, test_tmp_array
+            gc.collect()
+
+        del train_uid, user
+        gc.collect()
+
+        item_feats = [x for x in item.columns if x in features and x != "movie_id"]
+        for key in tqdm(item_feats, "Save item features"):
+            train_tmp_array = np.array(item[key].loc[train_iid].tolist())
+            test_tmp_array = np.array(item[key].loc[test_iid].tolist())
+            np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
+            np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
+            del train_tmp_array, test_tmp_array
+            gc.collect()
+
+    @staticmethod
+    def _gen_train_chunk(uid, seq_len, pos_list, neg_list, negnum):
+        """Generate train set of a single uid.
+
+        Parameters
+        ----------
+        uid : int
+            user_id
+        seq_len : int
+            movie history sequence length
+        pos_list : List[int]
+            positive movie ids
+        neg_list : np.ndarray
+            sampled negative movie ids
+
+        Returns
+        -------
+        np.ndarray
+            chunk of train set
+        """
+
+        def fill_n(x, i):
+            top_n_seq = pos_list[:i][::-1][:seq_len]
+            x[: len(top_n_seq)] = top_n_seq
+            return x
+
+        # * Trainset format: [uid, moive_id, neg_movie_id, history_seq]
+        # * Positive smaples
+        len_pos = len(pos_list)
+        chunk_size = 3 + seq_len
+        chunk = np.zeros((len_pos * negnum, chunk_size), dtype=int)
+        chunk[:, 0] = uid  # * uid
+        chunk[:, 1] = np.repeat(pos_list, negnum, -1)  # * movieID
+        chunk[:, 2] = neg_list[-negnum * len_pos :]  # * negative movieID
+        chunk[:, 3 : 3 + seq_len] = np.repeat(
+            np.array([fill_n(chunk[i, 3 : 3 + seq_len], i) for i in range(len_pos)]),
+            negnum,
+            0,
+        )
+
+        return chunk
+
+    @staticmethod
+    def _gen_test_chunk(uid, seq_len, pos_list, test_list):
+        """Generate test set of a single uid.
+
+        Parameters
+        ----------
+        uid : int
+            user_id
+        seq_len : int
+            movie history sequence length
+        pos_list : List[int]
+            positive movie ids
+        test_list : List[int]
+            test movie ids
+        time_diff : List[int]
+            time gap since the last time to rate a movie
+
+        Returns
+        -------
+        np.ndarray
+            chunk of test set
+        """
+        # * Testset format: [uid, moiveID, sample_age(0), time_since_last_movie, history_seq]
+        # * Test smaples
+        hist_seq = np.array(pos_list[-seq_len:][::-1])
+        hist_seq_len = len(hist_seq)
+        test_len = len(test_list)
+        chunk_size = 2 + seq_len
+        test_chunk = np.zeros((test_len, chunk_size), dtype=int)
+        test_chunk[:, 0] = uid  # * uid
+        test_chunk[:, 1] = test_list  # * movie_id
+        test_chunk[:, 2 : 2 + hist_seq_len] = hist_seq  # * history_seq
+
+        return test_chunk
+
+    def load_dataset(self, user_feats: List[str], movie_feats: List[str]) -> Tuple:
+        """Load saved dataset.
+
+        Parameters
+        ----------
+        user_feats : List[str]
+            List of user features to be loaded.
+        movie_feats : List[str]
+            List of movie features to be loaded.
+
+        Returns
+        -------
+        Tuple
+            [train set, test set].
+        """
+        train_set = {}
+        test_set = {}
+
+        user_feats += ["hist_movie_id"]
+        for feat in tqdm(user_feats, "Load user features"):
+            train_path = self.sub_dir + "train_" + feat + ".npy"
+            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
+            test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
+
+        for feat in tqdm(movie_feats, "Load movie features"):
+            train_path = self.sub_dir + "train_" + feat + ".npy"
+            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
+            test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
+        train_set["neg_movie_id"] = np.load(
+            open(self.sub_dir + "train_neg_movie_id.npy", "rb"), allow_pickle=True
+        )
+
+        return train_set, test_set
