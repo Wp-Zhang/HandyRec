@@ -99,6 +99,25 @@ class CustomEmbedding(Embedding):
         return mask
 
 
+class PositionEmbedding(Layer):
+    def __init__(self, **kwargs):
+        self.seq_len = None
+        self.embd_dim = None
+        self.embedding = None
+        super().__init__(**kwargs)
+
+    def build(self, input_shape):
+        _, self.seq_len, self.embd_dim = input_shape
+        self.embedding = self.add_weight("embd", (self.seq_len, self.embd_dim))
+
+        super().build(input_shape)
+
+    def call(self, inputs, *args, **kwargs):
+        pos_seq = tf.expand_dims(tf.range(self.seq_len), 0)  # (1, seq_len)
+        output = tf.nn.embedding_lookup(self.embedding, pos_seq)
+        return output
+
+
 # class Similarity(Layer):
 #     def __init__(self, type: str, **kwargs):
 #         self.type = type
