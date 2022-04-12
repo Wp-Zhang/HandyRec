@@ -1,8 +1,8 @@
 from typing import Tuple, OrderedDict
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import GRU, Concatenate, RNN, Layer
-from handyrec.features import FeatureGroup, EmbdFeatureGroup
+from tensorflow.keras.layers import GRU, Concatenate, RNN
+from handyrec.features import FeatureGroup
 from handyrec.layers import DNN, LocalActivationUnit, AUGRUCell
 from handyrec.layers.utils import concat
 
