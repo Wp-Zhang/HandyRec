@@ -1,12 +1,7 @@
-from .layers import DNN, FM
-from .tools import (
-    SequencePoolingLayer,
-    ValueTable,
-    SampledSoftmaxLayer,
-    CustomEmbedding,
-    LocalActivationUnit,
-    AUGRUCell,
-)
+from .core import DNN
+from .interaction import FM
+from .sequence import SequencePoolingLayer, LocalActivationUnit, AUGRUCell
+from .tools import ValueTable, SampledSoftmaxLayer, CustomEmbedding
 
 
 __all__ = [
