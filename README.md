@@ -23,12 +23,21 @@ It is currently a personal project for learning purposes. I recently started to 
 
 ### Ranking
 
+### Base Models
 | Model      | Paper                                                                                                                    | Example                                                                                                                                                    |
 | :--------- | :----------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | YouTubeDNN | \[RecSys 2016] [Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190)    | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/YouTubeDNN.ipynb) |
+
+### Deep Feature Interaction Models
+| Model      | Paper                                                                                                                    | Example                                                                                                                                                    |
+| :--------- | :----------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | DeepFM     | \[IJCAI, 2017] [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](https://arxiv.org/pdf/1703.04247.pdf) | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/DeepFM.ipynb) |
-| DIN     | \[SIGKDD, 2018] [Deep Interest Network for Click-Through Rate Prediction](https://arxiv.org/pdf/1706.06978.pdf) | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/DIN.ipynb) |
-| DIEN     | \[AAAI, 2019] [Deep Interest Evolution Network for Click-Through Rate Prediction](https://arxiv.org/pdf/1809.03672.pdf) | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/DIEN.ipynb) |
+
+### Sequence-based Feature Interaction Models
+| Model      | Paper                                                                                                                    | Example                                                                                                                                                    |
+| :--------- | :----------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DIN        | \[SIGKDD, 2018] [Deep Interest Network for Click-Through Rate Prediction](https://arxiv.org/pdf/1706.06978.pdf)          | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/DIN.ipynb)        |
+| DIEN       | \[AAAI, 2019] [Deep Interest Evolution Network for Click-Through Rate Prediction](https://arxiv.org/pdf/1809.03672.pdf)  | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/DIEN.ipynb)       |
 
 ## ℹ️ Usage
 
