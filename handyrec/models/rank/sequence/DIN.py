@@ -1,8 +1,9 @@
 from typing import Tuple, OrderedDict
 import tensorflow as tf
 from tensorflow.keras import Model
+from tensorflow.keras.layers import Input
 from handyrec.features import FeatureGroup, EmbdFeatureGroup
-from handyrec.layers import DNN, LocalActivationUnit
+from handyrec.layers import DNN, LocalActivationUnit, SqueezeMask
 from handyrec.layers.utils import concat
 
 
@@ -66,7 +67,10 @@ def DIN(
     other_dense, other_sparse = other_feature_group.embedding_lookup(pool_method="mean")
 
     embd_outputs = OrderedDict()
+    id_input = None
     for feat in item_seq_feat_group.features:
+        if id_input is None:
+            id_input = Input(name=feat.unit.name, shape=(1,), dtype=tf.int32)
         sparse_embd = item_seq_feat_group.embd_layers[feat.unit.name]
         seq_input = item_seq_feat_group.input_layers[feat.name]
         lau = LocalActivationUnit(
@@ -77,12 +81,11 @@ def DIN(
             lau_dnn_bn,
             seed,
         )
-        embd_seq, mask = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
+        embd_seq = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
+        embd_seq = SqueezeMask()(embd_seq)
         # * att_score: (batch_size, 1, seq_len)
-        query = tf.expand_dims(feat.unit.lookup(feat.unit.id_input), axis=1)
+        query = sparse_embd(id_input)
         att_score = lau([query, embd_seq])
-        mask = tf.cast(tf.expand_dims(mask[:, :, 0], axis=1), dtype=tf.float32)
-        att_score *= mask
         # * (batch_size, 1, embd_dim)
         embd_outputs[feat.name] = tf.matmul(att_score, embd_seq)
     local_activate_pool = list(embd_outputs.values())
@@ -101,6 +104,7 @@ def DIN(
 
     # * Construct model
     feature_pool = item_seq_feat_group.feat_pool
-    model = Model(inputs=list(feature_pool.input_layers.values()), outputs=dnn_output)
+    inputs = list(feature_pool.input_layers.values()) + [id_input]
+    model = Model(inputs=inputs, outputs=dnn_output)
 
     return model

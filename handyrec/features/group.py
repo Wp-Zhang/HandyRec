@@ -3,7 +3,7 @@
 from typing import List, Union, OrderedDict, Dict, Tuple
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.layers import Input, Dense
+from tensorflow.keras.layers import Input, Dense, Layer
 from tensorflow.keras.regularizers import l2
 from handyrec.layers import CustomEmbedding, SequencePoolingLayer, ValueTable
 from handyrec.layers.utils import concat
@@ -35,6 +35,7 @@ class FeaturePool:
         """
         self.input_layers = OrderedDict()
         self.embd_layers = OrderedDict()
+        self.pool_layers = OrderedDict()
 
         self.pre_embd = pre_embd
 
@@ -115,6 +116,15 @@ class FeaturePool:
         else:
             layer = CustomEmbedding(**params)
         self.embd_layers[name] = layer
+        return layer
+
+    def init_pool(self, name: str, params: Dict) -> Layer:
+        if name in self.pool_layers.keys():
+            layer = self.pool_layers[name]
+            # TODO check pool method equality
+        else:
+            layer = SequencePoolingLayer(**params)
+            self.pool_layers[name] = layer
         return layer
 
     def add_input(self, input_layer: Input) -> None:
@@ -314,7 +324,11 @@ class FeatureGroup:
         for feat in sparse_seq.values():
             sparse_embd = self.embd_layers[feat.unit.name]
             seq_input = self.input_layers[feat.name]
-            pool_layer = SequencePoolingLayer(pool_method, name=feat.name + "_POOL")
+
+            pool_layer = self.feat_pool.init_pool(
+                feat.name + "_POOL",
+                {"name": feat.name + "_POOL", "method": pool_method},
+            )
             if feat.is_group:
                 embd_seq, mask = sparse_embd(seq_input)
                 embd_outputs[feat.name] = pool_layer(embd_seq, mask)

@@ -57,7 +57,7 @@ class FilterBlock(Layer):
 
     def __init__(
         self,
-        dnn_activation: str = "relu",
+        dnn_activation: str = "gelu",
         dropout: float = 0,
         filter_dropout: float = 0,
         layer_norm_eps: float = 1e-12,
@@ -77,10 +77,12 @@ class FilterBlock(Layer):
 
         return super().build(input_shape)
 
-    def call(self, inputs, *args, **kwargs):
+    def call(self, inputs, mask=None, **kwargs):
         filtered = self.filter_layer(inputs)
         output = self.dnn_layer(filtered)
         output = self.layernorm(self.dropout(output) + inputs)
+        if mask is not None:
+            output = output * tf.cast(mask, tf.float32)
         return output
 
 
@@ -106,7 +108,8 @@ def FMLPRec(
     embd_outputs = OrderedDict()
     pos_embd_outputs = OrderedDict()
     neg_embd_outputs = OrderedDict()
-    negative_item_input = None
+    pos_item_input = None
+    neg_item_input = None
     for feat in seq_feat_group.features:
         if feat.seq_len % 2 == 1:
             raise AttributeError(
@@ -114,22 +117,22 @@ def FMLPRec(
             )
         sparse_embd = seq_feat_group.embd_layers[feat.unit.name]
         seq_input = seq_feat_group.input_layers[feat.name]
-        embd_seq, mask = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
+        embd_seq = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
+
         # * Get embeddings of positive and negative target items
-        if negative_item_input is None:
-            negative_item_input = Input(
-                (1,), name="neg_" + feat.unit.id_input.name, dtype=tf.int32
-            )
-        embd_pos = sparse_embd.lookup(feat.unit.id_input)
-        embd_neg = sparse_embd.lookup(negative_item_input)
-        # TODO add support for SparseFeature
+        if pos_item_input is None:
+            pos_item_input = Input((1,), name=feat.unit.name, dtype=tf.int32)
+            neg_item_input = Input((1,), name="neg_" + feat.unit.name, dtype=tf.int32)
+
+        embd_pos = sparse_embd(pos_item_input)
+        mask = sparse_embd.compute_mask(pos_item_input)
+        embd_neg = sparse_embd(neg_item_input)
         pos_embd_outputs[feat.name] = embd_pos
         neg_embd_outputs[feat.name] = embd_neg
 
         # * Embedding Part (batch_size, seq_len, embd_dim)
         position_embd = PositionEmbedding()
         embd_seq = embd_seq + position_embd(embd_seq)
-        embd_seq = embd_seq * tf.cast(mask, tf.float32)
         embd_seq = LayerNormalization(epsilon=layer_norm_eps)(embd_seq)
         embd_seq = Dropout(dropout)(embd_seq)
 
@@ -140,7 +143,7 @@ def FMLPRec(
                 dropout=dropout,
                 filter_dropout=dropout,
                 layer_norm_eps=layer_norm_eps,
-            )(embd_seq)
+            )(embd_seq, mask=mask)
 
         # * (batch_size, embd_dim)
         embd_outputs[feat.name] = embd_seq[:, -1, :]
@@ -152,18 +155,17 @@ def FMLPRec(
 
     pos_logits = tf.reduce_sum(output * pos_embd, axis=-1)
     neg_logits = tf.reduce_sum(output * neg_embd, axis=-1)
-    loss = tf.reduce_mean(
-        -tf.math.log(tf.sigmoid(pos_logits) + 1e-24)
-        - tf.math.log(1 - tf.sigmoid(neg_logits) + 1e-24)
-    )
+    pos_p = tf.clip_by_value(tf.sigmoid(pos_logits), 1e-8, 1 - 1e-8)
+    neg_p = tf.clip_by_value(tf.sigmoid(neg_logits), 1e-8, 1 - 1e-8)
+    loss = tf.reduce_mean(-tf.math.log(pos_p) - tf.math.log(1 - neg_p))
 
     # * Construct model
-    seq_feat_inputs = list(seq_feat_group.feat_pool.input_layers.values())
-    inputs = [negative_item_input] + seq_feat_inputs
+    seq_feat_inputs = list(seq_feat_group.input_layers.values())
+    inputs = [pos_item_input, neg_item_input] + seq_feat_inputs
     model = Model(inputs=inputs, outputs=loss)
     model.add_loss(loss)
 
-    model.__setattr__("actual_inputs", seq_feat_inputs)
+    model.__setattr__("actual_inputs", seq_feat_inputs + [pos_item_input])
     model.__setattr__("actual_outputs", pos_logits)
 
     return model

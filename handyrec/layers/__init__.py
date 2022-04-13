@@ -1,7 +1,13 @@
 from .core import DNN
 from .interaction import FM
 from .sequence import SequencePoolingLayer, LocalActivationUnit, AUGRUCell
-from .tools import ValueTable, SampledSoftmaxLayer, CustomEmbedding, PositionEmbedding
+from .tools import (
+    ValueTable,
+    SampledSoftmaxLayer,
+    CustomEmbedding,
+    SqueezeMask,
+    PositionEmbedding,
+)
 
 
 __all__ = [
@@ -11,6 +17,7 @@ __all__ = [
     "ValueTable",
     "SampledSoftmaxLayer",
     "CustomEmbedding",
+    "SqueezeMask",
     "LocalActivationUnit",
     "AUGRUCell",
     "PositionEmbedding",
