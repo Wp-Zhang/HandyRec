@@ -38,6 +38,8 @@ It is currently a personal project for learning purposes. I recently started to 
 | :--------- | :----------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | DIN        | \[SIGKDD, 2018] [Deep Interest Network for Click-Through Rate Prediction](https://arxiv.org/pdf/1706.06978.pdf)          | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/DIN.ipynb)        |
 | DIEN       | \[AAAI, 2019] [Deep Interest Evolution Network for Click-Through Rate Prediction](https://arxiv.org/pdf/1809.03672.pdf)  | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/DIEN.ipynb)       |
+| FMLP-Rec   | \[WWW, 2022] [Filter-enhanced MLP is All You Need for Sequential Recommendation](https://arxiv.org/pdf/2202.13556.pdf)  | [![Jupyer](https://img.shields.io/badge/Jupyter%20Notebook-grey?logo=jupyter)](https://github.com/Wp-Zhang/HandyRec/blob/master/examples/FMLPRec.ipynb)     |
+
 
 ## ℹ️ Usage
 
