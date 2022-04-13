@@ -1,36 +1,41 @@
 from typing import Tuple, OrderedDict
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import GRU, Concatenate, RNN
+from tensorflow.keras.layers import GRU, Concatenate, RNN, Layer, Input
 from handyrec.features import FeatureGroup
-from handyrec.layers import DNN, LocalActivationUnit, AUGRUCell
+from handyrec.layers import DNN, LocalActivationUnit, AUGRUCell, SqueezeMask
 from handyrec.layers.utils import concat
 
 
-def _auxiliary_loss(embd_seq, neg_embd_seq, hidden_seq, mask):
-    # * embd_seq: [batch_size, T, embd_size]
-    # * neg_embd_seq: [batch_size, T, embd_size]
-    # * hidden_seq: [batch_size, T, hidden_size]
-    # * mask: [batch_size, T]
-    mask = tf.cast(mask, tf.float32)[:, 1:]  # * [batch_size, T-1]
-    embd_seq = embd_seq[:, 1:, :]  # * [batch_size, T-1, embd_size]
-    neg_embd_seq = neg_embd_seq[:, 1:, :]  # * [batch_size, T-1, embd_size]
-    hidden_seq = hidden_seq[:, :-1, :]  # * [batch_size, T-1, hidden_size]
-    concat_seq1 = Concatenate(axis=-1)([hidden_seq, neg_embd_seq])
-    concat_seq2 = Concatenate(axis=-1)([hidden_seq, embd_seq])
+class AuxiliaryLoss(Layer):
+    def __init__(self, dnn_units: Tuple = (100, 50, 1), **kwargs):
+        self.dnn = DNN(hidden_units=dnn_units, activation="sigmoid")
+        super().__init__(**kwargs)
 
-    dnn = DNN(hidden_units=(100, 50, 1), activation="sigmoid")
-    click_p = tf.squeeze(dnn(concat_seq1), axis=2)  # * (batch_size, T-1)
-    nonclick_p = tf.squeeze(dnn(concat_seq2), axis=2)  # * (batch_size, T-1)
-    click_p = tf.clip_by_value(tf.sigmoid(click_p), 1e-8, 1 - 1e-8)
-    nonclick_p = tf.clip_by_value(tf.sigmoid(nonclick_p), 1e-8, 1 - 1e-8)
-    click_loss = tf.math.log(click_p) * mask
-    nonclick_loss = tf.math.log(1 - nonclick_p) * mask
+    def call(self, inputs, mask, **kwargs):
+        embd_seq, neg_embd_seq, hidden_seq = inputs
+        # * embd_seq: [batch_size, T, embd_size]
+        # * neg_embd_seq: [batch_size, T, embd_size]
+        # * hidden_seq: [batch_size, T, hidden_size]
 
-    loss = tf.reduce_sum(click_loss + nonclick_loss, axis=1)
-    loss = -tf.reduce_mean(loss, axis=0)
+        mask = tf.cast(mask[0], tf.float32)[:, 1:]  # * [batch_size, T-1]
+        embd_seq = embd_seq[:, 1:, :]  # * [batch_size, T-1, embd_size]
+        neg_embd_seq = neg_embd_seq[:, 1:, :]  # * [batch_size, T-1, embd_size]
+        hidden_seq = hidden_seq[:, :-1, :]  # * [batch_size, T-1, hidden_size]
+        concat_seq1 = tf.concat([hidden_seq, neg_embd_seq], axis=-1)
+        concat_seq2 = tf.concat([hidden_seq, embd_seq], axis=-1)
 
-    return loss
+        click_p = tf.squeeze(self.dnn(concat_seq1), axis=2)  # * (batch_size, T-1)
+        nonclick_p = tf.squeeze(self.dnn(concat_seq2), axis=2)  # * (batch_size, T-1)
+        click_p = tf.clip_by_value(tf.sigmoid(click_p), 1e-8, 1 - 1e-8)
+        nonclick_p = tf.clip_by_value(tf.sigmoid(nonclick_p), 1e-8, 1 - 1e-8)
+        click_loss = tf.math.log(click_p) * mask
+        nonclick_loss = tf.math.log(1 - nonclick_p) * mask
+
+        loss = tf.reduce_sum(click_loss + nonclick_loss, axis=1)
+        loss = -tf.reduce_mean(loss, axis=0)
+
+        return loss
 
 
 def DIEN(
@@ -141,17 +146,20 @@ def DIEN(
                 " features, i.e. the same sequence length and featue name. Name of features"
                 " in `neg_item_seq_feat_group` should be prefixed with `neg_`."
             )
-    # TODO support for setting SparseFeat as unit of feature in `item_seq_feat_group`
+    # TODO check units of SparseSeqFeats are the same
 
     other_dense, other_sparse = other_feature_group.embedding_lookup(pool_method="mean")
 
     embd_outputs = OrderedDict()
+    id_input = None
     for feat in item_seq_feat_group.features:
         # * Due to the feature of `FeaturePool`, `item_seq_feat_group` and
         # *     `neg_item_seq_feat_group` actually share the same embedding
         # *     layers, so we can use embedding layer dict in `item_seq_feat_group`
         # *     to lookup embedding of unit features in `neg_item_seq_feat_group`.
         sparse_embd = item_seq_feat_group.embd_layers[feat.unit.name]
+        if id_input is None:
+            id_input = Input(shape=(1,), name=feat.unit.name, dtype=tf.int32)
 
         seq_input = item_seq_feat_group.input_layers[feat.name]
         neg_seq_input = neg_item_seq_feat_group.input_layers["neg_" + feat.name]
@@ -160,9 +168,10 @@ def DIEN(
         neg_seq_input = neg_seq_input[:, ::-1]
 
         # * ========================== Embedding Lookup ==========================
-        embd_seq, mask = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
-        neg_embd_seq, _ = sparse_embd(neg_seq_input)
-        mask = mask[:, :, 0]  # * (batch_size, seq_len)
+        embd_seq = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
+        neg_embd_seq = sparse_embd(neg_seq_input)
+        # * layers below only use the mask of `embd_seq`, thus we only apply squeeze operation on it.
+        embd_seq = SqueezeMask()(embd_seq)
 
         # * ========================== FIRST LAYER: GRU ==========================
         gru = GRU(
@@ -174,11 +183,12 @@ def DIEN(
             return_state=False,
             name="gru",
         )
-        hidden_seq1 = gru(embd_seq, mask=mask)  # * (batch_size, seq_len, gru_units)
-        auxiliary_loss = _auxiliary_loss(embd_seq, neg_embd_seq, hidden_seq1, mask)
+        hidden_seq1 = gru(embd_seq)  # * (batch_size, seq_len, gru_units)
+        auxiliary_loss = AuxiliaryLoss()([embd_seq, neg_embd_seq, hidden_seq1])
 
         # * ======================= LOCAL ACTIVATION UNIT =======================
-        query = tf.expand_dims(feat.unit.lookup(feat.unit.id_input), axis=1)
+        query = sparse_embd(id_input)
+
         lau = LocalActivationUnit(
             lau_dnn_hidden_units,
             lau_dnn_activation,
@@ -187,8 +197,8 @@ def DIEN(
             lau_dnn_bn,
             seed,
         )
-        att_score = lau([query, hidden_seq1])  # * att_score: (batch_size, 1, seq_len)
-        att_score = att_score * tf.cast(tf.expand_dims(mask, axis=1), dtype=tf.float32)
+        # * att_score: (batch_size, 1, seq_len)
+        att_score = lau([query, hidden_seq1])
         att_score = tf.transpose(att_score, [0, 2, 1])  # * (batch_size, seq_len, 1)
 
         # * ======================== SECOND LAYER: AUGRU ========================
@@ -199,7 +209,7 @@ def DIEN(
         )
         augru = RNN(cell=augru_cell, return_sequences=True, return_state=True)
         # * (batch_size, augru_units)
-        _, final_state = augru((hidden_seq1, att_score), mask=mask)
+        _, final_state = augru((hidden_seq1, att_score))
 
         # * =====================================================================
         # * shape: (batch_size, 1, augru_units)
@@ -220,7 +230,8 @@ def DIEN(
 
     # * Construct model
     feature_pool = item_seq_feat_group.feat_pool
-    model = Model(inputs=list(feature_pool.input_layers.values()), outputs=dnn_output)
+    inputs = list(feature_pool.input_layers.values()) + [id_input]
+    model = Model(inputs=inputs, outputs=dnn_output)
     model.add_loss(alpha * auxiliary_loss)
 
     return model

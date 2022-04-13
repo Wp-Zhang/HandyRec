@@ -641,10 +641,11 @@ class MovieRankDataHelper(MovielensDataHelper):
         train_set = {}
         test_set = {}
 
+        u_feats = user_feats.copy()
         if neg_seq:
-            user_feats += ["neg_hist_movie_id"]
-        user_feats += ["hist_movie_id", "time_gap", "example_age"]
-        for feat in tqdm(user_feats, "Load user features"):
+            u_feats += ["neg_hist_movie_id"]
+        u_feats += ["hist_movie_id", "time_gap", "example_age"]
+        for feat in tqdm(u_feats, "Load user features"):
             train_path = self.sub_dir + "train_" + feat + ".npy"
             test_path = self.sub_dir + "test_" + feat + ".npy"
             train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)

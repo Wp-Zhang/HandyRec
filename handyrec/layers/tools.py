@@ -99,11 +99,24 @@ class CustomEmbedding(Embedding):
         return mask
 
 
+class SqueezeMask(Layer):
+    def call(self, inputs, *args, **kwargs):
+        # * workaround for a dumb bug in TF2.6-: if inputs is not changed in `call`, its
+        # * mask won't be changed neither
+        return inputs + 0
+
+    def compute_mask(self, inputs, mask=None):
+        if mask is None:
+            return None
+        return mask[:, :, 0]
+
+
 class PositionEmbedding(Layer):
     def __init__(self, **kwargs):
         self.seq_len = None
         self.embd_dim = None
         self.embedding = None
+        self.supports_masking = True  # * pass down the mask is there exists one
         super().__init__(**kwargs)
 
     def build(self, input_shape):
