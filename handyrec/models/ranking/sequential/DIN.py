@@ -64,13 +64,17 @@ def DIN(
         Proceedings of the 24th ACM SIGKDD international conference on knowledge discovery
         & data mining. 2018.
     """
+    feature_pool = item_seq_feat_group.feat_pool
     other_dense, other_sparse = other_feature_group.embedding_lookup(pool_method="mean")
 
     embd_outputs = OrderedDict()
     id_input = None
     for feat in item_seq_feat_group.features:
         if id_input is None:
-            id_input = Input(name=feat.unit.name, shape=(1,), dtype=tf.int32)
+            id_input = feature_pool.init_input(
+                feat.unit.name,
+                {"name": feat.unit.name, "shape": (1,), "dtype": tf.int32},
+            )
         sparse_embd = item_seq_feat_group.embd_layers[feat.unit.name]
         seq_input = item_seq_feat_group.input_layers[feat.name]
         lau = LocalActivationUnit(
@@ -103,8 +107,7 @@ def DIN(
     )(dnn_input)
 
     # * Construct model
-    feature_pool = item_seq_feat_group.feat_pool
-    inputs = list(feature_pool.input_layers.values()) + [id_input]
+    inputs = list(feature_pool.input_layers.values())
     model = Model(inputs=inputs, outputs=dnn_output)
 
     return model

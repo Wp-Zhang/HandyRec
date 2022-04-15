@@ -317,7 +317,7 @@ class HandyRecDataset:
                 & (inter[self.time_name] < test_end)
             ].index
 
-        self.data["inter"] = inter.loc[inter_train_idx]
+        self.data["inter"] = inter.loc[inter_train_idx].reset_index(drop=True)
 
         self.test_label = np.array(
             inter.loc[inter_test_idx]
@@ -470,7 +470,7 @@ class HandyRecDataset:
         Returns
         -------
         Tuple[tf.data.Dataset]
-            The dataset for training, validating and testing.
+            train, valid, test, test_label.
         """
         user_train, user_valid, user_test = self._load_features("user", user_feats)
         item_train, item_valid, item_test = self._load_features("item", item_feats)
@@ -637,7 +637,11 @@ class PointWiseDataset(HandyRecDataset):
         inter = self.data["inter"]
         full_iid_set = set(inter[self.iid_name].unique())
 
-        neg_inters = [0 for _ in range(inter[self.uid_name].nunique())]
+        counter = inter.groupby([self.uid_name]).size().reset_index(name="count")
+        data_size = counter["count"].sum() * neg_num
+        data_array = np.zeros((data_size, inter.shape[1]), dtype=object)
+        # * Here we use an numpy ndarray to temporarily store the negative samples
+        # * to speed up the negative sampling process.
         p = 0
         for uid, hist in tqdm(
             inter.groupby(self.uid_name), "Generate negative samples"
@@ -649,23 +653,21 @@ class PointWiseDataset(HandyRecDataset):
             negs = np.random.choice(candidates, size=neg_size, replace=True)
 
             # * Generate data for negative samples
-            neg_df = inter[inter[self.uid_name] == uid].copy()
-            neg_df = pd.concat([neg_df] * neg_num, ignore_index=True)
-            neg_df[self.iid_name] = negs
-            neg_df[self.label_name] = 0
+            neg_array = inter[inter[self.uid_name] == uid].values
+            neg_array = np.repeat(neg_array, neg_num, axis=0)
+
+            iid_index = inter.columns.get_loc(self.iid_name)
+            label_index = inter.columns.get_loc(self.label_name)
+            neg_array[:, iid_index] = negs
+            neg_array[:, label_index] = 0
 
             # * Store the negative samples
-            neg_inters[p] = neg_df
-            p += 1
+            data_array[p : p + neg_size, :] = neg_array
+            p += neg_size
 
-        inter = pd.concat([inter, *neg_inters], ignore_index=True)
-        gc.collect()
-
-        # * recalculate the index of train set and test set
-        test_len = self.test_inter.shape[0]
-        inter = pd.concat([inter, self.test_inter], ignore_index=True)
-        self.index["train"] = inter.index[:-test_len]
-        self.index["test"] = inter.index[-test_len:]
+        # * Convert the numpy ndarray to pandas dataframe
+        data_df = pd.DataFrame(data_array, columns=inter.columns)
+        inter = pd.concat([inter, data_df], ignore_index=True)
 
         self.data["inter"] = inter
 
@@ -732,7 +734,7 @@ class PointWiseDataset(HandyRecDataset):
         Returns
         -------
         Tuple[tf.data.Dataset]
-            The dataset for training, validating and testing.
+            train, valid, test, test_label.
         """
         inter_feats = list(set(inter_feats + [self.label_name]))
 
@@ -837,11 +839,57 @@ class PairWiseDataset(HandyRecDataset):
             name, task, data, uid_name, iid_name, inter_name, time_name, threshold
         )
 
+    def negative_sampling(self, neg_num: int) -> None:
+        """Pair-Wise negative sampling for the dataset.
+
+        Parameters
+        ----------
+        neg_num: int
+            The number of negative samples for each positive sample.
+        """
+        inter = self.data["inter"]
+        full_iid_set = set(inter[self.iid_name].unique())
+
+        counter = inter.groupby([self.uid_name]).size().reset_index(name="count")
+        data_size = counter["count"].sum() * neg_num
+        data_array = np.zeros((data_size, inter.shape[1] + 1), dtype=object)
+        # * Here we use an numpy ndarray to temporarily store the negative samples
+        # * to speed up the negative sampling process.
+        p = 0
+        for uid, hist in tqdm(
+            inter.groupby(self.uid_name), "Generate negative samples"
+        ):
+            # * Generate negative samples for each user
+            pos_list = hist[self.iid_name].values
+            neg_size = len(pos_list) * neg_num
+            candidates = list(full_iid_set - set(pos_list))
+            negs = np.random.choice(candidates, size=neg_size, replace=True)
+
+            # * Generate data for negative samples
+            neg_array = inter[inter[self.uid_name] == uid].values
+            neg_array = np.repeat(neg_array, neg_num, axis=0)
+
+            # * Store the negative samples
+            data_array[p : p + neg_size, :-1] = neg_array
+            data_array[p : p + neg_size, -1] = negs
+            p += neg_size
+
+        # * Convert the numpy ndarray to pandas dataframe
+        inter = pd.DataFrame(
+            data_array, columns=list(inter.columns) + [self.neg_iid_name]
+        )
+        gc.collect()
+
+        self.data["inter"] = inter
+
     def gen_dataset(
         self,
         user_feats: List[str],
         item_feats: List[str],
         inter_feats: List[str],
+        test_candidates: Dict[int, List[int]] = None,
+        shuffle: bool = True,
+        seed: int = 0,
     ) -> None:
         """Generate the dataset for training, validating and testing.
 
@@ -853,9 +901,82 @@ class PairWiseDataset(HandyRecDataset):
             The features of the item.
         inter_feats : List[str]
             The features of the interaction.
+        test_candidates : Dict[int, List[int]], optional
+            The candidates items for each test user in ranking dataset, by default ``None``.
+            key: user_id, value: list of item_id.
+        shuffle : bool, optional
+            Whether to shuffle the dataset, by default ``True``.
+        seed : int, optional
+            The seed for shuffling, by default ``0``.
         """
-        inter_feats = list(set([self.neg_iid_name] + inter_feats))
-        super().gen_dataset(user_feats, item_feats, inter_feats)
+        inter_feats = list(set(inter_feats) - set([self.neg_iid_name]))
+        super().gen_dataset(
+            user_feats, item_feats, inter_feats, test_candidates, shuffle, seed
+        )
+
+        inter = self.data["inter"]
+        train_idx = self.index["train"]
+        valid_idx = self.index["valid"]
+        train_tmp_array = np.array(inter[self.neg_iid_name].loc[train_idx].tolist())
+        valid_tmp_array = np.array(inter[self.neg_iid_name].loc[valid_idx].tolist())
+
+        np.save(self.dir / f"train_{self.neg_iid_name}.npy", train_tmp_array)
+        np.save(self.dir / f"valid_{self.neg_iid_name}.npy", valid_tmp_array)
+
+    def load_dataset(
+        self,
+        user_feats: List[str],
+        item_feats: List[str],
+        inter_feats: List[str],
+        batch_size: int,
+        shuffle: bool = True,
+    ) -> Tuple[tf.data.Dataset]:
+        """Load saved dataset for training, validating and testing.
+
+        Parameters
+        ----------
+        user_feats : List[str]
+            The features of the user.
+        item_feats : List[str]
+            The features of the item.
+        inter_feats : List[str]
+            The features of the interaction.
+        batch_size : int
+            The batch size.
+        shuffle : bool, optional
+            Whether to shuffle the dataset, by default ``True``.
+
+        Returns
+        -------
+        Tuple[tf.data.Dataset]
+            train, valid, test, test_label.
+        """
+        inter_feats = list(set(inter_feats) - set([self.neg_iid_name]))
+
+        user_train, user_valid, user_test = self._load_features("user", user_feats)
+        item_train, item_valid, item_test = self._load_features("item", item_feats)
+        inter_train, inter_valid, inter_test = self._load_features("inter", inter_feats)
+
+        # * Load negative item feature
+        train_path = self.dir / f"train_{self.neg_iid_name}.npy"
+        valid_path = self.dir / f"valid_{self.neg_iid_name}.npy"
+        train_tmp_array = np.load(train_path, allow_pickle=True)
+        valid_tmp_array = np.load(valid_path, allow_pickle=True)
+        inter_train[self.neg_iid_name] = train_tmp_array
+        inter_valid[self.neg_iid_name] = valid_tmp_array
+
+        train_dict = {**user_train, **item_train, **inter_train}
+        valid_dict = {**user_valid, **item_valid, **inter_valid}
+        test_dict = {**user_test, **item_test, **inter_test}
+
+        train_ds = tf.data.Dataset.from_tensor_slices(train_dict).batch(batch_size)
+        valid_ds = tf.data.Dataset.from_tensor_slices(valid_dict).batch(batch_size)
+
+        if shuffle:
+            train_ds = train_ds.shuffle(buffer_size=len(train_dict))
+
+        test_label = np.load(self.dir / "test_label.npy")
+        return train_ds, valid_ds, test_dict, test_label
 
 
 class SequenceWiseDataset(HandyRecDataset):
@@ -940,11 +1061,48 @@ class SequenceWiseDataset(HandyRecDataset):
             name, task, data, uid_name, iid_name, inter_name, time_name, threshold
         )
 
+    def negative_sampling(self) -> None:
+        """Negative sampling for the sequence-wise dataset.
+
+        The negative sampling is done by randomly sampling the negative items for each user.
+        """
+        inter = self.data["inter"]
+        full_iid_set = set(inter[self.iid_name].unique())
+
+        seq_len = len(inter.loc[0, self.seq_name])
+        data_array = np.zeros((inter.shape[0], seq_len), dtype=int)
+        # * Here we use an numpy ndarray to temporarily store the negative samples
+        # * to speed up the negative sampling process.
+        p = 0
+        for uid, hist in tqdm(
+            inter.groupby(self.uid_name), "Generate negative samples"
+        ):
+            # * Generate negative samples for each user
+            pos_list = hist[self.iid_name].values
+            pos_seq_list = np.concatenate(hist[self.seq_name].values.tolist())
+            pos_list = set(pos_list) & set(pos_seq_list)
+            candidates = list(full_iid_set - pos_list)
+
+            neg_size = seq_len * len(pos_list)
+            negs = np.random.choice(candidates, size=neg_size, replace=True)
+
+            # * Store the negative samples
+            data_array[p : p + len(pos_list), :] = negs.reshape(len(pos_list), seq_len)
+            p += len(pos_list)
+
+        inter[self.neg_seq_name] = data_array.tolist()
+        gc.collect()
+
+        self.data["inter"] = inter
+
     def gen_dataset(
         self,
         user_feats: List[str],
         item_feats: List[str],
         inter_feats: List[str],
+        test_candidates: Dict[int, List[int]] = None,
+        shuffle: bool = True,
+        seed: int = 0,
     ) -> None:
         """Generate the dataset for training, validating and testing.
 
@@ -956,6 +1114,82 @@ class SequenceWiseDataset(HandyRecDataset):
             The features of the item.
         inter_feats : List[str]
             The features of the interaction.
+        test_candidates : Dict[int, List[int]], optional
+            The candidates items for each test user in ranking dataset, by default ``None``.
+            key: user_id, value: list of item_id.
+        shuffle : bool, optional
+            Whether to shuffle the dataset, by default ``True``.
+        seed : int, optional
+            The seed for shuffling, by default ``0``.
         """
-        inter_feats = list(set([self.seq_name, self.neg_seq_name] + inter_feats))
-        super().gen_dataset(user_feats, item_feats, inter_feats)
+        inter_feats = list(
+            set([self.seq_name] + inter_feats) - set([self.neg_seq_name])
+        )
+        super().gen_dataset(
+            user_feats, item_feats, inter_feats, test_candidates, shuffle, seed
+        )
+
+        inter = self.data["inter"]
+        train_idx = self.index["train"]
+        valid_idx = self.index["valid"]
+        train_tmp_array = np.array(inter[self.neg_seq_name].loc[train_idx].tolist())
+        valid_tmp_array = np.array(inter[self.neg_seq_name].loc[valid_idx].tolist())
+
+        np.save(self.dir / f"train_{self.neg_seq_name}.npy", train_tmp_array)
+        np.save(self.dir / f"valid_{self.neg_seq_name}.npy", valid_tmp_array)
+
+    def load_dataset(
+        self,
+        user_feats: List[str],
+        item_feats: List[str],
+        inter_feats: List[str],
+        batch_size: int,
+        shuffle: bool = True,
+    ) -> Tuple[tf.data.Dataset]:
+        """Load saved dataset for training, validating and testing.
+
+        Parameters
+        ----------
+        user_feats : List[str]
+            The features of the user.
+        item_feats : List[str]
+            The features of the item.
+        inter_feats : List[str]
+            The features of the interaction.
+        batch_size : int
+            The batch size.
+        shuffle : bool, optional
+            Whether to shuffle the dataset, by default ``True``.
+
+        Returns
+        -------
+        Tuple[tf.data.Dataset]
+            train, valid, test, test_label.
+        """
+        inter_feats = list(
+            set([self.seq_name] + inter_feats) - set([self.neg_seq_name])
+        )
+        user_train, user_valid, user_test = self._load_features("user", user_feats)
+        item_train, item_valid, item_test = self._load_features("item", item_feats)
+        inter_train, inter_valid, inter_test = self._load_features("inter", inter_feats)
+
+        # * Load negative sequence feature
+        train_path = self.dir / f"train_{self.neg_seq_name}.npy"
+        valid_path = self.dir / f"valid_{self.neg_seq_name}.npy"
+        train_tmp_array = np.load(open(train_path, "rb"), allow_pickle=True)
+        valid_tmp_array = np.load(open(valid_path, "rb"), allow_pickle=True)
+        inter_train[self.neg_seq_name] = train_tmp_array
+        inter_valid[self.neg_seq_name] = valid_tmp_array
+
+        train_dict = {**user_train, **item_train, **inter_train}
+        valid_dict = {**user_valid, **item_valid, **inter_valid}
+        test_dict = {**user_test, **item_test, **inter_test}
+
+        train_ds = tf.data.Dataset.from_tensor_slices(train_dict).batch(batch_size)
+        valid_ds = tf.data.Dataset.from_tensor_slices(valid_dict).batch(batch_size)
+
+        if shuffle:
+            train_ds = train_ds.shuffle(buffer_size=len(train_dict))
+
+        test_label = np.load(self.dir / "test_label.npy")
+        return train_ds, valid_ds, test_dict, test_label

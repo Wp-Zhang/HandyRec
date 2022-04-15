@@ -148,6 +148,7 @@ def DIEN(
             )
     # TODO check units of SparseSeqFeats are the same
 
+    feature_pool = item_seq_feat_group.feat_pool
     other_dense, other_sparse = other_feature_group.embedding_lookup(pool_method="mean")
 
     embd_outputs = OrderedDict()
@@ -159,7 +160,10 @@ def DIEN(
         # *     to lookup embedding of unit features in `neg_item_seq_feat_group`.
         sparse_embd = item_seq_feat_group.embd_layers[feat.unit.name]
         if id_input is None:
-            id_input = Input(shape=(1,), name=feat.unit.name, dtype=tf.int32)
+            id_input = feature_pool.init_input(
+                feat.unit.name,
+                {"name": feat.unit.name, "shape": (1,), "dtype": tf.int32},
+            )
 
         seq_input = item_seq_feat_group.input_layers[feat.name]
         neg_seq_input = neg_item_seq_feat_group.input_layers["neg_" + feat.name]
@@ -230,8 +234,14 @@ def DIEN(
 
     # * Construct model
     feature_pool = item_seq_feat_group.feat_pool
-    inputs = list(feature_pool.input_layers.values()) + [id_input]
+    inputs = list(feature_pool.input_layers.values())
     model = Model(inputs=inputs, outputs=dnn_output)
     model.add_loss(alpha * auxiliary_loss)
+
+    item_seq_inputs = set(item_seq_feat_group.input_layers.keys())
+    other_inputs = set(other_feature_group.input_layers.keys())
+    real_input_names = list(item_seq_inputs | other_inputs)
+    real_inputs = [feature_pool.input_layers[x] for x in real_input_names]
+    model.__setattr__("real_inputs", real_inputs)
 
     return model
