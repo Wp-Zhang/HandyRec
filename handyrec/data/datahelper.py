@@ -22,7 +22,7 @@ class DataHelper(ABC):
         Returns
         -------
         Dict
-            A data dict with three keys: ``user``, ``item``, and ``interact``.
+            A data dict with three keys: ``user``, ``item``, and ``inter``.
         """
 
     @abstractmethod
@@ -32,7 +32,7 @@ class DataHelper(ABC):
         Returns
         -------
         Dict
-            A data dict with three keys: ``user``, ``item``, and ``interact``.
+            A data dict with three keys: ``user``, ``item``, and ``inter``.
         """
 
     @abstractmethod
@@ -42,21 +42,7 @@ class DataHelper(ABC):
         Returns
         -------
         Dict
-            A data dict with three keys: ``user``, ``item``, and ``interact``.
-        """
-
-    @abstractmethod
-    def gen_dataset(self):
-        """Generate and save dataset"""
-
-    @abstractmethod
-    def load_dataset(self) -> Dict:
-        """Load dataset into a dictionary
-
-        Returns
-        -------
-        Dict
-            A data dict with feature names as keys.
+            A data dict with three keys: ``user``, ``item``, and ``inter``.
         """
 
     @classmethod
@@ -88,10 +74,10 @@ class DataHelper(ABC):
         Raises
         ------
         KeyError
-            If ``user``,``item``, or ``interact`` is not in ``data.keys()``
+            If ``user``,``item``, or ``inter`` is not in ``data.keys()``
         """
-        if len(set(["user", "item", "interact"]) & set(data.keys())) != 3:
-            raise KeyError("`user`,`item`, and `interact` should be keys of data")
+        if len(set(["user", "item", "inter"]) & set(data.keys())) != 3:
+            raise KeyError("`user`,`item`, and `inter` should be keys of data")
 
         feature_dim = {}
         for feat in user_features:
@@ -106,7 +92,7 @@ class DataHelper(ABC):
                 pass
         for feat in interact_features:
             try:
-                feature_dim[feat] = np.max(data["interact"][feat]) + 1
+                feature_dim[feat] = np.max(data["inter"][feat]) + 1
             except:
                 pass
 

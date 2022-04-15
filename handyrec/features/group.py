@@ -112,6 +112,9 @@ class FeaturePool:
                 )
             if params["mask_zero"] and not layer.mask_zero:
                 # * always set as `True` when there is a conflict on `mask_zero`
+                layer._name = layer._name + str(
+                    np.random.randint(1e5)
+                )  # * avoid name collision
                 layer = CustomEmbedding(**params)
         else:
             layer = CustomEmbedding(**params)
@@ -196,17 +199,6 @@ class FeatureGroup:
         ValueError
             If the unit of a `SparseSeqFeature` is not `SparseFeature` nor `EmbdFeatureGroup`
         """
-        # * check validity
-        for feat in features:
-            if (
-                isinstance(feat, SparseSeqFeature)
-                and not isinstance(feat.unit, SparseFeature)
-                and not isinstance(feat.unit, EmbdFeatureGroup)
-            ):
-                raise ValueError(
-                    """Only a `EmbdFeatureGroup` can be the unit of a `SparseSeqFeature`"""
-                )
-
         # * initialize attributes
         self.name = name
         self.features = features
@@ -271,13 +263,9 @@ class FeatureGroup:
 
         feats_to_construct = list(sparse.values())
         for feat in sparse_seq.values():
-            if not feat.is_group and feat.unit.name not in sparse.keys():
+            if feat.unit.name not in sparse.keys():
                 # * append the unit of a `SparseSeqFeature` if it is not a `EmbdFeatureGroup`
                 feats_to_construct.append(feat.unit)
-            elif feat.is_group:
-                # * `EmbdFeatureGroup.__call__` will be called later
-                embd_layers[feat.unit.name] = feat.unit
-                feature_pool.add_embd(feat.unit)
 
         for feat in feats_to_construct:
             weights = None
@@ -324,17 +312,13 @@ class FeatureGroup:
         for feat in sparse_seq.values():
             sparse_embd = self.embd_layers[feat.unit.name]
             seq_input = self.input_layers[feat.name]
-
             pool_layer = self.feat_pool.init_pool(
                 feat.name + "_POOL",
                 {"name": feat.name + "_POOL", "method": pool_method},
             )
-            if feat.is_group:
-                embd_seq, mask = sparse_embd(seq_input)
-                embd_outputs[feat.name] = pool_layer(embd_seq, mask)
-            else:
-                embd_seq = sparse_embd(seq_input)
-                embd_outputs[feat.name] = pool_layer(embd_seq)
+
+            embd_seq = sparse_embd(seq_input)
+            embd_outputs[feat.name] = pool_layer(embd_seq)
 
         embd_output = list(embd_outputs.values())
 
@@ -476,13 +460,8 @@ class EmbdFeatureGroup:
         for name, feat in sparse_seq.items():
             embd_input = self._layers[name](index)
             embd_layer = self.embd_layers[feat.unit.name]
-            if not feat.is_group:
-                embd_seq = embd_layer(embd_input)
-                embd_outputs[name] = self._layers[name + "_pool"](embd_seq)
-            else:
-                # * __call__ method of `EmbdFeatureGrouop` will also return manually computed mask
-                embd_seq, mask = embd_layer(embd_input)
-                embd_outputs[name] = self._layers[name + "_pool"](embd_seq, mask)
+            embd_seq = embd_layer(embd_input)
+            embd_outputs[name] = self._layers[name + "_pool"](embd_seq)
             embd_outputs[name] = tf.squeeze(embd_outputs[name])  # * (n,d)
 
         output = concat([], list(embd_outputs.values()))  # * (n, 2d+k)
