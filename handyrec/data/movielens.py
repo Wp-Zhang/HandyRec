@@ -17,24 +17,17 @@ class MovielensDataHelper(DataHelper):
     ----------
     data_dir : str
         Diectory to load raw data and save generated dataset.
-    sub_dir_name : str
-        Diectory to save and load generated feature values for training.
     """
 
-    def __init__(self, data_dir: str, sub_dir_name: str):
+    def __init__(self, data_dir: str):
         """Initialize a `MovielensDataHelper`
 
         Parameters
         ----------
         data_dir : str
             Diectory to load raw data and save generated dataset.
-        sub_dir_name : str
-            Diectory to save and load generated feature values for training.
         """
         super().__init__(data_dir)
-        self.sub_dir = data_dir + sub_dir_name + "/"
-        if not os.path.exists(self.sub_dir):
-            os.makedirs(self.sub_dir)
 
     def load_data(self) -> Dict:
         """Load original raw data.
@@ -84,7 +77,7 @@ class MovielensDataHelper(DataHelper):
             .apply(lambda x: pad_genres[x - 1].tolist())
         )
 
-        return {"item": movies, "user": user, "interact": ratings}
+        return {"item": movies, "user": user, "inter": ratings}
 
     def preprocess_data(self, data: dict, sparse_features: List[str]) -> Dict:
         """Preprocess raw data
@@ -156,7 +149,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
         data_dir : str
             Diectory to load raw data and save generated dataset.
         """
-        super().__init__(data_dir, "match")
+        super().__init__(data_dir)
 
     def gen_dataset(
         self,
@@ -184,8 +177,8 @@ class MovieMatchDataHelper(MovielensDataHelper):
         n : int, optional
             Hold out the last n samples for each user for testing, by default ``10``.
         """
-        data["interact"].sort_values("timestamp", inplace=True)
-        df = data["interact"]
+        data["inter"].sort_values("timestamp", inplace=True)
+        df = data["inter"]
         item_ids = set(data["item"]["movie_id"].values)
 
         # * Calculate number of rows of dataset to fasten the dataset generating process
@@ -236,21 +229,19 @@ class MovieMatchDataHelper(MovielensDataHelper):
         train_label = train_set[:, 3].astype(np.int)
         normalizer = QuantileTransformer()
         train_age = normalizer.fit_transform(train_age.reshape(-1, 1))
-        np.save(open(self.sub_dir + "train_user_id.npy", "wb"), train_uid)
-        np.save(open(self.sub_dir + "train_movie_id.npy", "wb"), train_iid)
-        np.save(open(self.sub_dir + "train_example_age.npy", "wb"), train_age)
-        np.save(open(self.sub_dir + "train_label.npy", "wb"), train_label)
-        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_set[:, 4:])
+        np.save(open(self.base + "train_user_id.npy", "wb"), train_uid)
+        np.save(open(self.base + "train_movie_id.npy", "wb"), train_iid)
+        np.save(open(self.base + "train_example_age.npy", "wb"), train_age)
+        np.save(open(self.base + "train_label.npy", "wb"), train_label)
+        np.save(open(self.base + "train_hist_movie_id.npy", "wb"), train_set[:, 4:])
 
         test_uid = test_set[:, 0].astype(np.int)
         test_age = test_set[:, 1].astype(np.int)
         test_age = normalizer.transform(test_age.reshape(-1, 1))
-        np.save(open(self.sub_dir + "test_user_id.npy", "wb"), test_uid)
-        np.save(open(self.sub_dir + "test_example_age.npy", "wb"), test_age)
-        np.save(open(self.sub_dir + "test_label.npy", "wb"), test_set[:, 2 : 2 + n])
-        np.save(
-            open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_set[:, 2 + n :]
-        )
+        np.save(open(self.base + "test_user_id.npy", "wb"), test_uid)
+        np.save(open(self.base + "test_example_age.npy", "wb"), test_age)
+        np.save(open(self.base + "test_label.npy", "wb"), test_set[:, 2 : 2 + n])
+        np.save(open(self.base + "test_hist_movie_id.npy", "wb"), test_set[:, 2 + n :])
 
         del train_set, test_set
         gc.collect()
@@ -259,8 +250,8 @@ class MovieMatchDataHelper(MovielensDataHelper):
         for key in tqdm(user_feats, "Save user features"):
             train_tmp_array = np.array(user[key].loc[train_uid].tolist())
             test_tmp_array = np.array(user[key].loc[test_uid].tolist())
-            np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
-            np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
+            np.save(open(self.base + "train_" + key + ".npy", "wb"), train_tmp_array)
+            np.save(open(self.base + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
             gc.collect()
 
@@ -270,7 +261,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
         item_feats = [x for x in item.columns if x in features and x != "movie_id"]
         for key in tqdm(item_feats, "Save item features"):
             train_tmp_array = np.array(item[key].loc[train_iid].tolist())
-            np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
+            np.save(open(self.base + "train_" + key + ".npy", "wb"), train_tmp_array)
             del train_tmp_array
             gc.collect()
 
@@ -340,17 +331,17 @@ class MovieMatchDataHelper(MovielensDataHelper):
 
         user_feats += ["hist_movie_id", "example_age"]
         for feat in tqdm(user_feats, "Load user features"):
-            train_path = self.sub_dir + "train_" + feat + ".npy"
-            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_path = self.base + "train_" + feat + ".npy"
+            test_path = self.base + "test_" + feat + ".npy"
             train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
             test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
 
         for feat in tqdm(movie_feats, "Load movie features"):
-            train_path = self.sub_dir + "train_" + feat + ".npy"
+            train_path = self.base + "train_" + feat + ".npy"
             train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
 
-        train_label_path = self.sub_dir + "train_label.npy"
-        test_label_path = self.sub_dir + "test_label.npy"
+        train_label_path = self.base + "train_label.npy"
+        test_label_path = self.base + "test_label.npy"
         train_label = np.load(open(train_label_path, "rb"), allow_pickle=True)
         test_label = np.load(open(test_label_path, "rb"), allow_pickle=True)
 
@@ -359,7 +350,7 @@ class MovieMatchDataHelper(MovielensDataHelper):
 
 class MovieRankDataHelper(MovielensDataHelper):
     def __init__(self, data_dir: str):
-        super(MovieRankDataHelper, self).__init__(data_dir, "rank")
+        super(MovieRankDataHelper, self).__init__(data_dir)
 
     def gen_dataset(
         self,
@@ -399,8 +390,8 @@ class MovieRankDataHelper(MovielensDataHelper):
         In ``test_id``, each user should have the same number of movie_ids.
         """
 
-        data["interact"].sort_values(by="timestamp", ascending=True, inplace=True)
-        df = data["interact"]
+        data["inter"].sort_values(by="timestamp", ascending=True, inplace=True)
+        df = data["inter"]
         df["time_diff"] = df.groupby(["user_id"])["timestamp"].diff().fillna(0)
 
         item_ids = set(data["item"]["movie_id"].values)
@@ -467,16 +458,16 @@ class MovieRankDataHelper(MovielensDataHelper):
         train_age = age_normalizer.fit_transform(train_set[:, 2].reshape(-1, 1))
         train_time_gap = gap_normalizer.fit_transform(train_set[:, 3].reshape(-1, 1))
         train_hist_seq = train_set[:, 5 : 5 + seq_max_len]
-        np.save(open(self.sub_dir + "train_user_id.npy", "wb"), train_uid)
-        np.save(open(self.sub_dir + "train_movie_id.npy", "wb"), train_iid)
-        np.save(open(self.sub_dir + "train_example_age.npy", "wb"), train_age)
-        np.save(open(self.sub_dir + "train_time_gap.npy", "wb"), train_time_gap)
-        np.save(open(self.sub_dir + "train_label.npy", "wb"), train_set[:, 4])
-        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_hist_seq)
+        np.save(open(self.base + "train_user_id.npy", "wb"), train_uid)
+        np.save(open(self.base + "train_movie_id.npy", "wb"), train_iid)
+        np.save(open(self.base + "train_example_age.npy", "wb"), train_age)
+        np.save(open(self.base + "train_time_gap.npy", "wb"), train_time_gap)
+        np.save(open(self.base + "train_label.npy", "wb"), train_set[:, 4])
+        np.save(open(self.base + "train_hist_movie_id.npy", "wb"), train_hist_seq)
         if neg_seq:
             train_neg_hist_seq = train_set[:, 5 + seq_max_len :]
             np.save(
-                open(self.sub_dir + "train_neg_hist_movie_id.npy", "wb"),
+                open(self.base + "train_neg_hist_movie_id.npy", "wb"),
                 train_neg_hist_seq,
             )
 
@@ -485,15 +476,15 @@ class MovieRankDataHelper(MovielensDataHelper):
         test_age = age_normalizer.transform(test_set[:, 2].reshape(-1, 1))
         test_time_gap = gap_normalizer.transform(test_set[:, 3].reshape(-1, 1))
         test_hist_seq = test_set[:, 4 : 4 + seq_max_len]
-        np.save(open(self.sub_dir + "test_user_id.npy", "wb"), test_uid)
-        np.save(open(self.sub_dir + "test_movie_id.npy", "wb"), test_iid)
-        np.save(open(self.sub_dir + "test_example_age.npy", "wb"), test_age)
-        np.save(open(self.sub_dir + "test_time_gap.npy", "wb"), test_time_gap)
-        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_hist_seq)
+        np.save(open(self.base + "test_user_id.npy", "wb"), test_uid)
+        np.save(open(self.base + "test_movie_id.npy", "wb"), test_iid)
+        np.save(open(self.base + "test_example_age.npy", "wb"), test_age)
+        np.save(open(self.base + "test_time_gap.npy", "wb"), test_time_gap)
+        np.save(open(self.base + "test_hist_movie_id.npy", "wb"), test_hist_seq)
         if neg_seq:
             test_neg_hist_seq = test_set[:, 4 + seq_max_len :]
             np.save(
-                open(self.sub_dir + "test_neg_hist_movie_id.npy", "wb"),
+                open(self.base + "test_neg_hist_movie_id.npy", "wb"),
                 test_neg_hist_seq,
             )
 
@@ -504,8 +495,8 @@ class MovieRankDataHelper(MovielensDataHelper):
         for key in tqdm(user_feats, "Save user features"):
             train_tmp_array = np.array(user[key].loc[train_uid].tolist())
             test_tmp_array = np.array(user[key].loc[test_uid].tolist())
-            np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
-            np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
+            np.save(open(self.base + "train_" + key + ".npy", "wb"), train_tmp_array)
+            np.save(open(self.base + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
             gc.collect()
 
@@ -516,8 +507,8 @@ class MovieRankDataHelper(MovielensDataHelper):
         for key in tqdm(item_feats, "Save item features"):
             train_tmp_array = np.array(item[key].loc[train_iid].tolist())
             test_tmp_array = np.array(item[key].loc[test_iid].tolist())
-            np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
-            np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
+            np.save(open(self.base + "train_" + key + ".npy", "wb"), train_tmp_array)
+            np.save(open(self.base + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
             gc.collect()
 
@@ -646,18 +637,18 @@ class MovieRankDataHelper(MovielensDataHelper):
             u_feats += ["neg_hist_movie_id"]
         u_feats += ["hist_movie_id", "time_gap", "example_age"]
         for feat in tqdm(u_feats, "Load user features"):
-            train_path = self.sub_dir + "train_" + feat + ".npy"
-            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_path = self.base + "train_" + feat + ".npy"
+            test_path = self.base + "test_" + feat + ".npy"
             train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
             test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
 
         for feat in tqdm(movie_feats, "Load movie features"):
-            train_path = self.sub_dir + "train_" + feat + ".npy"
-            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_path = self.base + "train_" + feat + ".npy"
+            test_path = self.base + "test_" + feat + ".npy"
             train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
             test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
 
-        train_label_path = self.sub_dir + "train_label.npy"
+        train_label_path = self.base + "train_label.npy"
         train_label = np.load(open(train_label_path, "rb"), allow_pickle=True)
 
         return train_set, train_label, test_set
@@ -701,8 +692,8 @@ class MovieRankSeqDataHelper(MovielensDataHelper):
         In ``test_id``, each user should have the same number of movie_ids.
         """
 
-        data["interact"].sort_values(by="timestamp", ascending=True, inplace=True)
-        df = data["interact"]
+        data["inter"].sort_values(by="timestamp", ascending=True, inplace=True)
+        df = data["inter"]
 
         item_ids = set(data["item"]["movie_id"].values)
 
@@ -755,17 +746,17 @@ class MovieRankSeqDataHelper(MovielensDataHelper):
         train_uid = train_set[:, 0]
         train_iid = train_set[:, 1]
         train_hist_seq = train_set[:, 3 : 3 + seq_max_len]
-        np.save(open(self.sub_dir + "train_user_id.npy", "wb"), train_uid)
-        np.save(open(self.sub_dir + "train_movie_id.npy", "wb"), train_iid)
-        np.save(open(self.sub_dir + "train_neg_movie_id.npy", "wb"), train_set[:, 2])
-        np.save(open(self.sub_dir + "train_hist_movie_id.npy", "wb"), train_hist_seq)
+        np.save(open(self.base + "train_user_id.npy", "wb"), train_uid)
+        np.save(open(self.base + "train_movie_id.npy", "wb"), train_iid)
+        np.save(open(self.base + "train_neg_movie_id.npy", "wb"), train_set[:, 2])
+        np.save(open(self.base + "train_hist_movie_id.npy", "wb"), train_hist_seq)
 
         test_uid = test_set[:, 0]
         test_iid = test_set[:, 1]
         test_hist_seq = test_set[:, 2 : 2 + seq_max_len]
-        np.save(open(self.sub_dir + "test_user_id.npy", "wb"), test_uid)
-        np.save(open(self.sub_dir + "test_movie_id.npy", "wb"), test_iid)
-        np.save(open(self.sub_dir + "test_hist_movie_id.npy", "wb"), test_hist_seq)
+        np.save(open(self.base + "test_user_id.npy", "wb"), test_uid)
+        np.save(open(self.base + "test_movie_id.npy", "wb"), test_iid)
+        np.save(open(self.base + "test_hist_movie_id.npy", "wb"), test_hist_seq)
 
         del train_set, test_set  # , hist_seq, hist_seq_pad
         gc.collect()
@@ -774,8 +765,8 @@ class MovieRankSeqDataHelper(MovielensDataHelper):
         for key in tqdm(user_feats, "Save user features"):
             train_tmp_array = np.array(user[key].loc[train_uid].tolist())
             test_tmp_array = np.array(user[key].loc[test_uid].tolist())
-            np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
-            np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
+            np.save(open(self.base + "train_" + key + ".npy", "wb"), train_tmp_array)
+            np.save(open(self.base + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
             gc.collect()
 
@@ -786,8 +777,8 @@ class MovieRankSeqDataHelper(MovielensDataHelper):
         for key in tqdm(item_feats, "Save item features"):
             train_tmp_array = np.array(item[key].loc[train_iid].tolist())
             test_tmp_array = np.array(item[key].loc[test_iid].tolist())
-            np.save(open(self.sub_dir + "train_" + key + ".npy", "wb"), train_tmp_array)
-            np.save(open(self.sub_dir + "test_" + key + ".npy", "wb"), test_tmp_array)
+            np.save(open(self.base + "train_" + key + ".npy", "wb"), train_tmp_array)
+            np.save(open(self.base + "test_" + key + ".npy", "wb"), test_tmp_array)
             del train_tmp_array, test_tmp_array
             gc.collect()
 
@@ -888,18 +879,18 @@ class MovieRankSeqDataHelper(MovielensDataHelper):
 
         user_feats += ["hist_movie_id"]
         for feat in tqdm(user_feats, "Load user features"):
-            train_path = self.sub_dir + "train_" + feat + ".npy"
-            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_path = self.base + "train_" + feat + ".npy"
+            test_path = self.base + "test_" + feat + ".npy"
             train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
             test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
 
         for feat in tqdm(movie_feats, "Load movie features"):
-            train_path = self.sub_dir + "train_" + feat + ".npy"
-            test_path = self.sub_dir + "test_" + feat + ".npy"
+            train_path = self.base + "train_" + feat + ".npy"
+            test_path = self.base + "test_" + feat + ".npy"
             train_set[feat] = np.load(open(train_path, "rb"), allow_pickle=True)
             test_set[feat] = np.load(open(test_path, "rb"), allow_pickle=True)
         train_set["neg_movie_id"] = np.load(
-            open(self.sub_dir + "train_neg_movie_id.npy", "rb"), allow_pickle=True
+            open(self.base + "train_neg_movie_id.npy", "rb"), allow_pickle=True
         )
 
         return train_set, test_set
