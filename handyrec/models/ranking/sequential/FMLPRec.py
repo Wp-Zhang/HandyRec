@@ -165,8 +165,8 @@ def FMLPRec(
     model = Model(inputs=inputs, outputs=loss)
     model.add_loss(loss)
 
-    model.__setattr__("actual_inputs", seq_feat_inputs + [pos_item_input])
-    model.__setattr__("actual_outputs", pos_logits)
+    model.__setattr__("real_inputs", seq_feat_inputs + [pos_item_input])
+    model.__setattr__("real_outputs", pos_logits)
 
     return model
 
