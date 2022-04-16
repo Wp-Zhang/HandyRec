@@ -1208,7 +1208,8 @@ class SequenceWiseDataset(HandyRecDataset):
             train, valid, test, test_label.
         """
         inter_feats = list(
-            set([self.seq_name] + inter_feats) - set([self.neg_seq_name])
+            set([self.seq_name, self.label_name] + inter_feats)
+            - set([self.neg_seq_name])
         )
         user_train, user_valid, user_test = self._load_features("user", user_feats)
         item_train, item_valid, item_test = self._load_features("item", item_feats)
