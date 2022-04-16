@@ -1,21 +1,20 @@
 handyrec.features.group
 =======================
 
-handyrec.features.FeaturePool
------------------------------------
 
+FeaturePool
+-----------------------------------
 .. autoclass:: handyrec.features.group.FeaturePool
    :members:
 
 
-handyrec.features.FeatureGroup
+FeatureGroup
 -----------------------------------
-
 .. autoclass:: handyrec.features.group.FeatureGroup
    :members:
 
-handyrec.features.EmbdFeatureGroup
------------------------------------
 
+EmbdFeatureGroup
+-----------------------------------
 .. autoclass:: handyrec.features.group.EmbdFeatureGroup
    :members:

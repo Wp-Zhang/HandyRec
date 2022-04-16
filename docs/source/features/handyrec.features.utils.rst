@@ -1,6 +1,6 @@
 handyrec.features.utils
 =======================
 
-.. automodule:: handyrec.features.utils
-   :members:
-   :show-inheritance:
+split_features
+---------------
+.. autofunction:: handyrec.features.utils.split_features

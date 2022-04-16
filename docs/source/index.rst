@@ -20,7 +20,7 @@ Welcome to HandyRec's documentation!
    :maxdepth: 2
    :caption: API
 
-   Dataset<Dataset
+   Data<Data>
    Features<Features>
    Layers<Layers>
    Models<Models>

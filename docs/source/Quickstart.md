@@ -4,7 +4,6 @@
 
 In this demo, we'll use `DSSM` and `DeepFM` to perform candidate generating and ranking on MovieLens1M dataset.
 
-**Note**: All parameters in the demo are set for a quick running test purpose, tuning them may lead to a huge increase in model performance.
 ## Prepare
 
 This project is under development and has not been packaged yet😣, thus we have to import it as a local module.
@@ -13,6 +12,20 @@ This project is under development and has not been packaged yet😣, thus we hav
 ```bash
 git clone https://github.com/Wp-Zhang/HandyRec.git
 ```
+
+
+```python
+! git clone https://github.com/Wp-Zhang/HandyRec.git
+```
+
+    Cloning into 'HandyRec'...
+    remote: Enumerating objects: 1704, done.[K
+    remote: Counting objects: 100% (1704/1704), done.[K
+    remote: Compressing objects: 100% (1269/1269), done.[K
+    remote: Total 1704 (delta 682), reused 1309 (delta 383), pack-reused 0[K
+    Receiving objects: 100% (1704/1704), 20.92 MiB | 27.02 MiB/s, done.
+    Resolving deltas: 100% (682/682), done.
+    
 
 2. add the project location to system path so that we can import it as a local module
 
@@ -28,18 +41,57 @@ wget https://files.grouplens.org/datasets/movielens/ml-1m.zip -O ./ml-1m.zip
 unzip -o ml-1m.zip
 ```
 
+
+```python
+!wget https://files.grouplens.org/datasets/movielens/ml-1m.zip -O ./ml-1m.zip
+!unzip -o ml-1m.zip
+```
+
+    --2022-04-15 22:12:34--  https://files.grouplens.org/datasets/movielens/ml-1m.zip
+    Resolving files.grouplens.org (files.grouplens.org)... 128.101.65.152
+    Connecting to files.grouplens.org (files.grouplens.org)|128.101.65.152|:443... connected.
+    HTTP request sent, awaiting response... 200 OK
+    Length: 5917549 (5.6M) [application/zip]
+    Saving to: ‘./ml-1m.zip’
+    
+    ./ml-1m.zip         100%[===================>]   5.64M  17.9MB/s    in 0.3s    
+    
+    2022-04-15 22:12:35 (17.9 MB/s) - ‘./ml-1m.zip’ saved [5917549/5917549]
+    
+    Archive:  ml-1m.zip
+       creating: ml-1m/
+      inflating: ml-1m/movies.dat        
+      inflating: ml-1m/ratings.dat       
+      inflating: ml-1m/README            
+      inflating: ml-1m/users.dat         
+    
+
+
+```python
+!pip install faiss-gpu #faiss-cpu
+```
+
+    Collecting faiss-gpu
+      Downloading faiss_gpu-1.7.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (85.5 MB)
+    [K     |████████████████████████████████| 85.5 MB 134 kB/s 
+    [?25hInstalling collected packages: faiss-gpu
+    Successfully installed faiss-gpu-1.7.2
+    
+
 ## Import modules
 
 
 ```python
-from handyrec.dataset.movielens import MovieMatchDataHelper, MovieRankDataHelper
-from handyrec.dataset.metrics import map_at_k, recall_at_k
-from handyrec.layers.utils import sampledsoftmaxloss
-from handyrec.features import DenseFeature, SparseFeature, SparseSeqFeature, FeatureGroup, EmbdFeatureGroup, FeaturePool
-from handyrec.models.match import DSSM
-from handyrec.models.rank import DeepFM
-from handyrec.models.utils import search_embedding
+from handyrec.data.movielens import MovielensDataHelper
+from handyrec.data.utils import gen_sequence
+from handyrec.data import PointWiseDataset
 
+from handyrec.layers.utils import sampledsoftmaxloss
+from handyrec.models.retrieval import DSSM
+from handyrec.models.ranking import DeepFM
+from handyrec.features import DenseFeature, SparseFeature, SparseSeqFeature, FeatureGroup, EmbdFeatureGroup, FeaturePool
+from handyrec.data.metrics import map_at_k, recall_at_k
+from handyrec.models.utils import search_embedding
 
 import tensorflow as tf
 from tensorflow.keras import Model
@@ -50,46 +102,72 @@ import pandas as pd
 import gc
 ```
 
+
+```python
+import warnings
+warnings.filterwarnings('ignore')
+```
+
 ## Prepare data for matching
 
-Load data into a dictionary with three keys: `user`, `item`, and `interact`
+Load data into a dictionary with three keys: `user`, `item`, and `interact`, then generate a movie watching history sequence with a length of `40` for each user.
 
 
 ```python
-match_dh = MovieMatchDataHelper('./ml-1m/')
-data = match_dh.get_clean_data(sparse_features=['gender','age','occupation','zip','year'])
+retrieve_dh = MovielensDataHelper('./ml-1m/')
+data = retrieve_dh.get_clean_data(sparse_features=['gender','occupation','zip','age','year'])
+data['inter']['hist_movie'] = gen_sequence(data['inter'], 'user_id', 'movie_id', 40)
 ```
 
-    Encode User Sparse Feats: 100%|██████████| 4/4 [00:00<00:00, 193.03it/s]
-    Encode Item Sparse Feats: 100%|██████████| 1/1 [00:00<00:00, 240.39it/s]
+    Encode User Sparse Feats: 100%|██████████| 4/4 [00:00<00:00, 40.85it/s]
+    Encode Item Sparse Feats: 100%|██████████| 1/1 [00:00<00:00, 77.33it/s]
+    Generate movie_id sequence: 100%|██████████| 6040/6040 [00:09<00:00, 668.65it/s] 
     
 
 
 ```python
-match_u_dense_feats = [] # * as there is no user dense features, this is an empty list
-match_u_sparse_feats = ['user_id','gender','age','occupation','zip']
-match_i_dense_feats = [] # * as there is no item dense features, this is an empty list
-match_i_sparse_feats = [f for f in data['item'].columns if f != 'title']
-
-match_u_feats = match_u_dense_feats + match_u_sparse_feats
-match_i_feats = match_i_dense_feats + match_i_sparse_feats
+user_features = ['user_id', 'gender', 'occupation']
+item_features = ['movie_id','genres']
+inter_features = ['hist_movie']
 ```
 
-Only movies with ratings larger than `3` are treated as 'positive' samples for each user. Every last `10` 'positive' movies of each user are held out for testing.
+Only movies with ratings larger than `3` are treated as 'positive' samples for each user. Every last `10` 'positive' movies of each user are held out for testing and `10%` of the train set is split out for validating.
 
-The maximum length of user watch history is set as `40`. As we'll use sampled softmax in the training process of the match model, we don't need to generate negative samples by ourselves, thus `negnum` is set as `0`.
+As we'll use sampled softmax in the training process of the retrieval model, we don't need to generate negative samples by ourselves here.
 
 
 ```python
-match_dh.gen_dataset(match_u_feats + match_i_feats, data, seq_max_len=40, negnum=0, min_rating=3, n=10)
-match_train, match_train_label, match_test, match_test_label = match_dh.load_dataset(match_u_feats, match_i_feats)
+retrieval_dataset = PointWiseDataset(
+    "RetrievalDataset",
+    task="retrieval",
+    data=data,
+    uid_name="user_id",
+    iid_name="movie_id",
+    inter_name="interact",
+    time_name="timestamp",
+    threshold=4,
+)
+
+retrieval_dataset.train_test_split(10)
+retrieval_dataset.train_valid_split(0.1)
+retrieval_dataset.gen_dataset(user_features, item_features, inter_features, shuffle=False)
 ```
 
-    Generate train set: 100%|██████████| 6032/6032 [00:07<00:00, 842.84it/s]
-    100%|██████████| 4/4 [00:01<00:00,  2.35it/s]
-    100%|██████████| 2/2 [00:00<00:00,  2.13it/s]
-    Load user Features: 100%|██████████| 7/7 [00:00<00:00, 74.76it/s]
-    Load movie Features: 100%|██████████| 3/3 [00:00<00:00, 210.72it/s]
+    Save user features: 100%|██████████| 3/3 [00:02<00:00,  1.25it/s]
+    Save item features: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]
+    Save inter features: 100%|██████████| 2/2 [00:04<00:00,  2.08s/it]
+    
+
+
+```python
+train_data, valid_data, test_data, test_label = retrieval_dataset.load_dataset(
+    user_features, item_features, inter_features, 4096
+)
+```
+
+    Load user features: 100%|██████████| 3/3 [00:02<00:00,  1.38it/s]
+    Load item features: 100%|██████████| 2/2 [00:01<00:00,  1.38it/s]
+    Load inter features: 100%|██████████| 2/2 [00:01<00:00,  1.35it/s]
     
 
 ## Train match model and export embeddings
@@ -105,23 +183,23 @@ Get dimension of sparse features:
 
 
 ```python
-match_feature_dim = match_dh.get_feature_dim(data, match_u_feats, match_i_feats, [])
+feature_dim = retrieval_dataset.get_feature_dim(user_features, item_features, [])
 ```
 
 Initialize an `EmbdFeatureGroup` instance for item features.
 
 
 ```python
-all_item_feat_values = {f:np.array(data['item'][f].tolist()) for f in match_i_feats}
-match_i_sparse_feats.remove('genres')
-match_item_features = [SparseFeature(x, vocab_size=match_feature_dim[x], embedding_dim=64) for x in match_i_sparse_feats] +\
+all_item_model_input = {f:np.array(data['item'][f].tolist()) for f in item_features}
+
+retrieve_item_features = [SparseFeature('movie_id', feature_dim['movie_id'], embedding_dim=64)] +\
                 [SparseSeqFeature(SparseFeature('genre_id', 19, 64), 'genres', seq_len=6)]
 item_feature_group = EmbdFeatureGroup(
     name='item', 
     id_name='movie_id', 
-    features=match_item_features, 
+    features=retrieve_item_features, 
     feature_pool=feat_pool1, 
-    value_dict=all_item_feat_values,
+    value_dict=all_item_model_input,
     embd_dim=64
 )
 ```
@@ -130,16 +208,16 @@ Initialize a `FeatureGroup` instance for user features.
 
 
 ```python
-match_u_feats = [SparseFeature(x, match_feature_dim[x], 64) for x in match_u_sparse_feats] +\
-                [SparseSeqFeature(item_feature_group, 'hist_movie_id',seq_len=40)]
-user_feature_group = FeatureGroup('user', match_u_feats, feat_pool1)
+retrieve_user_features = [SparseFeature(x, feature_dim[x], 64) for x in user_features] +\
+                [SparseSeqFeature(SparseFeature('movie_id', feature_dim['movie_id'], 64), 'hist_movie', 40)]
+user_feature_group = FeatureGroup('user', retrieve_user_features, feat_pool1)
 ```
 
 Create a DSSM model.
 
 
 ```python
-match_model = DSSM(
+retrieve_model = DSSM(
     user_feature_group, item_feature_group,
     user_dnn_hidden_units=(256,128,64), 
     item_dnn_hidden_units=(128,64), 
@@ -153,21 +231,21 @@ Let's take a look at the model structure:
 
 
 ```python
-plot_model(match_model)
+plot_model(retrieve_model)
 ```
 
 
 
 
     
-![png](imgs/quickstart-dssm.png)
+![png](imgs//quickstart_dssm.png)
     
 
 
 
 
 ```python
-match_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3), loss=sampledsoftmaxloss)
+retrieve_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3), loss=sampledsoftmaxloss)
 early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 checkpoint = tf.keras.callbacks.ModelCheckpoint(
     filepath='./match_checkpoint/',
@@ -175,82 +253,89 @@ checkpoint = tf.keras.callbacks.ModelCheckpoint(
     monitor='val_loss',
     mode='min',
     save_best_only=True)
-history = match_model.fit(match_train, match_train_label,
-                            batch_size=2**12, 
-                            epochs=25,
-                            verbose=1,
-                            validation_split=0.1,
-                            callbacks=[early_stop,checkpoint])
-match_model.load_weights('./match_checkpoint/')
+history = retrieve_model.fit(
+    x=train_data,
+    validation_data=valid_data,
+    epochs=25,
+    callbacks=[early_stop, checkpoint],
+)
+retrieve_model.load_weights('./match_checkpoint/')
 ```
 
     Epoch 1/25
-    171/171 [==============================] - 11s 27ms/step - loss: 6.4752 - val_loss: 3.8319
+    114/114 [==============================] - 11s 42ms/step - loss: 7.3279 - val_loss: 3.8524
     Epoch 2/25
-    171/171 [==============================] - 4s 22ms/step - loss: 3.5348 - val_loss: 3.5900
+    114/114 [==============================] - 5s 40ms/step - loss: 3.2380 - val_loss: 3.6875
     Epoch 3/25
-    171/171 [==============================] - 4s 20ms/step - loss: 3.2867 - val_loss: 3.1478
+    114/114 [==============================] - 5s 40ms/step - loss: 2.4422 - val_loss: 3.3004
     Epoch 4/25
-    171/171 [==============================] - 4s 21ms/step - loss: 3.1181 - val_loss: 2.9211
+    114/114 [==============================] - 5s 40ms/step - loss: 2.0972 - val_loss: 2.6112
     Epoch 5/25
-    171/171 [==============================] - 3s 20ms/step - loss: 2.9992 - val_loss: 2.9371
+    114/114 [==============================] - 5s 41ms/step - loss: 1.7308 - val_loss: 1.7159
     Epoch 6/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.8963 - val_loss: 2.6634
+    114/114 [==============================] - 5s 41ms/step - loss: 1.6307 - val_loss: 1.3833
     Epoch 7/25
-    171/171 [==============================] - 3s 20ms/step - loss: 2.8123 - val_loss: 2.6709
+    114/114 [==============================] - 5s 41ms/step - loss: 1.4542 - val_loss: 1.2502
     Epoch 8/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.7323 - val_loss: 2.6727
+    114/114 [==============================] - 5s 39ms/step - loss: 1.3861 - val_loss: 1.1054
     Epoch 9/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.7100 - val_loss: 2.5721
+    114/114 [==============================] - 5s 40ms/step - loss: 1.2970 - val_loss: 1.0867
     Epoch 10/25
-    171/171 [==============================] - 4s 22ms/step - loss: 2.6302 - val_loss: 2.5341
+    114/114 [==============================] - 5s 41ms/step - loss: 1.2097 - val_loss: 1.0360
     Epoch 11/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.6153 - val_loss: 2.5185
+    114/114 [==============================] - 5s 40ms/step - loss: 1.1260 - val_loss: 0.9781
     Epoch 12/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.5520 - val_loss: 2.5172
+    114/114 [==============================] - 4s 39ms/step - loss: 1.1329 - val_loss: 1.0354
     Epoch 13/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.5159 - val_loss: 2.4286
+    114/114 [==============================] - 5s 44ms/step - loss: 1.0534 - val_loss: 0.9355
     Epoch 14/25
-    171/171 [==============================] - 3s 20ms/step - loss: 2.5113 - val_loss: 2.4700
+    114/114 [==============================] - 5s 41ms/step - loss: 1.0169 - val_loss: 0.9209
     Epoch 15/25
-    171/171 [==============================] - 3s 20ms/step - loss: 2.4542 - val_loss: 2.4610
+    114/114 [==============================] - 5s 42ms/step - loss: 0.9496 - val_loss: 0.9084
     Epoch 16/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.4016 - val_loss: 2.3245
+    114/114 [==============================] - 5s 40ms/step - loss: 0.9739 - val_loss: 0.8242
     Epoch 17/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.3898 - val_loss: 2.3833
+    114/114 [==============================] - 5s 39ms/step - loss: 0.9323 - val_loss: 0.8083
     Epoch 18/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.3903 - val_loss: 2.3897
+    114/114 [==============================] - 4s 38ms/step - loss: 0.8853 - val_loss: 0.8971
     Epoch 19/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.3624 - val_loss: 2.2794
+    114/114 [==============================] - 5s 40ms/step - loss: 0.8603 - val_loss: 0.7956
     Epoch 20/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.2805 - val_loss: 2.2968
+    114/114 [==============================] - 5s 41ms/step - loss: 0.8479 - val_loss: 0.8169
     Epoch 21/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.3149 - val_loss: 2.2356
+    114/114 [==============================] - 5s 45ms/step - loss: 0.8387 - val_loss: 0.7176
     Epoch 22/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.2812 - val_loss: 2.2846
+    114/114 [==============================] - 5s 41ms/step - loss: 0.8222 - val_loss: 0.7206
     Epoch 23/25
-    171/171 [==============================] - 4s 21ms/step - loss: 2.2297 - val_loss: 2.2078
+    114/114 [==============================] - 5s 42ms/step - loss: 0.8212 - val_loss: 0.8288
     Epoch 24/25
-    171/171 [==============================] - 4s 22ms/step - loss: 2.2372 - val_loss: 2.2212
+    114/114 [==============================] - 5s 42ms/step - loss: 0.7981 - val_loss: 0.7015
     Epoch 25/25
-    171/171 [==============================] - 4s 22ms/step - loss: 2.1890 - val_loss: 2.2161
+    114/114 [==============================] - 5s 43ms/step - loss: 0.7806 - val_loss: 0.6795
+    
+
+
+
+
+    <tensorflow.python.training.tracking.util.CheckpointLoadStatus at 0x7fb540043650>
+
 
 
 Get user and movie embeddings:
 
 
 ```python
-user_embedding_model = Model(inputs=match_model.user_input, outputs=match_model.user_embedding)
-item_embedding_model = Model(inputs=match_model.item_input, outputs=match_model.item_embedding)
+user_embedding_model = Model(inputs=retrieve_model.user_input, outputs=retrieve_model.user_embedding)
+item_embedding_model = Model(inputs=retrieve_model.item_input, outputs=retrieve_model.item_embedding)
 
-user_embs = user_embedding_model.predict(match_test, batch_size=2 ** 15)
-item_embs = item_embedding_model.predict(all_item_feat_values, batch_size=2 ** 15)
+user_embs = user_embedding_model.predict(test_data, batch_size=2 ** 15)
+item_embs = item_embedding_model.predict(all_item_model_input, batch_size=2 ** 15)
 
 print(user_embs.shape)
 print(item_embs.shape)
 ```
 
-    (6032, 64)
+    (5923, 64)
     (3883, 64)
     
 
@@ -264,42 +349,43 @@ candidates = search_embedding(
     user_embs,
     data['item']['movie_id'].values,
     n=100,
-    gpu=True)
+    gpu=True
+)
 ```
 
 
 ```python
-map_at_k(match_test_label, candidates, k=10)
+map_at_k(test_label, candidates, k=10)
 ```
 
 
 
 
-    0.022409043303439857
-
-
-
-
-```python
-recall_at_k(match_test_label, candidates, k=10)
-```
-
-
-
-
-    0.056482095490716186
+    0.01550499264368925
 
 
 
 
 ```python
-recall_at_k(match_test_label, candidates, k=100)
+recall_at_k(test_label, candidates, k=10)
 ```
 
 
 
 
-    0.3385775862068966
+    0.039186223197703866
+
+
+
+
+```python
+recall_at_k(test_label, candidates, k=100)
+```
+
+
+
+
+    0.1349653891608982
 
 
 
@@ -307,47 +393,85 @@ recall_at_k(match_test_label, candidates, k=100)
 
 
 ```python
-test_user_embs = user_embedding_model.predict(match_test, batch_size=2 ** 15)
+test_user_embs = user_embedding_model.predict(test_data, batch_size=2 ** 15)
 test_candidates = search_embedding(
     64, 
     item_embs, 
     test_user_embs,
     data['item']['movie_id'].values,
     n=100,
-    gpu=True)
+    gpu=True
+)
 
-test_candidates = {match_test['user_id'][i] : test_candidates[i] for i in range(test_candidates.shape[0])}
+test_candidates = {
+    test_data['user_id'][i] : test_candidates[i]
+    for i in range(test_candidates.shape[0])
+}
 ```
 
 
 ```python
-del user_embs, item_embs, match_train, match_train_label, test_user_embs
+del user_embs, item_embs, train_data, test_user_embs
 gc.collect()
 ```
+
+
+
+
+    3970
+
 
 
 For ranking dataset, We'll generate `10` random negative samples for each positive sample.
 
 
 ```python
-rank_dh = MovieRankDataHelper('./ml-1m/')
-rank_u_sparse_feats = ['user_id','gender','age','occupation', 'zip']
-rank_i_sparse_feats = [f for f in data['item'].columns if f != 'title']
-
-rank_dh.gen_dataset(rank_u_sparse_feats+rank_i_sparse_feats, data, test_candidates, seq_max_len=40, negnum=10)
-rank_train, rank_train_label, rank_test = rank_dh.load_dataset(rank_u_sparse_feats, rank_i_sparse_feats)
+user_features = ['user_id', 'gender', 'occupation', 'zip', 'age']
+item_features = ['movie_id', 'year', 'genres']
+inter_features = ['hist_movie']
 ```
 
-    Generate train set: 100%|██████████| 6040/6040 [00:36<00:00, 164.37it/s]
-    100%|██████████| 4/4 [00:05<00:00,  1.27s/it]
-    100%|██████████| 2/2 [00:11<00:00,  5.69s/it]
-    Load user Features: 100%|██████████| 8/8 [00:14<00:00,  1.86s/it]
-    Load movie Features: 100%|██████████| 3/3 [00:02<00:00,  1.08it/s]
+
+```python
+ranking_dataset = PointWiseDataset(
+    "RankingDataset",
+    task="ranking",
+    data=data,
+    uid_name="user_id",
+    iid_name="movie_id",
+    inter_name="interact",
+    time_name="timestamp",
+    threshold=4,
+)
+
+ranking_dataset.train_test_split(10)
+ranking_dataset.negative_sampling(10)
+ranking_dataset.train_valid_split(0.1)
+ranking_dataset.gen_dataset(user_features, item_features, inter_features, test_candidates)
+```
+
+    Generate negative samples: 100%|██████████| 5923/5923 [00:09<00:00, 623.05it/s]
+    Regenerate test set: 100%|██████████| 5923/5923 [00:00<00:00, 631764.17it/s]
+    Save user features: 100%|██████████| 5/5 [00:37<00:00,  7.46s/it]
+    Save item features: 100%|██████████| 3/3 [00:29<00:00,  9.82s/it]
+    Save inter features: 100%|██████████| 2/2 [00:43<00:00, 21.78s/it]
     
 
 
 ```python
-rank_feature_dim = rank_dh.get_feature_dim(data, rank_u_sparse_feats, rank_i_sparse_feats, [])
+train_data, valid_data, test_data, test_label = ranking_dataset.load_dataset(
+    user_features, item_features, inter_features, 8192
+)
+```
+
+    Load user features: 100%|██████████| 5/5 [00:04<00:00,  1.23it/s]
+    Load item features: 100%|██████████| 3/3 [00:02<00:00,  1.14it/s]
+    Load inter features: 100%|██████████| 2/2 [00:02<00:00,  1.13s/it]
+    
+
+
+```python
+feature_dim = ranking_dataset.get_feature_dim(user_features, item_features, [])
 ```
 
 ## Train rank model and recommend movies
@@ -359,20 +483,15 @@ Initialize a `FeaturePool` instance to store features used for training.
 feat_pool2 = FeaturePool()
 ```
 
-
-```python
-rank_sparse_feats = rank_u_sparse_feats + rank_i_sparse_feats
-```
-
 Initialize a `FeatureGroup` instance for features used in FM.
 
 
 ```python
-rank_sparse_feats.remove('genres')
-rank_fm_features = [SparseFeature(x, rank_feature_dim[x], 64) for x in rank_sparse_feats] +\
-                    [SparseSeqFeature(SparseFeature('genre_id', 19, 64), 'genres',6)] +\
-                   [SparseSeqFeature(SparseFeature('movie_id', rank_feature_dim['movie_id'], 64), 'hist_movie_id', 40)]
-fm_feature_group = FeatureGroup('fm', rank_fm_features, feat_pool2)
+rank_fm_features = [SparseFeature(x, feature_dim[x], 64) for x in user_features] +\
+                [SparseSeqFeature(SparseFeature('movie_id', feature_dim['movie_id'], 64), 'hist_movie', 40)] +\
+                [SparseFeature(x, feature_dim[x], 64) for x in item_features[:-1]] +\
+                [SparseSeqFeature(SparseFeature('genre_id', 19, 64), 'genres',6)]
+fm_feature_group = FeatureGroup('FM', rank_fm_features, feat_pool2)
 ```
 
 Initialize a `FeatureGroup` instance for features used in DNN.
@@ -380,7 +499,7 @@ Initialize a `FeatureGroup` instance for features used in DNN.
 
 ```python
 rank_dnn_feats = rank_fm_features
-dnn_feature_group = FeatureGroup('dnn', rank_dnn_feats, feat_pool2)
+dnn_feature_group = FeatureGroup('DNN', rank_dnn_feats, feat_pool2)
 ```
 
 Create a DeepFM model:
@@ -404,66 +523,93 @@ plot_model(rank_model)
 
 
     
-![png](imgs/quickstart-deepfm.png)
+![png](imgs//quickstart_deepfm.png)
     
 
 
 
 
 ```python
-rank_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3), loss=binary_crossentropy)
+rank_model.compile(optimizer=tf.keras.optimizers.Adam(lr=1e-3), loss=binary_crossentropy)
 early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 checkpoint = tf.keras.callbacks.ModelCheckpoint(
     filepath='./rank_checkpoint/',
     save_weights_only=True,
     monitor='val_loss',
     mode='min',
-    save_best_only=True)
-history = rank_model.fit(rank_train, rank_train_label,
-                    batch_size=2**12, 
-                    epochs=25,
-                    verbose=1,
-                    validation_split=0.1,
-                    callbacks=[early_stop,checkpoint])
+    save_best_only=True
+)
+history = rank_model.fit(
+    x=train_data, 
+    validation_data=valid_data,
+    epochs=25,
+    callbacks=[early_stop,checkpoint]
+)
 rank_model.load_weights('./rank_checkpoint/')
 ```
 
     Epoch 1/25
-    2272/2272 [==============================] - 83s 35ms/step - loss: 2.8958 - val_loss: 0.1845
+    623/623 [==============================] - 74s 112ms/step - loss: 10.0025 - val_loss: 0.2401
     Epoch 2/25
-    2272/2272 [==============================] - 78s 35ms/step - loss: 0.1695 - val_loss: 0.1614
+    623/623 [==============================] - 71s 113ms/step - loss: 0.1909 - val_loss: 0.1604
     Epoch 3/25
-    2272/2272 [==============================] - 79s 35ms/step - loss: 0.1510 - val_loss: 0.1555
+    623/623 [==============================] - 73s 116ms/step - loss: 0.1537 - val_loss: 0.1428
     Epoch 4/25
-    2272/2272 [==============================] - 79s 35ms/step - loss: 0.1423 - val_loss: 0.1534
+    623/623 [==============================] - 72s 115ms/step - loss: 0.1350 - val_loss: 0.1350
     Epoch 5/25
-    2272/2272 [==============================] - 79s 35ms/step - loss: 0.1367 - val_loss: 0.1530
+    623/623 [==============================] - 72s 115ms/step - loss: 0.1224 - val_loss: 0.1214
     Epoch 6/25
-    2272/2272 [==============================] - 79s 35ms/step - loss: 0.1338 - val_loss: 0.1535
+    623/623 [==============================] - 73s 116ms/step - loss: 0.1138 - val_loss: 0.1213
     Epoch 7/25
-    2272/2272 [==============================] - 79s 35ms/step - loss: 0.1304 - val_loss: 0.1543
+    623/623 [==============================] - 73s 116ms/step - loss: 0.1078 - val_loss: 0.1228
     Epoch 8/25
-    2272/2272 [==============================] - 79s 35ms/step - loss: 0.1286 - val_loss: 0.1555
+    623/623 [==============================] - 73s 116ms/step - loss: 0.1027 - val_loss: 0.1157
     Epoch 9/25
-    2272/2272 [==============================] - 79s 35ms/step - loss: 0.1273 - val_loss: 0.1563
+    623/623 [==============================] - 74s 117ms/step - loss: 0.0981 - val_loss: 0.1231
     Epoch 10/25
-    2272/2272 [==============================] - 79s 35ms/step - loss: 0.1263 - val_loss: 0.1573
+    623/623 [==============================] - 73s 117ms/step - loss: 0.0952 - val_loss: 0.1141
+    Epoch 11/25
+    623/623 [==============================] - 73s 116ms/step - loss: 0.0922 - val_loss: 0.1158
+    Epoch 12/25
+    623/623 [==============================] - 73s 117ms/step - loss: 0.0899 - val_loss: 0.1169
+    Epoch 13/25
+    623/623 [==============================] - 73s 117ms/step - loss: 0.0877 - val_loss: 0.1206
+    Epoch 14/25
+    623/623 [==============================] - 72s 116ms/step - loss: 0.0859 - val_loss: 0.1207
+    Epoch 15/25
+    623/623 [==============================] - 72s 116ms/step - loss: 0.0842 - val_loss: 0.1210
     
 
+
+
+
+    <tensorflow.python.training.tracking.util.CheckpointLoadStatus at 0x7fb4e25ef790>
+
+
+
+
 ```python
-del rank_train
+del train_data
 gc.collect()
 ```
 
+
+
+
+    10913
+
+
+
+
 ```python
-pred = rank_model.predict(rank_test, batch_size=2**12)
+pred = rank_model.predict(test_data, batch_size=8192)
 ```
 
 
 ```python
 pred_df = pd.DataFrame(columns=['user_id','movie_id','pred'])
-pred_df['user_id'] = rank_test['user_id']
-pred_df['movie_id'] = rank_test['movie_id']
+pred_df['user_id'] = test_data['user_id']
+pred_df['movie_id'] = test_data['movie_id']
 pred_df['pred'] = pred
 
 pred_df = pred_df.sort_values(by=['user_id','pred'], ascending=False).reset_index(drop=True)
@@ -475,8 +621,8 @@ pred_df = pred_df.groupby('user_id')['movie_id'].apply(list).reset_index()
 
 ```python
 test_label_df = pd.DataFrame(columns=['user_id','label'])
-test_label_df['user_id'] = match_test['user_id']
-test_label_df['label'] = match_test_label.tolist()
+test_label_df['user_id'] = pd.Series(test_data['user_id']).drop_duplicates()
+test_label_df['label'] = test_label.tolist()
 ```
 
 
@@ -492,7 +638,7 @@ map_at_k(test_label_df['label'], test_label_df['movie_id'], k=10)
 
 
 
-    0.01695960170098101
+    0.01812087798707755
 
 
 
@@ -504,7 +650,7 @@ recall_at_k(test_label_df['label'], test_label_df['movie_id'], k=10)
 
 
 
-    0.05109416445623343
+    0.0488097248016208
 
 
 
@@ -516,5 +662,8 @@ recall_at_k(test_label_df['label'], test_label_df['movie_id'], k=100)
 
 
 
-    0.3385775862068966
+    0.1349653891608982
 
+
+
+**Note**: All parameters in the demo are set for a quick running test purpose, tuning them may lead to a huge increase in model performance.

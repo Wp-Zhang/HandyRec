@@ -1,29 +1,28 @@
 handyrec.features.type
 =======================
 
-handyrec.features.Feature
+Feature
 -----------------------------------
-
 .. autoclass:: handyrec.features.type.Feature
    :members:
 
-handyrec.features.DenseFeature
------------------------------------
 
+DenseFeature
+-----------------------------------
 .. autoclass:: handyrec.features.type.DenseFeature
    :members:
    :show-inheritance:
 
-handyrec.features.SparseFeature
------------------------------------
 
+SparseFeature
+-----------------------------------
 .. autoclass:: handyrec.features.type.SparseFeature
    :members:
    :show-inheritance:
 
-handyrec.features.SparseSeqFeature
------------------------------------
 
+SparseSeqFeature
+-----------------------------------
 .. autoclass:: handyrec.features.type.SparseSeqFeature
    :members:
    :show-inheritance:
