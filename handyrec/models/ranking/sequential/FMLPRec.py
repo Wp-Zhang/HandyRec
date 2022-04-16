@@ -97,12 +97,18 @@ def FMLPRec(
     Parameters
     ----------
     item_seq_feat_group : FeatureGroup
-        _description_
+        Feature group of item sequence features.
 
     Returns
     -------
     Model
-        _description_
+        A FMLP-Rec model.
+
+    References
+    ----------
+    .. [1] Kun Zhou, Hui Yu, Wayne Xin Zhao, Ji-Rong Wen. "Filter-enhanced MLP is All You
+        Need for Sequential Recommendation." The 31st conference in the International World
+        Wide Web Conference. 2022.
     """
 
     embd_outputs = OrderedDict()

@@ -1,5 +1,4 @@
 handyrec.models.DIN
 ===========================
 
-.. automodule:: handyrec.models.ranking.DIN
-   :members:
+.. autofunction:: handyrec.models.ranking.DIN

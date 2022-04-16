@@ -1,5 +1,4 @@
 handyrec.models.DeepFM
 ==============================
 
-.. automodule:: handyrec.models.ranking.DeepFM
-   :members:
+.. autofunction:: handyrec.models.ranking.DeepFM

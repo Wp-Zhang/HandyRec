@@ -1,5 +1,4 @@
 handyrec.models.YouTubeMatchDNN
 =========================================
 
-.. automodule:: handyrec.models.retrieval.YouTubeMatchDNN
-    :members:
+.. autofunction:: handyrec.models.retrieval.YouTubeMatchDNN

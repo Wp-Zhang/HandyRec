@@ -9,3 +9,4 @@ HandyRec Rank Models API
    DeepFM<ranking/DeepFM>
    DIN<ranking/DIN>
    DIEN<ranking/DIEN>
+   FMLP-Rec<ranking/FMLPRec>

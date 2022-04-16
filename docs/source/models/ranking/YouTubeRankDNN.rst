@@ -1,5 +1,4 @@
 handyrec.models.YouTubeRankDNN
 ======================================
 
-.. automodule:: handyrec.models.ranking.YouTubeRankDNN
-   :members:
+.. autofunction:: handyrec.models.ranking.YouTubeRankDNN

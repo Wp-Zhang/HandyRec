@@ -55,7 +55,7 @@ def DIN(
     Returns
     -------
     Model
-        A YouTubeDNN rank mdoel.
+        A DIN mdoel.
 
     References
     ----------
