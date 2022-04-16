@@ -175,7 +175,6 @@ if __name__ == "__main__":
     import numpy as np
     from handyrec.features import (
         FeaturePool,
-        FeatureGroup,
         EmbdFeatureGroup,
         SparseFeature,
         SparseSeqFeature,

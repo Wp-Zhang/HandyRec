@@ -77,7 +77,7 @@ class LocalActivationUnit(Layer):
         super().__init__(**kwargs)
 
     def build(self, input_shape):
-        self.input_check(input_shape)
+        self._input_check(input_shape)
         self.dnn = DNN(
             self.hidden_units,
             self.activation,
@@ -121,7 +121,8 @@ class LocalActivationUnit(Layer):
         base_config = super(LocalActivationUnit, self).get_config()
         return {**config, **base_config}
 
-    def input_check(self, input_shape):
+    @staticmethod
+    def _input_check(input_shape):
         if not isinstance(input_shape, list) or len(input_shape) != 2:
             raise ValueError(
                 "A `LocalActivationUnit` layer should be called "
@@ -157,38 +158,38 @@ class AUGRUCell(Layer):
         self.state_size = [self.units]
         self.output_size = [self.units]
 
-        self.W_u = None
-        self.U_u = None
+        self.w_u = None
+        self.u_u = None
         self.b_u = None
-        self.W_r = None
-        self.U_r = None
+        self.w_r = None
+        self.u_r = None
         self.b_r = None
-        self.W_h = None
-        self.U_h = None
+        self.w_h = None
+        self.u_h = None
         self.b_h = None
+        self.activation_u = Activation(recurrent_activation)
+        self.activation_r = Activation(recurrent_activation)
+        self.activation_h = Activation(activation)
         super().__init__(**kwargs)
 
     def build(self, input_shape):
         input_size = input_shape[0][-1]
 
-        self.W_u, self.U_u, self.b_u = self._gen_weights("u", input_size)
-        self.W_r, self.U_r, self.b_r = self._gen_weights("r", input_size)
-        self.W_h, self.U_h, self.b_h = self._gen_weights("h", input_size)
-        self.activation_u = Activation(self.recurrent_activation)
-        self.activation_r = Activation(self.recurrent_activation)
-        self.activation_h = Activation(self.activation)
+        self.w_u, self.u_u, self.b_u = self._gen_weights("u", input_size)
+        self.w_r, self.u_r, self.b_r = self._gen_weights("r", input_size)
+        self.w_h, self.u_h, self.b_h = self._gen_weights("h", input_size)
 
         return super().build(input_shape)
 
     def _gen_weights(self, name, input_size):
-        W = self.add_weight(
+        w = self.add_weight(
             "W_" + name,
             shape=(input_size, self.units),
             dtype=tf.float32,
             initializer="glorot_uniform",
             trainable=True,
         )
-        U = self.add_weight(
+        u = self.add_weight(
             "U_" + name,
             shape=(self.units, self.units),
             dtype=tf.float32,
@@ -202,26 +203,22 @@ class AUGRUCell(Layer):
             initializer=Zeros,
             trainable=True,
         )
-        return W, U, b
+        return w, u, b
 
     def call(self, inputs, hidden, **kwargs):
         x, att_score = inputs
         hidden = hidden[0]
 
-        u = tf.matmul(x, self.W_u) + tf.matmul(hidden, self.U_u) + self.b_u
-        # print("AUGRU u: ", att_score.shape, u.shape)
+        u = tf.matmul(x, self.w_u) + tf.matmul(hidden, self.u_u) + self.b_u
         u = att_score * self.activation_u(u)
 
-        r = tf.matmul(x, self.W_r) + tf.matmul(hidden, self.U_r) + self.b_r
-        # print("AUGRU r: ", r.shape)
+        r = tf.matmul(x, self.w_r) + tf.matmul(hidden, self.u_r) + self.b_r
         r = self.activation_r(r)
 
-        h_hat = tf.matmul(x, self.W_h) + r * tf.matmul(hidden, self.U_h) + self.b_h
-        # print("AUGRU h: ", h_hat.shape)
+        h_hat = tf.matmul(x, self.w_h) + r * tf.matmul(hidden, self.u_h) + self.b_h
         h_hat = self.activation_h(h_hat)
 
         output = (1 - u) * hidden + u * h_hat
-        # print("AUGRU output: ", output.shape)
         return output, [output]
 
     def get_config(self):

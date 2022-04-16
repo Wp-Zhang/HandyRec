@@ -1,7 +1,6 @@
 from typing import Tuple, OrderedDict
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Input
 from handyrec.features import FeatureGroup, EmbdFeatureGroup
 from handyrec.layers import DNN, LocalActivationUnit, SqueezeMask
 from handyrec.layers.utils import concat

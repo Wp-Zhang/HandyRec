@@ -1,7 +1,7 @@
 from typing import Tuple, OrderedDict
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import GRU, Concatenate, RNN, Layer, Input
+from tensorflow.keras.layers import GRU, RNN, Layer
 from handyrec.features import FeatureGroup
 from handyrec.layers import DNN, LocalActivationUnit, AUGRUCell, SqueezeMask
 from handyrec.layers.utils import concat
@@ -22,8 +22,8 @@ class AuxiliaryLoss(Layer):
         embd_seq = embd_seq[:, 1:, :]  # * [batch_size, T-1, embd_size]
         neg_embd_seq = neg_embd_seq[:, 1:, :]  # * [batch_size, T-1, embd_size]
         hidden_seq = hidden_seq[:, :-1, :]  # * [batch_size, T-1, hidden_size]
-        concat_seq1 = tf.concat([hidden_seq, neg_embd_seq], axis=-1)
-        concat_seq2 = tf.concat([hidden_seq, embd_seq], axis=-1)
+        concat_seq1 = tf.concat([hidden_seq, neg_embd_seq], axis=2)
+        concat_seq2 = tf.concat([hidden_seq, embd_seq], axis=2)
 
         click_p = tf.squeeze(self.dnn(concat_seq1), axis=2)  # * (batch_size, T-1)
         nonclick_p = tf.squeeze(self.dnn(concat_seq2), axis=2)  # * (batch_size, T-1)
@@ -36,6 +36,11 @@ class AuxiliaryLoss(Layer):
         loss = -tf.reduce_mean(loss, axis=0)
 
         return loss
+
+    def get_config(self):
+        base_config = super().get_config()
+        config = self.dnn.get_config()
+        return {**base_config, **config}
 
 
 def DIEN(
@@ -174,7 +179,8 @@ def DIEN(
         # * ========================== Embedding Lookup ==========================
         embd_seq = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
         neg_embd_seq = sparse_embd(neg_seq_input)
-        # * layers below only use the mask of `embd_seq`, thus we only apply squeeze operation on it.
+        # * layers below only use the mask of `embd_seq`, thus we only apply
+        # * squeeze operation on it.
         embd_seq = SqueezeMask()(embd_seq)
 
         # * ========================== FIRST LAYER: GRU ==========================
