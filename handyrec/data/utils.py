@@ -49,4 +49,4 @@ def gen_sequence(
         )
         p += len(hists)
 
-    return seq.tolist()
+    return seq.tolist()  # ! may lead to memory error, need to be fixed
