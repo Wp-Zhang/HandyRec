@@ -101,7 +101,8 @@ class HandyRecDataset:
         self.test_label = None
 
     # * ==================== Check validity of the parameters =====================
-    def _check_task(self, task) -> None:
+    @staticmethod
+    def _check_task(task) -> None:
         """Check if the task is valid.
 
         Parameters
@@ -112,7 +113,8 @@ class HandyRecDataset:
         if task not in ["retrieval", "ranking"]:
             raise ValueError("The task should be one of {``retrieval``, ``ranking``}")
 
-    def _check_data(self, data: Dict) -> None:
+    @staticmethod
+    def _check_data(data: Dict) -> None:
         """Check if the data is valid.
 
         Parameters
@@ -134,7 +136,8 @@ class HandyRecDataset:
                 "The following keys will not be used: {}".format(", ".join(keys - res))
             )
 
-    def _check_path(self, name: str) -> None:
+    @staticmethod
+    def _check_path(name: str) -> None:
         """Check if the path is valid.
 
         Parameters
@@ -1160,7 +1163,8 @@ class SequenceWiseDataset(HandyRecDataset):
             The seed for shuffling, by default ``0``.
         """
         inter_feats = list(
-            set([self.seq_name] + inter_feats) - set([self.neg_seq_name])
+            set([self.seq_name, self.label_name] + inter_feats)
+            - set([self.neg_seq_name])
         )
         super().gen_dataset(
             user_feats, item_feats, inter_feats, test_candidates, shuffle, seed
@@ -1218,12 +1222,23 @@ class SequenceWiseDataset(HandyRecDataset):
         inter_train[self.neg_seq_name] = train_tmp_array
         inter_valid[self.neg_seq_name] = valid_tmp_array
 
+        # * Merge the dataset
         train_dict = {**user_train, **item_train, **inter_train}
         valid_dict = {**user_valid, **item_valid, **inter_valid}
         test_dict = {**user_test, **item_test, **inter_test}
 
-        train_ds = tf.data.Dataset.from_tensor_slices(train_dict).batch(batch_size)
-        valid_ds = tf.data.Dataset.from_tensor_slices(valid_dict).batch(batch_size)
+        # * Get label
+        train_label = train_dict.pop(self.label_name)
+        valid_label = valid_dict.pop(self.label_name)
+        test_dict.pop(self.label_name)
+
+        # * Convert to tf.data.Dataset
+        train_ds = tf.data.Dataset.from_tensor_slices((train_dict, train_label)).batch(
+            batch_size
+        )
+        valid_ds = tf.data.Dataset.from_tensor_slices(valid_dict, valid_label).batch(
+            batch_size
+        )
 
         if shuffle:
             train_ds = train_ds.shuffle(buffer_size=len(train_dict))
