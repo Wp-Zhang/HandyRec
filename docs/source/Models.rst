@@ -1,11 +1,11 @@
 HandyRec Models API
-======================
+===================
 
 
 .. toctree::
    :maxdepth: 3
    :caption: API:
 
-   Match Models<models/handyrec.models.match>
-   Rank Models<models/handyrec.models.rank>
+   Retrieval<models/handyrec.models.retrieval>
+   Ranking<models/handyrec.models.ranking>
    Utility Functions<models/handyrec.models.utils>
