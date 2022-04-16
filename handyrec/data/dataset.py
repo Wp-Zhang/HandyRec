@@ -446,8 +446,7 @@ class HandyRecDataset:
         self._save_features("item", item_feats)
         self._save_features("inter", inter_feats)
 
-        with open(self.dir / "test_label.npy", "wb") as file:
-            np.save(file, self.test_label)
+        np.save(self.dir / "test_label.npy", self.test_label)
 
     def load_dataset(
         self,
@@ -492,7 +491,7 @@ class HandyRecDataset:
         if shuffle:
             train_ds = train_ds.shuffle(buffer_size=len(train_dict))
 
-        test_label = np.load(self.dir / "test_label.npy")
+        test_label = np.load(self.dir / "test_label.npy", allow_pickle=True)
         return train_ds, valid_ds, test_dict, test_label
 
     def get_feature_dim(
@@ -763,7 +762,7 @@ class PointWiseDataset(HandyRecDataset):
         if shuffle:
             train_ds = train_ds.shuffle(buffer_size=len(train_dict))
 
-        test_label = np.load(self.dir / "test_label.npy")
+        test_label = np.load(self.dir / "test_label.npy", allow_pickle=True)
         return train_ds, valid_ds, test_dict, test_label
 
 
@@ -979,7 +978,7 @@ class PairWiseDataset(HandyRecDataset):
         if shuffle:
             train_ds = train_ds.shuffle(buffer_size=len(train_dict))
 
-        test_label = np.load(self.dir / "test_label.npy")
+        test_label = np.load(self.dir / "test_label.npy", allow_pickle=True)
         return train_ds, valid_ds, test_dict, test_label
 
 
@@ -1223,8 +1222,8 @@ class SequenceWiseDataset(HandyRecDataset):
         # * Load negative sequence feature
         train_path = self.dir / f"train_{self.neg_seq_name}.npy"
         valid_path = self.dir / f"valid_{self.neg_seq_name}.npy"
-        train_tmp_array = np.load(open(train_path, "rb"), allow_pickle=True)
-        valid_tmp_array = np.load(open(valid_path, "rb"), allow_pickle=True)
+        train_tmp_array = np.load(train_path, allow_pickle=True)
+        valid_tmp_array = np.load(valid_path, allow_pickle=True)
         inter_train[self.neg_seq_name] = train_tmp_array
         inter_valid[self.neg_seq_name] = valid_tmp_array
 
@@ -1249,5 +1248,5 @@ class SequenceWiseDataset(HandyRecDataset):
         if shuffle:
             train_ds = train_ds.shuffle(buffer_size=len(train_dict))
 
-        test_label = np.load(self.dir / "test_label.npy")
+        test_label = np.load(self.dir / "test_label.npy", allow_pickle=True)
         return train_ds, valid_ds, test_dict, test_label
