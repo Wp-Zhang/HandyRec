@@ -1132,7 +1132,12 @@ class SequenceWiseDataset(HandyRecDataset):
         # * Convert the numpy ndarray to pandas dataframe
         data_df = pd.DataFrame(data_array, columns=inter.columns)
         inter = pd.concat([inter, data_df], ignore_index=True)
-        inter[self.neg_seq_name] = neg_seq_array.tolist()
+
+        del data_df
+        gc.collect()
+        inter[self.neg_seq_name] = inter.apply(
+            lambda row: neg_seq_array[row.name], axis=1
+        )
         self.data["inter"] = inter
 
     def gen_dataset(
