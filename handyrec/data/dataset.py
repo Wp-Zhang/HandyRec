@@ -1,11 +1,11 @@
 from typing import Dict, List, Tuple, Any
 import warnings
+import gc
 import tensorflow as tf
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
-import gc
 from copy import deepcopy
 
 
@@ -1237,7 +1237,7 @@ class SequenceWiseDataset(HandyRecDataset):
         train_ds = tf.data.Dataset.from_tensor_slices((train_dict, train_label)).batch(
             batch_size
         )
-        valid_ds = tf.data.Dataset.from_tensor_slices(valid_dict, valid_label).batch(
+        valid_ds = tf.data.Dataset.from_tensor_slices((valid_dict, valid_label)).batch(
             batch_size
         )
 
