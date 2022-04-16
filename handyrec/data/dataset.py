@@ -13,9 +13,9 @@ class HandyRecDataset:
     """The base class for all types of datasets.
 
     The order of calling the methods should be:
-        (0. `negative_sampling`)
-
         1. `train_test_split`
+
+        (1.5. `negative_sampling`)
 
         2. `train_valid_split`
 
@@ -25,6 +25,8 @@ class HandyRecDataset:
 
     Attibutes
     ---------
+    task: str
+        The task of the dataset, should be one of {``retrieval``, ``ranking``}.
     dir: Path
         The directory of the dataset.
     data: Dict
@@ -548,9 +550,9 @@ class PointWiseDataset(HandyRecDataset):
     """Dataset with point-wise inputs like ``uid, iid, label``
 
     The order of calling the methods should be:
-        (0. `negative_sampling`)
-
         1. `train_test_split`
+
+        (1.5. `negative_sampling`)
 
         2. `train_valid_split`
 
@@ -648,13 +650,12 @@ class PointWiseDataset(HandyRecDataset):
         ):
             # * Generate negative samples for each user
             pos_list = hist[self.iid_name].values
-            neg_size = len(pos_list) * neg_num
+            neg_size = hist.shape[0] * neg_num
             candidates = list(full_iid_set - set(pos_list))
             negs = np.random.choice(candidates, size=neg_size, replace=True)
 
             # * Generate data for negative samples
-            neg_array = inter[inter[self.uid_name] == uid].values
-            neg_array = np.repeat(neg_array, neg_num, axis=0)
+            neg_array = np.repeat(hist.values, neg_num, axis=0)
 
             iid_index = inter.columns.get_loc(self.iid_name)
             label_index = inter.columns.get_loc(self.label_name)
@@ -767,9 +768,9 @@ class PairWiseDataset(HandyRecDataset):
     """Dataset with pair-wise inputs like ``uid, iid, neg_iid``
 
     The order of calling the methods should be:
-        (0. `negative_sampling`)
-
         1. `train_test_split`
+
+        (1.5. `negative_sampling`)
 
         2. `train_valid_split`
 
@@ -983,9 +984,9 @@ class SequenceWiseDataset(HandyRecDataset):
     """Dataset with sequence-wise inputs like ``uid, seq, neg_seq``
 
     The order of calling the methods should be:
-        (0. `negative_sampling`)
-
         1. `train_test_split`
+
+        (1.5. `negative_sampling`)
 
         2. `train_valid_split`
 
@@ -1009,6 +1010,8 @@ class SequenceWiseDataset(HandyRecDataset):
         The name of the interaction column.
     time_name: str
         The name of the time column.
+    label_name: str
+        The name of the label column.
     threshold: float
         The threshold for the interactions.
     seq_name: str
@@ -1026,6 +1029,7 @@ class SequenceWiseDataset(HandyRecDataset):
         iid_name: str,
         inter_name: str,
         time_name: str,
+        label_name: str,
         seq_name: str,
         neg_seq_name: str,
         threshold: float = 0.0,
@@ -1048,6 +1052,8 @@ class SequenceWiseDataset(HandyRecDataset):
             The name of the interaction column.
         time_name: str
             The name of the time column.
+        label_name: str
+            The name of the label column.
         seq_name: str
             The name of the sequence column.
         neg_seq_name: str
@@ -1055,25 +1061,40 @@ class SequenceWiseDataset(HandyRecDataset):
         threshold: float, optional
             The threshold for the interactions, by default ``0.0``.
         """
+        if label_name in data["inter"].columns:
+            warnings.warn(
+                "Predefined label column is not allowed, will be overwritten."
+            )
+
+        self.label_name = label_name
+        data["inter"][self.label_name] = 1
         self.seq_name = seq_name
         self.neg_seq_name = neg_seq_name
         super().__init__(
             name, task, data, uid_name, iid_name, inter_name, time_name, threshold
         )
 
-    def negative_sampling(self) -> None:
+    def negative_sampling(self, neg_num: int) -> None:
         """Negative sampling for the sequence-wise dataset.
 
-        The negative sampling is done by randomly sampling the negative items for each user.
+        Parameters
+        ----------
+        neg_num : int
+            The number of negative samples for each positive sample.
         """
         inter = self.data["inter"]
         full_iid_set = set(inter[self.iid_name].unique())
 
+        counter = inter.groupby([self.uid_name]).size().reset_index(name="count")
+        data_size = counter["count"].sum() * neg_num
+        full_size = counter["count"].sum() * (neg_num + 1)
         seq_len = len(inter.loc[0, self.seq_name])
-        data_array = np.zeros((inter.shape[0], seq_len), dtype=int)
+
+        data_array = np.zeros((data_size, inter.shape[1]), dtype=object)
+        neg_seq_array = np.zeros((full_size, seq_len), dtype=int)
         # * Here we use an numpy ndarray to temporarily store the negative samples
         # * to speed up the negative sampling process.
-        p = 0
+        p, q = 0, 0
         for uid, hist in tqdm(
             inter.groupby(self.uid_name), "Generate negative samples"
         ):
@@ -1083,16 +1104,32 @@ class SequenceWiseDataset(HandyRecDataset):
             pos_list = set(pos_list) & set(pos_seq_list)
             candidates = list(full_iid_set - pos_list)
 
-            neg_size = seq_len * len(pos_list)
-            negs = np.random.choice(candidates, size=neg_size, replace=True)
+            neg_sample_size = hist.shape[0] * neg_num
+            neg_seq_size = hist.shape[0] * (neg_num + 1) * seq_len
+            negs = np.random.choice(
+                candidates, size=neg_sample_size + neg_seq_size, replace=True
+            )
+            neg_sample = negs[:neg_sample_size]
+            neg_seq = negs[neg_sample_size:].reshape(-1, seq_len)
+
+            # * Generate data for negative samples
+            neg_array = np.repeat(hist.values, neg_num, axis=0)
+
+            iid_index = inter.columns.get_loc(self.iid_name)
+            label_index = inter.columns.get_loc(self.label_name)
+            neg_array[:, iid_index] = neg_sample
+            neg_array[:, label_index] = 0
 
             # * Store the negative samples
-            data_array[p : p + len(pos_list), :] = negs.reshape(len(pos_list), seq_len)
-            p += len(pos_list)
+            data_array[p : p + neg_sample_size, :] = neg_array
+            neg_seq_array[q : q + neg_seq_size // seq_len, :] = neg_seq
+            p += neg_sample_size
+            q += neg_seq_size // seq_len
 
-        inter[self.neg_seq_name] = data_array.tolist()
-        gc.collect()
-
+        # * Convert the numpy ndarray to pandas dataframe
+        data_df = pd.DataFrame(data_array, columns=inter.columns)
+        inter = pd.concat([inter, data_df], ignore_index=True)
+        inter[self.neg_seq_name] = neg_seq_array.tolist()
         self.data["inter"] = inter
 
     def gen_dataset(
