@@ -83,9 +83,9 @@ def hr_at_k(actual: Any, predicted: Any, k: int = 10) -> float:
         hr@k.
     """
     count = 0
-    for i in range(len(actual)):
+    for i, actual_i in enumerate(actual):
         for p in predicted[i][:k]:
-            if p in actual[i]:
+            if p in actual_i:
                 count += 1
                 break
     return count / len(actual)
