@@ -869,7 +869,7 @@ class PairWiseDataset(HandyRecDataset):
             negs = np.random.choice(candidates, size=neg_size, replace=True)
 
             # * Generate data for negative samples
-            neg_array = inter[inter[self.uid_name] == uid].values
+            neg_array = hist.values
             neg_array = np.repeat(neg_array, neg_num, axis=0)
 
             # * Store the negative samples
