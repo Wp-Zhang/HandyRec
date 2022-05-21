@@ -67,8 +67,8 @@ def DeepFM(
             "FM currently doesn't support dense featrue, they will be ignored"
         )
     # * Concat input layers -> DNN, FM
-    dnn_input = concat(fm_dense + dnn_dense, fm_sparse + dnn_sparse)
-    fm_input = concat([], fm_sparse + dnn_sparse, axis=1, keepdims=True)
+    dnn_input = concat(dnn_dense, dnn_sparse)
+    fm_input = concat([], fm_sparse, axis=1, keepdims=True)
 
     dnn_output = DNN(
         hidden_units=dnn_hidden_units,

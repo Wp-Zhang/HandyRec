@@ -172,9 +172,9 @@ def DIEN(
 
         seq_input = item_seq_feat_group.input_layers[feat.name]
         neg_seq_input = neg_item_seq_feat_group.input_layers["neg_" + feat.name]
-        # * the input sequence is in descending order, so we need to reverse it
-        seq_input = seq_input[:, ::-1]
-        neg_seq_input = neg_seq_input[:, ::-1]
+        # # * the input sequence is in descending order, so we need to reverse it
+        # seq_input = seq_input[:, ::-1]
+        # neg_seq_input = neg_seq_input[:, ::-1]
 
         # * ========================== Embedding Lookup ==========================
         embd_seq = sparse_embd(seq_input)  # * (batch_size, seq_len, embd_dim)
