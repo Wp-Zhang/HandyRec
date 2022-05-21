@@ -8,7 +8,7 @@ from tensorflow.keras.regularizers import l2
 from handyrec.layers import CustomEmbedding, SequencePoolingLayer, ValueTable
 from handyrec.layers.utils import concat
 from .utils import split_features
-from .type import Feature, SparseFeature, SparseSeqFeature
+from .type import DenseFeature, Feature, SparseFeature, SparseSeqFeature
 
 
 class FeaturePool:
@@ -229,7 +229,12 @@ class FeatureGroup:
         input_layers = OrderedDict()
 
         for feat in features:
-            dim = feat.seq_len if isinstance(feat, SparseSeqFeature) else 1
+            if isinstance(feat, SparseSeqFeature):
+                dim = feat.seq_len
+            elif isinstance(feat, DenseFeature):
+                dim = feat.dim
+            else:  # * SparseFeature
+                dim = 1
             params = {"name": feat.name, "shape": (dim,), "dtype": feat.dtype}
             input_layer = feature_pool.init_input(feat.name, params)
             input_layers[feat.name] = input_layer
