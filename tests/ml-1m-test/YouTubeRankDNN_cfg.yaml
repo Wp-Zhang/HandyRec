@@ -1,0 +1,34 @@
+FeatureGroups:
+    user_feature_group:
+        type: "FeatureGroup"
+        name: "user"
+
+        SparseFeatures:
+            user_id:
+                embedding_dim: 8
+            gender:
+                embedding_dim: 8
+            occupation:
+                embedding_dim: 8
+
+        SparseSeqFeatures:
+            hist_movie:
+                unit:
+                    movie_id:
+                        embedding_dim: 8
+                seq_len: 2
+
+    item_feature_group:
+        type: "FeatureGroup"
+        name: "item"
+
+        SparseFeatures:
+            movie_id:
+                embedding_dim: 8
+
+        SparseSeqFeatures:
+            genres:
+                unit:
+                    genre_id:
+                        embedding_dim: 8
+                seq_len: 3

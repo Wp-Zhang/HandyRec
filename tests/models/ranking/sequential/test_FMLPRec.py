@@ -1,11 +1,6 @@
 from tests.test_helper import get_pairwise_dataset
 from handyrec.models.ranking import FMLPRec
-from handyrec.features import (
-    SparseFeature,
-    SparseSeqFeature,
-    FeatureGroup,
-    FeaturePool,
-)
+from handyrec.config import ConfigLoader
 
 import tensorflow as tf
 from tensorflow.keras.losses import binary_crossentropy
@@ -23,30 +18,34 @@ def test_FMLPRec():
     )
     feature_dim = dataset.get_feature_dim(user_features, item_features, [])
 
-    feat_pool = FeaturePool()
-
-    rank_item_seq_features = [
-        SparseSeqFeature(
-            SparseFeature("movie_id", feature_dim["movie_id"], 8), "hist_movie", 2
-        )
-    ]
-    item_seq_feat_group = FeatureGroup("item_seq", rank_item_seq_features, feat_pool)
-
     # * --------------------------------------------------------------------------------
 
     with pytest.raises(AttributeError):
-        feat_pool2 = FeaturePool()
-        rank_item_seq_features2 = [
-            SparseSeqFeature(
-                SparseFeature("movie_id", feature_dim["movie_id"], 8), "hist_movie", 3
-            )
-        ]
-        item_seq_feat_group2 = FeatureGroup(
-            "item_seq", rank_item_seq_features2, feat_pool2
-        )
+        cfg_dict = {
+            "FeatureGroups": {
+                "item_seq_feat_group": {
+                    "type": "FeatureGroup",
+                    "name": "item_seq",
+                    "SparseSeqFeatures": {
+                        "hist_movie": {
+                            "unit": {"movie_id": {"embedding_dim": 8}},
+                            "seq_len": 3,
+                        }
+                    },
+                }
+            }
+        }
 
-        rank_model = FMLPRec(item_seq_feat_group2, dropout=0.5, block_num=3)
+        cfg = ConfigLoader(cfg_dict)
+        feature_groups = cfg.prepare_features(feature_dim)
+        item_seq_feat_group = feature_groups["item_seq_feat_group"]
+
+        rank_model = FMLPRec(item_seq_feat_group, dropout=0.5, block_num=3)
     # * --------------------------------------------------------------------------------
+
+    cfg = ConfigLoader("tests/ml-1m-test/FMLPRec_cfg.yaml")
+    feature_groups = cfg.prepare_features(feature_dim)
+    item_seq_feat_group = feature_groups["item_seq_feat_group"]
 
     rank_model = FMLPRec(item_seq_feat_group, dropout=0.5, block_num=3)
 
