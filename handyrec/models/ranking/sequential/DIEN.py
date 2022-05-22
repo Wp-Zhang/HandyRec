@@ -48,7 +48,6 @@ def DIEN(
     neg_item_seq_feat_group: FeatureGroup,
     other_feature_group: FeatureGroup,
     # * =================================================
-    gru_units: int = 8,
     gru_activation: str = "tanh",
     gru_recurrent_activation: str = "sigmoid",
     gru_dropout: float = 0,
@@ -81,8 +80,6 @@ def DIEN(
         Negative item sequence feature group corresponding to `item_seq_feat_group`.
     other_feature_group : FeatureGroup
         Feature group for other features.
-    gru_units: int
-        GRU units in first layer, by default ``64``.
     gru_activation: str
         GRU activation function in first layer, by default ``"tanh"``.
     gru_recurrent_activation: str
@@ -185,7 +182,7 @@ def DIEN(
 
         # * ========================== FIRST LAYER: GRU ==========================
         gru = GRU(
-            gru_units,
+            embd_seq.shape[-1],
             activation=gru_activation,
             recurrent_activation=gru_recurrent_activation,
             dropout=gru_dropout,
