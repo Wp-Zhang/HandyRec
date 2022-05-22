@@ -13,14 +13,29 @@ from handyrec.features import (
 
 
 class ConfigLoader:
+    """Helper class for loading configs and prepare for constructing a model.
+
+    Parameters
+    ----------
+    config : Box
+        Configuration dictionary.
+    """
+
     def __init__(self, config: Union[str, Dict]):
+        """Initialize ConfigLoader.
+
+        Parameters
+        ----------
+        config : Union[str, Dict]
+            Configuration dictionary or path of configuration file.
+        """
         assert isinstance(config, (str, dict)), "config must be a string or a dict"
         if isinstance(config, str):
             self.config = box.box_from_file(config)
         else:
             self.config = box.Box(config)
 
-    def _construct_dense_feat(self, name, feat_config, feature_dim):
+    def _construct_dense_feat(self, name, feat_config):
         feat_config.name = feat_config.get("name", name)
         feat = DenseFeature(**feat_config)
         return feat
@@ -50,12 +65,30 @@ class ConfigLoader:
         feature_dim: Dict = None,
         value_dict: Dict = None,
     ) -> Union[FeatureGroup, EmbdFeatureGroup]:
+        """Construct a FeatureGroup/EmbdFeatureGroup.
+
+        Parameters
+        ----------
+        feature_group_name : str
+            Name of the feature group.
+        feature_pool : FeaturePool
+            Feature pool that the feature group belongs to.
+        feature_dim : Dict, optional
+            Sparse feature dimension dictionary, by default ``None``. If ``None``, will load from config.
+        value_dict : Dict, optional
+            Full item feature value dictionary for `EmbdFeatureGroup`, by default ``None``.
+
+        Returns
+        -------
+        Union[FeatureGroup, EmbdFeatureGroup]
+            Feature group.
+        """
         fg_config = self.config.FeatureGroups[feature_group_name]
 
         dense_features = []
         for feat_name in fg_config.get("DenseFeatures", []):
             feat_config = fg_config.DenseFeatures[feat_name]
-            feat = self._construct_dense_feat(feat_name, feat_config, feature_dim)
+            feat = self._construct_dense_feat(feat_name, feat_config)
             dense_features.append(feat)
 
         sparse_features = []
@@ -96,6 +129,22 @@ class ConfigLoader:
         data: Dict = None,
         pretrained_embd: Dict = None,
     ) -> Dict:
+        """Prepare feature pool and feature groups for constructing a model.
+
+        Parameters
+        ----------
+        feature_dim : Dict, optional
+            Sparse feature dimension dictionary, by default ``None``. If ``None``, will load from config.
+        data : Dict, optional
+            Data dictionary to get full item feature value dictionary for `EmbdFeatureGroup`, by default ``None``.
+        pretrained_embd : Dict, optional
+            Pre-trained embedding dictionary, by default ``None``.
+
+        Returns
+        -------
+        Dict
+            Dictionary of feature pool and feature groups (and full item feature value dictionary for `EmbdFeatureGroup`).
+        """
         feature_pool = FeaturePool(pretrained_embd)
         result = {"feature_pool": feature_pool}
 
