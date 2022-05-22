@@ -10,14 +10,16 @@ from typing import List
 class ValueTable(Layer):
     """Output a full list of values of a feature to be the input of embedding layer"""
 
-    def __init__(self, value_list: List, **kwargs):
+    def __init__(self, value_list: List, dtype: str = "int32", **kwargs):
         """
         Parameters
         ----------
         value_list : List
             Feature values of all items.
+        dtype : str, optional
+            Data type of the value table, by default ``"int32"``.
         """
-        self.value = tf.constant(value_list)
+        self.value = tf.constant(value_list, dtype=dtype)
         super().__init__(**kwargs)
 
     def call(self, *args, **kwargs):

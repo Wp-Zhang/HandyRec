@@ -8,7 +8,7 @@ from tensorflow.keras.regularizers import l2
 from handyrec.layers import CustomEmbedding, SequencePoolingLayer, ValueTable
 from handyrec.layers.utils import concat
 from .utils import split_features
-from .type import Feature, SparseFeature, SparseSeqFeature
+from .type import DenseFeature, Feature, SparseFeature, SparseSeqFeature
 
 
 class FeaturePool:
@@ -124,34 +124,40 @@ class FeaturePool:
     def init_pool(self, name: str, params: Dict) -> Layer:
         if name in self.pool_layers.keys():
             layer = self.pool_layers[name]
-            # TODO check pool method equality
+            curr_m = layer.method
+            new_m = params["method"]
+            if layer.method != params["method"]:
+                raise AttributeError(
+                    f"Params of {name} conflict with an existed pooling layer!\n"
+                    + f"\t existed pooling method:{curr_m}, new method:{new_m}"
+                )
         else:
             layer = SequencePoolingLayer(**params)
             self.pool_layers[name] = layer
         return layer
 
-    def add_input(self, input_layer: Input) -> None:
-        """Add an shared input layer.
+    # def add_input(self, input_layer: Input) -> None:
+    #     """Add an shared input layer.
 
-        Parameters
-        ----------
-        input_layer : Input
-            An input layer.
-        """
-        if input_layer.name in self.input_layers.keys():
-            pass
-        else:
-            self.input_layers[input_layer.name] = input_layer
+    #     Parameters
+    #     ----------
+    #     input_layer : Input
+    #         An input layer.
+    #     """
+    #     if input_layer.name in self.input_layers.keys():
+    #         pass
+    #     else:
+    #         self.input_layers[input_layer.name] = input_layer
 
-    def add_embd(self, embd_layer: CustomEmbedding) -> None:
-        """Add an shared embedding layer.
+    # def add_embd(self, embd_layer: CustomEmbedding) -> None:
+    #     """Add an shared embedding layer.
 
-        Parameters
-        ----------
-        embd_layer : CustomEmbedding
-            An embedding layer.
-        """
-        self.embd_layers[embd_layer.name] = embd_layer
+    #     Parameters
+    #     ----------
+    #     embd_layer : CustomEmbedding
+    #         An embedding layer.
+    #     """
+    #     self.embd_layers[embd_layer.name] = embd_layer
 
 
 class FeatureGroup:
@@ -229,7 +235,12 @@ class FeatureGroup:
         input_layers = OrderedDict()
 
         for feat in features:
-            dim = feat.seq_len if isinstance(feat, SparseSeqFeature) else 1
+            if isinstance(feat, SparseSeqFeature):
+                dim = feat.seq_len
+            elif isinstance(feat, DenseFeature):
+                dim = feat.dim
+            else:  # * SparseFeature
+                dim = 1
             params = {"name": feat.name, "shape": (dim,), "dtype": feat.dtype}
             input_layer = feature_pool.init_input(feat.name, params)
             input_layers[feat.name] = input_layer
@@ -270,7 +281,7 @@ class FeatureGroup:
         for feat in feats_to_construct:
             weights = None
             if feature_pool.pre_embd and feat.name in feature_pool.pre_embd.keys():
-                weights = feature_pool.pre_embd[feat.name]
+                weights = [feature_pool.pre_embd[feat.name]]
             params = {
                 "name": "embd_" + feat.name,
                 "input_dim": feat.vocab_size,
@@ -394,7 +405,7 @@ class EmbdFeatureGroup:
                 and not isinstance(feat.unit, EmbdFeatureGroup)
             ):
                 raise ValueError(
-                    """Only a `EmbdFeatureGroup` can be the unit of a `SparseSeqFeature`"""
+                    """Only an `EmbdFeatureGroup` or a `SparseFeature` can be the unit of a `SparseSeqFeature`"""
                 )
 
         # * initialize attributes
@@ -416,7 +427,7 @@ class EmbdFeatureGroup:
         self._layers = {}
         for feat in features:
             self._layers[feat.name] = ValueTable(
-                value_dict[feat.name], name=feat.name + "_list"
+                value_dict[feat.name], name=feat.name + "_list", dtype=feat.dtype
             )
             if isinstance(feat, SparseSeqFeature):
                 self._layers[feat.name + "_pool"] = SequencePoolingLayer(
@@ -451,7 +462,9 @@ class EmbdFeatureGroup:
         # * a dense feature needs to be treated as an 1-d embedding
         for name in dense.keys():
             embd = self._layers[name](index)
-            embd_outputs[name] = tf.expand_dims(embd, axis=-1)  # * (n,1)
+            if len(embd.shape) == 1:
+                embd = tf.expand_dims(embd, axis=-1)  # * (n,1)
+            embd_outputs[name] = embd
 
         for name in sparse.keys():
             embd_input = self._layers[name](index)
@@ -464,25 +477,27 @@ class EmbdFeatureGroup:
             embd_outputs[name] = self._layers[name + "_pool"](embd_seq)
             embd_outputs[name] = tf.squeeze(embd_outputs[name])  # * (n,d)
 
-        output = concat([], list(embd_outputs.values()))  # * (n, 2d+k)
+        output = concat([], list(embd_outputs.values()))  # * (n, p*d+q)
         if compress:
             output = self._output_layer(output)  # * (n, embd_dim)
         return output
 
-    def lookup(self, index: Input) -> tf.Tensor:
+    def lookup(self, index: Input, compress: bool = False) -> tf.Tensor:
         """Lookup all feature values by given id.
 
         Parameters
         ----------
         index : Input
             Target ids.
+        compress : bool
+            Whether compress the output into a size of ``self.embd_dim``.
 
         Returns
         -------
         tf.Tensor
             Concatenated feature values of given ids.
         """
-        embedding = self.get_embd(index)
+        embedding = self.get_embd(index, compress)
         output = tf.nn.embedding_lookup(embedding, index)  # * (batch, seq, embd_dim)
         if index.shape[-1] == 1:
             # * index is not sequence
@@ -490,7 +505,7 @@ class EmbdFeatureGroup:
         return output
 
     def __call__(self, seq_input: Input) -> Tuple[tf.Tensor]:
-        output = self.lookup(seq_input)
+        output = self.lookup(seq_input, compress=True)
         # * manually compute mask
         mask = tf.not_equal(seq_input, 0)  # (?, n)
         mask = tf.expand_dims(mask, axis=-1)  # (?, n, 1)
