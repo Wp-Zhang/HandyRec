@@ -96,8 +96,14 @@ def FMLPRec(
 
     Parameters
     ----------
-    item_seq_feat_group : FeatureGroup
+    seq_feat_group : FeatureGroup
         Feature group of item sequence features.
+    dropout : float, optional
+        Dropout rate of concatenated embeddings, by default ``0``.
+    block_num : int, optional
+        Number of filter blocks, by default ``1``.
+    layer_norm_eps : float, optional
+        Epsilon of layer normalization, by default ``1e-12``.
 
     Returns
     -------
