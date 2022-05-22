@@ -6,8 +6,12 @@
 
 # test
 coverage.xml
-codacy_coverage.sh
+gen_report.sh
+upload_report.sh
 HandyRec.egg-info
+test.ipynb
 **/*checkpoint/
 **/ml-1m
 *.h5
+.codacy*
+

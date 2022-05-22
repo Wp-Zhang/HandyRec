@@ -24,6 +24,16 @@ def _concat(inputs: List, axis: int = -1) -> tf.Tensor:
     if len(inputs) == 1:
         return inputs[0]
     else:
+        # * change dtypes
+        has_integer = False
+        has_other = False
+        for tensor in inputs:
+            if tensor.dtype.is_integer:
+                has_integer = True
+            else:
+                has_other = True
+        if has_other and has_integer:
+            inputs = [tf.cast(tensor, tf.float32) for tensor in inputs]
         return Concatenate(axis=axis)(inputs)
 
 
@@ -64,12 +74,12 @@ def concat(
             dense = Flatten()(dense)
             sparse = Flatten()(sparse)
 
-        # * Change dtype
-        if dense.dtype != sparse.dtype:
-            if dense.dtype.is_integer:
-                dense = tf.cast(dense, sparse.dtype)
-            else:
-                sparse = tf.cast(sparse, dense.dtype)
+        # # * Change dtype
+        # if dense.dtype != sparse.dtype:
+        #     if dense.dtype.is_integer:
+        #         dense = tf.cast(dense, sparse.dtype)
+        #     else:
+        #         sparse = tf.cast(sparse, dense.dtype)
 
         return _concat([dense, sparse], axis)
 

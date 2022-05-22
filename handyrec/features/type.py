@@ -31,20 +31,23 @@ class DenseFeature(Feature):
     name : str
         Name of feature, each feature should have a distinct name.
     dtype : str, optional
-        Data type, by default ``"int32"``.
+        Data type, by default ``"float32"``.
     """
 
-    def __init__(self, name: str, dtype: str = "int32"):
+    def __init__(self, name: str, dim: int = 1, dtype: str = "float32"):
         """Initialize a `DenseFeature`.
 
         Parameters
         ----------
         name : str
             Name of feature, each feature should have a distinct name.
+        dim : int, optional
+            Dimension of feature, by default ``1``.
         dtype : str, optional
-            Data type, by default ``"int32"``.
+            Data type, by default ``"float32"``.
         """
         super().__init__(name, dtype)
+        self.dim = dim
 
 
 class SparseFeature(Feature):
