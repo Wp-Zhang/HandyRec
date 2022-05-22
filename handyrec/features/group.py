@@ -364,7 +364,7 @@ class EmbdFeatureGroup:
         features: List[Feature],
         feature_pool: FeaturePool,
         value_dict: Dict[str, np.ndarray],
-        embd_dim: int,
+        embd_dim: int = None,
         l2_embd: float = 1e-6,
         pool_method: str = "mean",
     ):
@@ -433,9 +433,10 @@ class EmbdFeatureGroup:
                 self._layers[feat.name + "_pool"] = SequencePoolingLayer(
                     pool_method, name=feat.name + "_" + pool_method
                 )
-        self._output_layer = Dense(embd_dim, name="reduce_dim")
+        if self.embd_dim is not None:
+            self._output_layer = Dense(self.embd_dim, name="reduce_dim")
 
-    def get_embd(self, index: Input, compress: bool = True) -> tf.Tensor:
+    def get_embd(self, index: Input, compress: bool = False) -> tf.Tensor:
         """Concatenate all features in this group and output a tensor that is ready for lookup.
 
         Parameters

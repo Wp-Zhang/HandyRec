@@ -1,0 +1,49 @@
+FeatureGroups:
+    item_seq_feat_group:
+        type: "FeatureGroup"
+        name: "item_seq"
+
+        SparseSeqFeatures:
+            hist_movie:
+                unit:
+                    movie_id:
+                        embedding_dim: 8
+                seq_len: 2
+
+    neg_item_seq_feat_group:
+        type: "FeatureGroup"
+        name: "neg_item_seq"
+
+        SparseSeqFeatures:
+            neg_hist_movie:
+                unit:
+                    movie_id:
+                        embedding_dim: 8
+                seq_len: 2
+
+    other_feature_group:
+        type: "FeatureGroup"
+        name: "other_feats"
+
+        SparseFeatures:
+            user_id:
+                embedding_dim: 8
+            gender:
+                embedding_dim: 8
+            occupation:
+                embedding_dim: 8
+            zip:
+                embedding_dim: 8
+            age:
+                embedding_dim: 8
+            movie_id:
+                embedding_dim: 8
+            year:
+                embedding_dim: 8
+
+        SparseSeqFeatures:
+            genres:
+                unit:
+                    genre_id:
+                        embedding_dim: 8
+                seq_len: 3

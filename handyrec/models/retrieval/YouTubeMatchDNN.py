@@ -68,7 +68,7 @@ def YouTubeMatchDNN(
 
     user_dnn_input = concat(user_dense, user_sparse)
     item_id = item_feature_group.id_input
-    full_item_embd = item_feature_group.get_embd(item_id)
+    full_item_embd = item_feature_group.get_embd(item_id, compress=True)
 
     user_dnn_output = DNN(
         hidden_units=dnn_hidden_units,

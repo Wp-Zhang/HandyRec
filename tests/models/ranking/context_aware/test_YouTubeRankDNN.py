@@ -1,11 +1,6 @@
 from tests.test_helper import get_pointwise_dataset
 from handyrec.models.ranking import YouTubeRankDNN
-from handyrec.features import (
-    SparseFeature,
-    SparseSeqFeature,
-    FeatureGroup,
-    FeaturePool,
-)
+from handyrec.config import ConfigLoader
 import tensorflow as tf
 from tensorflow.keras.losses import binary_crossentropy
 
@@ -20,21 +15,12 @@ def test_YouTubeRankDNN():
         user_features, item_features, inter_features, 5
     )
     feature_dim = dataset.get_feature_dim(user_features, item_features, [])
+    feature_dim["genre_id"] = 19
 
-    feat_pool = FeaturePool()
-
-    rank_user_features = [
-        *[SparseFeature(x, feature_dim[x], 8) for x in user_features],
-        SparseSeqFeature(
-            SparseFeature("movie_id", feature_dim["movie_id"], 8), "hist_movie", 2
-        ),
-    ]
-    user_feature_group = FeatureGroup("user", rank_user_features, feat_pool)
-    rank_item_feats = [
-        *[SparseFeature(x, feature_dim[x], 8) for x in item_features[:-1]],
-        SparseSeqFeature(SparseFeature("genre_id", 19, 8), "genres", 3),
-    ]
-    item_feature_group = FeatureGroup("item", rank_item_feats, feat_pool)
+    cfg = ConfigLoader("tests/ml-1m-test/YouTubeRankDNN_cfg.yaml")
+    feature_groups = cfg.prepare_features(feature_dim)
+    user_feature_group = feature_groups["user_feature_group"]
+    item_feature_group = feature_groups["item_feature_group"]
 
     rank_model = YouTubeRankDNN(
         user_feature_group,

@@ -1,16 +1,9 @@
 from tests.test_helper import get_ml_test_data, get_pointwise_dataset
 from handyrec.models.retrieval import DSSM
 from handyrec.layers.utils import sampledsoftmaxloss
-from handyrec.features import (
-    SparseFeature,
-    SparseSeqFeature,
-    FeatureGroup,
-    EmbdFeatureGroup,
-    FeaturePool,
-)
+from handyrec.config import ConfigLoader
 import tensorflow as tf
 from tensorflow.keras import Model
-import numpy as np
 import pytest
 
 
@@ -25,32 +18,13 @@ def test_DSSM():
         user_features, item_features, inter_features, 5
     )
     feature_dim = dataset.get_feature_dim(user_features, item_features, [])
+    feature_dim["genre_id"] = 19
 
-    feat_pool1 = FeaturePool()
-    all_item_model_input = {
-        f: np.array(data["item"][f].tolist()) for f in item_features
-    }
-
-    retrieve_item_features = [
-        SparseFeature("movie_id", feature_dim["movie_id"], 8),
-        SparseSeqFeature(SparseFeature("genre_id", 19, 8), "genres", 3),
-    ]
-    item_feature_group = EmbdFeatureGroup(
-        name="item",
-        id_name="movie_id",
-        features=retrieve_item_features,
-        feature_pool=feat_pool1,
-        value_dict=all_item_model_input,
-        embd_dim=8,
-    )
-
-    retrieve_user_features = [
-        *[SparseFeature(x, feature_dim[x], 8) for x in user_features],
-        SparseSeqFeature(
-            SparseFeature("movie_id", feature_dim["movie_id"], 8), "hist_movie", 2
-        ),
-    ]
-    user_feature_group = FeatureGroup("user", retrieve_user_features, feat_pool1)
+    cfg = ConfigLoader("tests/ml-1m-test/DSSM_cfg.yaml")
+    feature_groups = cfg.prepare_features(feature_dim, data)
+    full_item_model_input = feature_groups["value_dict"]
+    user_feature_group = feature_groups["user_feature_group"]
+    item_feature_group = feature_groups["item_feature_group"]
 
     # * --------------------------------------------------
 
@@ -90,7 +64,7 @@ def test_DSSM():
     )
 
     user_embs = user_embedding_model.predict(test_data, batch_size=5)
-    item_embs = item_embedding_model.predict(all_item_model_input, batch_size=5)
+    item_embs = item_embedding_model.predict(full_item_model_input, batch_size=5)
 
     assert user_embs.shape == (test_data["user_id"].shape[0], 8)
-    assert item_embs.shape == (all_item_model_input["movie_id"].shape[0], 8)
+    assert item_embs.shape == (full_item_model_input["movie_id"].shape[0], 8)

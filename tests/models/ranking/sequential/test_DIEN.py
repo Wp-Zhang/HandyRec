@@ -1,11 +1,7 @@
 from tests.test_helper import get_sequencewise_dataset
 from handyrec.models.ranking import DIEN
-from handyrec.features import (
-    SparseFeature,
-    SparseSeqFeature,
-    FeatureGroup,
-    FeaturePool,
-)
+from handyrec.config import ConfigLoader
+from handyrec.features import FeatureGroup
 
 import tensorflow as tf
 from tensorflow.keras.losses import binary_crossentropy
@@ -22,31 +18,18 @@ def test_DIEN():
         user_features, item_features, inter_features, 5
     )
     feature_dim = dataset.get_feature_dim(user_features, item_features, [])
+    feature_dim["genre_id"] = 19
 
-    feat_pool = FeaturePool()
-
-    item_seq_features = [
-        SparseSeqFeature(
-            SparseFeature("movie_id", feature_dim["movie_id"], 8), "hist_movie", 2
-        )
-    ]
-    neg_item_seq_features = [
-        SparseSeqFeature(
-            SparseFeature("movie_id", feature_dim["movie_id"], 8), "neg_hist_movie", 2
-        )
-    ]
-    item_seq_feat_group = FeatureGroup("item_seq", item_seq_features, feat_pool)
-    neg_item_seq_feat_group = FeatureGroup(
-        "neg_item_seq", neg_item_seq_features, feat_pool
-    )
-    rank_other_feats = [
-        SparseFeature(x, feature_dim[x], 8) for x in user_features + item_features[:-1]
-    ] + [SparseSeqFeature(SparseFeature("genre_id", 19, 8), "genres", 3)]
-    other_feature_group = FeatureGroup("user", rank_other_feats, feat_pool)
+    cfg = ConfigLoader("tests/ml-1m-test/DIEN_cfg.yaml")
+    feature_groups = cfg.prepare_features(feature_dim)
+    item_seq_feat_group = feature_groups["item_seq_feat_group"]
+    neg_item_seq_feat_group = feature_groups["neg_item_seq_feat_group"]
+    other_feature_group = feature_groups["other_feature_group"]
 
     # * --------------------------------------------------------------------------------
 
     with pytest.raises(ValueError):
+        feat_pool = feature_groups["feature_pool"]
         neg_item_seq_feat_group2 = FeatureGroup("neg_item_seq", [], feat_pool)
         rank_model = DIEN(
             item_seq_feat_group,

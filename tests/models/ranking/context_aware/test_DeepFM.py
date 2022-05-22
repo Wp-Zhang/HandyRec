@@ -1,12 +1,6 @@
 from tests.test_helper import get_pointwise_dataset
 from handyrec.models.ranking import DeepFM
-from handyrec.features import (
-    DenseFeature,
-    SparseFeature,
-    SparseSeqFeature,
-    FeatureGroup,
-    FeaturePool,
-)
+from handyrec.config import ConfigLoader
 import tensorflow as tf
 from tensorflow.keras.losses import binary_crossentropy
 import pytest
@@ -22,21 +16,12 @@ def test_DeepFM():
         user_features, item_features, inter_features, 5
     )
     feature_dim = dataset.get_feature_dim(user_features, item_features, [])
+    feature_dim["genre_id"] = 19
 
-    feat_pool = FeaturePool()
-
-    rank_fm_features = [
-        *[SparseFeature(x, feature_dim[x], 8) for x in user_features],
-        SparseSeqFeature(
-            SparseFeature("movie_id", feature_dim["movie_id"], 8), "hist_movie", 2
-        ),
-        *[SparseFeature(x, feature_dim[x], 8) for x in item_features[:1]],
-        *[SparseSeqFeature(SparseFeature("genre_id", 19, 8), "genres", 3)],
-        DenseFeature("year", dtype="int32"),
-    ]
-    fm_feature_group = FeatureGroup("FM", rank_fm_features, feat_pool)
-    rank_dnn_feats = rank_fm_features
-    dnn_feature_group = FeatureGroup("DNN", rank_dnn_feats, feat_pool)
+    cfg = ConfigLoader("tests/ml-1m-test/DeepFM_cfg.yaml")
+    feature_groups = cfg.prepare_features(feature_dim)
+    fm_feature_group = feature_groups["fm_feature_group"]
+    dnn_feature_group = feature_groups["dnn_feature_group"]
 
     # * ----------------------------------------------------------------------
 
