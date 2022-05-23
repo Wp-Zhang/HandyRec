@@ -5,18 +5,20 @@ FeatureGroups:
 
         SparseFeatures:
             user_id:
-                embedding_dim: 8
+                embedding_dim: 32
             gender:
-                embedding_dim: 8
+                embedding_dim: 4
             occupation:
-                embedding_dim: 8
+                embedding_dim: 16
+            zip:
+                embedding_dim: 32
 
         SparseSeqFeatures:
             hist_movie:
                 unit:
                     movie_id:
-                        embedding_dim: 8
-                seq_len: 2
+                        embedding_dim: 32
+                seq_len: 40
 
     item_feature_group:
         type: "FeatureGroup"
@@ -24,11 +26,15 @@ FeatureGroups:
 
         SparseFeatures:
             movie_id:
-                embedding_dim: 8
+                embedding_dim: 32
 
         SparseSeqFeatures:
             genres:
                 unit:
                     genre_id:
                         embedding_dim: 8
-                seq_len: 3
+                seq_len: 6
+
+Model:
+    dnn_hidden_units: [128, 64]
+    dnn_dropout: 0.1

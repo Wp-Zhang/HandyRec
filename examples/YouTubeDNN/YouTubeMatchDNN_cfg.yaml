@@ -3,13 +3,11 @@ FeatureGroups:
         type: "EmbdFeatureGroup"
         name: "item"
         id_name: "movie_id"
-        l2_embd: 1e-7
-        embd_dim: 8
-        pool_method: "sum"
+        embd_dim: 64
 
         SparseFeatures:
             movie_id:
-                embedding_dim: 64
+                embedding_dim: 32
 
         SparseSeqFeatures:
             genres:
@@ -24,15 +22,21 @@ FeatureGroups:
 
         SparseFeatures:
             user_id:
-                embedding_dim: 64
+                embedding_dim: 32
             gender:
                 embedding_dim: 4
             occupation:
-                embedding_dim: 32
+                embedding_dim: 16
 
         SparseSeqFeatures:
             hist_movie:
                 unit:
                     movie_id:
-                        embedding_dim: 64
+                        embedding_dim: 32
                 seq_len: 40
+
+Model:
+    dnn_hidden_units: [128, 64]
+    dnn_dropout: 0.1
+    dnn_bn: True
+    num_sampled: 100
