@@ -1,8 +1,26 @@
 FeatureGroups:
+    user_feature_group:
+        type: "FeatureGroup"
+        name: "user"
+
+        SparseFeatures:
+            user_id:
+                embedding_dim: 8
+            gender:
+                embedding_dim: 8
+            occupation:
+                embedding_dim: 8
+
+        SparseSeqFeatures:
+            hist_movie:
+                unit:
+                    movie_id:
+                        embedding_dim: 8
+                seq_len: 2
+
     item_feature_group:
-        type: "EmbdFeatureGroup"
+        type: "FeatureGroup"
         name: "item"
-        id_name: "movie_id"
 
         SparseFeatures:
             movie_id:
@@ -14,22 +32,3 @@ FeatureGroups:
                     genre_id:
                         embedding_dim: 8
                 seq_len: 3
-
-    user_feature_group:
-        type: "FeatureGroup"
-        name: "user"
-
-        SparseFeatures:
-            user_id:
-                embedding_dim: 8
-            gender:
-                embedding_dim: 4
-            occupation:
-                embedding_dim: 8
-
-        SparseSeqFeatures:
-            hist_movie:
-                unit:
-                    movie_id:
-                        embedding_dim: 8
-                seq_len: 2
