@@ -3,23 +3,20 @@ FeatureGroups:
         type: "FeatureGroup"
         name: "FM"
 
-        DenseFeatures:
-            year:
-                dim: 1
-                dtype: "int32"
-
         SparseFeatures:
             user_id:
                 embedding_dim: 32
             gender:
-                embedding_dim: 4
+                embedding_dim: 32
             occupation:
-                embedding_dim: 16
+                embedding_dim: 32
             zip:
                 embedding_dim: 32
             age:
-                embedding_dim: 16
+                embedding_dim: 32
             movie_id:
+                embedding_dim: 32
+            year:
                 embedding_dim: 32
 
         SparseSeqFeatures:
@@ -31,30 +28,27 @@ FeatureGroups:
             genres:
                 unit:
                     genre_id:
-                        embedding_dim: 8
+                        embedding_dim: 32
                 seq_len: 6
 
     dnn_feature_group:
         type: "FeatureGroup"
         name: "DNN"
 
-        DenseFeatures:
-            year:
-                dim: 1
-                dtype: "int32"
-
         SparseFeatures:
             user_id:
                 embedding_dim: 32
             gender:
-                embedding_dim: 4
+                embedding_dim: 32
             occupation:
-                embedding_dim: 16
+                embedding_dim: 32
             zip:
                 embedding_dim: 32
             age:
-                embedding_dim: 16
+                embedding_dim: 32
             movie_id:
+                embedding_dim: 32
+            year:
                 embedding_dim: 32
 
         SparseSeqFeatures:
@@ -66,11 +60,11 @@ FeatureGroups:
             genres:
                 unit:
                     genre_id:
-                        embedding_dim: 8
+                        embedding_dim: 32
                 seq_len: 6
 
 Model:
-    dnn_hidden_units: [128, 64, 1]
-    dnn_dropout: 0.1
-    l2_dnn: 0.1
+    dnn_hidden_units: [256, 128, 1]
+    dnn_dropout: 0.2
+    l2_dnn: 0.2
     dnn_bn: True
