@@ -7,8 +7,8 @@ FeatureGroups:
             hist_movie:
                 unit:
                     movie_id:
-                        embedding_dim: 8
-                seq_len: 2
+                        embedding_dim: 32
+                seq_len: 40
 
     other_feature_group:
         type: "FeatureGroup"
@@ -16,23 +16,35 @@ FeatureGroups:
 
         SparseFeatures:
             user_id:
-                embedding_dim: 8
+                embedding_dim: 32
             gender:
-                embedding_dim: 8
+                embedding_dim: 4
             occupation:
-                embedding_dim: 8
+                embedding_dim: 16
             zip:
-                embedding_dim: 8
+                embedding_dim: 32
             age:
-                embedding_dim: 8
+                embedding_dim: 16
             movie_id:
-                embedding_dim: 8
+                embedding_dim: 32
             year:
-                embedding_dim: 8
+                embedding_dim: 16
 
         SparseSeqFeatures:
             genres:
                 unit:
                     genre_id:
                         embedding_dim: 8
-                seq_len: 3
+                seq_len: 6
+
+Model:
+    dnn_hidden_units: [256, 128, 1]
+    dnn_activation: "dice"
+    dnn_dropout: 0.2
+    l2_dnn: 0.2
+    dnn_bn: True
+    lau_dnn_hidden_units: [36, 1]
+    lau_dnn_activation: "dice"
+    lau_dnn_dropout: 0.
+    lau_l2_dnn: 0.2
+    lau_dnn_bn: False
