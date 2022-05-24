@@ -10,29 +10,29 @@ FeatureGroups:
 
         SparseFeatures:
             user_id:
-                embedding_dim: 8
+                embedding_dim: 32
             gender:
-                embedding_dim: 8
+                embedding_dim: 4
             occupation:
-                embedding_dim: 8
+                embedding_dim: 16
             zip:
-                embedding_dim: 8
+                embedding_dim: 32
             age:
-                embedding_dim: 8
+                embedding_dim: 16
             movie_id:
-                embedding_dim: 8
+                embedding_dim: 32
 
         SparseSeqFeatures:
             hist_movie:
                 unit:
                     movie_id:
-                        embedding_dim: 8
-                seq_len: 2
+                        embedding_dim: 32
+                seq_len: 40
             genres:
                 unit:
                     genre_id:
                         embedding_dim: 8
-                seq_len: 3
+                seq_len: 6
 
     dnn_feature_group:
         type: "FeatureGroup"
@@ -45,26 +45,32 @@ FeatureGroups:
 
         SparseFeatures:
             user_id:
-                embedding_dim: 8
+                embedding_dim: 32
             gender:
-                embedding_dim: 8
+                embedding_dim: 4
             occupation:
-                embedding_dim: 8
+                embedding_dim: 16
             zip:
-                embedding_dim: 8
+                embedding_dim: 32
             age:
-                embedding_dim: 8
+                embedding_dim: 16
             movie_id:
-                embedding_dim: 8
+                embedding_dim: 32
 
         SparseSeqFeatures:
             hist_movie:
                 unit:
                     movie_id:
-                        embedding_dim: 8
-                seq_len: 2
+                        embedding_dim: 32
+                seq_len: 40
             genres:
                 unit:
                     genre_id:
                         embedding_dim: 8
-                seq_len: 3
+                seq_len: 6
+
+Model:
+    dnn_hidden_units: [128, 64, 1]
+    dnn_dropout: 0.1
+    l2_dnn: 0.1
+    dnn_bn: True
