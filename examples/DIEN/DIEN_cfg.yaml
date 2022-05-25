@@ -28,24 +28,14 @@ FeatureGroups:
         SparseFeatures:
             user_id:
                 embedding_dim: 32
-            gender:
-                embedding_dim: 4
-            occupation:
-                embedding_dim: 16
-            zip:
-                embedding_dim: 32
-            age:
-                embedding_dim: 16
             movie_id:
                 embedding_dim: 32
-            year:
-                embedding_dim: 16
 
         SparseSeqFeatures:
             genres:
                 unit:
                     genre_id:
-                        embedding_dim: 8
+                        embedding_dim: 16
                 seq_len: 6
 
 Model:
