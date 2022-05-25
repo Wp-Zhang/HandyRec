@@ -7,5 +7,9 @@ FeatureGroups:
             hist_movie:
                 unit:
                     movie_id:
-                        embedding_dim: 8
-                seq_len: 2
+                        embedding_dim: 32
+                seq_len: 40
+
+Model:
+    dropout: 0.5
+    block_num: 3
