@@ -1,0 +1,70 @@
+FeatureGroups:
+    fm_feature_group:
+        type: "FeatureGroup"
+        name: "FM"
+
+        SparseFeatures:
+            user_id:
+                embedding_dim: 32
+            gender:
+                embedding_dim: 32
+            occupation:
+                embedding_dim: 32
+            zip:
+                embedding_dim: 32
+            age:
+                embedding_dim: 32
+            movie_id:
+                embedding_dim: 32
+            year:
+                embedding_dim: 32
+
+        SparseSeqFeatures:
+            hist_movie:
+                unit:
+                    movie_id:
+                        embedding_dim: 32
+                seq_len: 40
+            genres:
+                unit:
+                    genre_id:
+                        embedding_dim: 32
+                seq_len: 6
+
+    dnn_feature_group:
+        type: "FeatureGroup"
+        name: "DNN"
+
+        SparseFeatures:
+            user_id:
+                embedding_dim: 32
+            gender:
+                embedding_dim: 32
+            occupation:
+                embedding_dim: 32
+            zip:
+                embedding_dim: 32
+            age:
+                embedding_dim: 32
+            movie_id:
+                embedding_dim: 32
+            year:
+                embedding_dim: 32
+
+        SparseSeqFeatures:
+            hist_movie:
+                unit:
+                    movie_id:
+                        embedding_dim: 32
+                seq_len: 40
+            genres:
+                unit:
+                    genre_id:
+                        embedding_dim: 32
+                seq_len: 6
+
+Model:
+    dnn_hidden_units: [256, 128, 1]
+    dnn_dropout: 0.2
+    l2_dnn: 0.2
+    dnn_bn: True

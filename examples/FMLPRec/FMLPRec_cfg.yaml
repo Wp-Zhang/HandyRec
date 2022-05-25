@@ -1,0 +1,15 @@
+FeatureGroups:
+    item_seq_feat_group:
+        type: "FeatureGroup"
+        name: "item_seq"
+
+        SparseSeqFeatures:
+            hist_movie:
+                unit:
+                    movie_id:
+                        embedding_dim: 32
+                seq_len: 40
+
+Model:
+    dropout: 0.5
+    block_num: 3

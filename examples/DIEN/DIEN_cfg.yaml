@@ -1,0 +1,53 @@
+FeatureGroups:
+    item_seq_feat_group:
+        type: "FeatureGroup"
+        name: "item_seq"
+
+        SparseSeqFeatures:
+            hist_movie:
+                unit:
+                    movie_id:
+                        embedding_dim: 32
+                seq_len: 15
+
+    neg_item_seq_feat_group:
+        type: "FeatureGroup"
+        name: "neg_item_seq"
+
+        SparseSeqFeatures:
+            neg_hist_movie:
+                unit:
+                    movie_id:
+                        embedding_dim: 32
+                seq_len: 15
+
+    other_feature_group:
+        type: "FeatureGroup"
+        name: "other_feats"
+
+        SparseFeatures:
+            user_id:
+                embedding_dim: 32
+            movie_id:
+                embedding_dim: 32
+
+        SparseSeqFeatures:
+            genres:
+                unit:
+                    genre_id:
+                        embedding_dim: 16
+                seq_len: 6
+
+Model:
+    gru_dropout: 0.1
+    lau_dnn_hidden_units: [36, 1]
+    lau_dnn_activation: "dice"
+    lau_dnn_dropout: 0.
+    lau_l2_dnn: 0.2
+    lau_dnn_bn: False
+    augru_units: 64
+    dnn_hidden_units: [256, 128, 1]
+    dnn_activation: "dice"
+    dnn_dropout: 0.2
+    l2_dnn: 0.2
+    dnn_bn: True
